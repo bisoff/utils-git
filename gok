@@ -1,0 +1,3 @@
+#!/bin/bash
+goc "$*"
+git push #all --all

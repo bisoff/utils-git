@@ -1,0 +1,10 @@
+#!/bin/bash
+if [[ "$1" == "" ]];then
+	commits_num=10
+  else
+  	commits_num=$1
+  fi
+echo "ADDED   DELETED"
+git log -n $commits_num --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+
+#git log --numstat --pretty --oneline 0f5d22e..HEAD -- <filename>

@@ -1,0 +1,14 @@
+#!/bin/bash
+[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && exit
+msg=$1
+#pwd | tr 'a-z' 'A-Z'
+get_branch() { 
+	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' 
+}
+#echo -e "\033[0;34;48m sss \033[m"
+echo -e "BRANCH: \033[0;32;40m$(get_branch)\033[m"
+git add -A .
+[[ "$msg" == "" ]] && msg=up
+git commit -m "$(echo $GITHOST)-$msg" # $(date +'%d.%m.%y_%k:%M')
+gilf 1
+# exit

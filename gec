@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+pwd | tr 'a-z' 'A-Z'
+git fetch

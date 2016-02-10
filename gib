@@ -1,0 +1,18 @@
+#!/bin/bash
+if [[ "$1" == "" ]]; then
+	git branch -vv -a
+  else
+  	branch=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "^$1")
+	if [[ "$branch" == "" ]]; then
+		li=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "$1")
+		cn=$[$(echo "$li" | wc -l)]
+		#echo "$cn"
+		[[ $cn == 0 ]] && echo "Branch containing $1 - NOT FOUND " && exit
+		[[ $cn != 1 ]] && echo "Branch containing $1 - IS AMBIGUOUS " && echo "$cn: $li" && exit
+		#echo "Switching to $li"
+		git checkout $li
+	  else
+  		git checkout $branch
+  	  fi
+  fi
+

@@ -1,0 +1,32 @@
+#!/bin/bash
+find_branch() {
+	local mask=$1
+	#local __result_varname=$2
+	
+	# find all by <mask>*
+	local find_res=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "^$mask")
+	#echo find_res1: $find_res 1>&2
+	local cn=$[$(echo "$find_res" | wc -l)] # found count
+	[[ $cn > 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 1 #echo "$find_res" 1>&2 && 
+	
+	if [[ "$branch" != "" ]]; then 
+		__result=$find_res
+	  else # if not found at all
+		# find all by *<mask>*
+		local find_res=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "$mask") 
+		#echo find_res2: $find_res 1>&2
+		[[ "$find_res" == "" ]] && echo "Branch containing $mask - NOT FOUND " 1>&2 && exit 2 
+		#echo find_res:"$find_res"
+		cn=$[$(echo "$find_res" | wc -l)] # found count
+		[[ $cn > 1 ]] && echo "Branch containing $mask - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 3 #echo "$find_res" 1>&2 && 
+		__result=$find_res
+  	  fi
+  	echo $__result
+  	#local myresult="$__result"
+  	#echo myresult: $myresult
+  	#eval $__result="'$myresult'"
+}
+
+current_branch() {
+	echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+}

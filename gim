@@ -1,0 +1,13 @@
+#!/bin/bash
+source lib
+branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
+exitcode=$?
+#echo exitcode: $exitcode
+#echo current_branch: $(current_branch)
+[ $exitcode -ne 0 ] && echo not found && exit
+#[ $exitcode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && exit
+#[ $exitcode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && exit
+#[ $exitcode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && exit
+
+git merge $branch
+#echo done

@@ -1,5 +1,5 @@
 #!/bin/bash
-source lib
+. lib-git
 branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
 exitcode=$?
 #echo exitcode: $exitcode

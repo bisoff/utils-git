@@ -1,0 +1,10 @@
+#!/bin/bash
+. lib-git
+
+if [[ "$1" == "" ]]; then
+	git branch -avv
+  else
+  	branch=$(find_branch "$1") 
+  	[ $? -eq 0 ] && git checkout  $branch
+  fi
+

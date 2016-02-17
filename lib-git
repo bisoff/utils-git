@@ -7,9 +7,10 @@ find_branch() {
 	local find_res=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "^$mask")
 	#echo find_res1: $find_res 1>&2
 	local cn=$[$(echo "$find_res" | wc -l)] # found count
-	[[ $cn > 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 1 #echo "$find_res" 1>&2 && 
+	#echo cn: $cn 1>&2
+	[[ $cn -gt 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 1 #echo "$find_res" 1>&2 && 
 	
-	if [[ "$branch" != "" ]]; then 
+	if [[ "$find_res" != "" ]]; then 
 		__result=$find_res
 	  else # if not found at all
 		# find all by *<mask>*
@@ -34,22 +35,40 @@ current_branch() {
 
 current_remote() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD)
-	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND && return
-	echo $(git config branch.$curr_branch.remote)
+	#echo curr_branch: $curr_branch 1>&2
+	if [[ "$curr_branch" == "" ]]; then
+		echo "[current_remote]curr_branch NOT FOUND" 1>&2 && return
+	  else
+		remotes=$(git config branch.$curr_branch.remote)
+		if [[ "$remotes" == "" ]]; then
+			remotes=$(git remote show)
+			#echo "[current_remote] remotes: $remotes" 1>&2
+			local cn=$[$(echo "$remotes" | wc -l)]
+			[[ $cn -eq 1 ]] && echo $remotes && return
+		  else
+		  	echo $remotes
+		  fi
+	  fi	
+	
+	
 }
+
 
 curr_merge_branch() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD)
-	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND && return
+	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
 	echo $(git config branch.$curr_branch.merge | cut -d / -f 3)
 }
 
 ahead_behind() {
     curr_branch=$(git rev-parse --abbrev-ref HEAD)
-    [[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND && return
-    curr_remote=$(git config branch.$curr_branch.remote)
-    [[ "$curr_remote" == "" ]] && echo curr_remote NOT FOUND && return
+    [[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
+    curr_remote=$(current_remote)
+    [[ "$curr_remote" == "" ]] && echo -e "${red}[ahead_behind] curr_remote NOT FOUND$norm" 1>&2 && return
     curr_merge_branch=$(git config branch.$curr_branch.merge | cut -d / -f 3)
-    [[ "$curr_merge_branch" == "" ]] && echo curr_merge_branch NOT FOUND && return
+    if [[ "$curr_merge_branch" == "" ]]; then
+    	echo -e "${red}[ahead_behind] curr_merge_branch NOT FOUND$norm" 1>&2 #&& return
+    	curr_merge_branch=$curr_branch
+      fi
     git rev-list --left-right --count $curr_branch...$curr_remote/$curr_merge_branch | tr -s '\t' '|'
 }

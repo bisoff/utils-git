@@ -1,3 +1,4 @@
 #!/bin/bash
 goc "$*"
-git push #all --all
+#git push #all --all
+guk

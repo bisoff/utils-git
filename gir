@@ -2,4 +2,12 @@
 #git remote -v
 remotes=$(git remote show)
 #echo remotes: $remotes
-for name in $remotes; do git remote show $name; done
+for name in $remotes; do 
+	if [[ "$1" != "" ]]; then
+		remote=$(echo $name | grep "$1")
+		#echo remote: $remote
+		[[ "$name" == "$remote" ]] && git remote show $name
+	  else
+	  	git remote show $name
+	  fi
+  done

@@ -1,0 +1,13 @@
+#!/bin/bash
+. lib-git
+
+if [[ "$1" == "" ]]; then
+	echo branch name IS MISSED 1>&2 && return
+  else
+  	branch=$(find_branch "$1") 
+  	[[ "$branch" == "" ]] && echo -e "${red}branch NOT FOUND$norm" 1>&2 && exit
+  	curr_branch=$(current_branch)
+  	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
+  	git branch -d $branch
+  fi
+

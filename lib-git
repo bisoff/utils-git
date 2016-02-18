@@ -30,45 +30,106 @@ find_branch() {
 
 current_branch() {
 	#echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
-	echo $(git rev-parse --abbrev-ref HEAD)
+	echo $(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 }
 
 current_remote() {
-	curr_branch=$(git rev-parse --abbrev-ref HEAD)
+	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	#echo curr_branch: $curr_branch 1>&2
-	if [[ "$curr_branch" == "" ]]; then
-		echo "[current_remote]curr_branch NOT FOUND" 1>&2 && return
-	  else
-		remotes=$(git config branch.$curr_branch.remote)
+	if [[ "$curr_branch" != "" ]]; then
+		#echo "[current_remote]curr_branch NOT FOUND" 1>&2 && return
+	  #else
+		remotes=$(git config branch.$curr_branch.remote 2> /dev/null)
 		if [[ "$remotes" == "" ]]; then
 			remotes=$(git remote show)
 			#echo "[current_remote] remotes: $remotes" 1>&2
 			local cn=$[$(echo "$remotes" | wc -l)]
 			[[ $cn -eq 1 ]] && echo $remotes && return
 		  else
-		  	echo $remotes
+		  	echo "$green_dim->$remotes$norm"
 		  fi
 	  fi	
-	
-	
 }
 
-
 curr_merge_branch() {
-	curr_branch=$(git rev-parse --abbrev-ref HEAD)
+	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
-	echo $(git config branch.$curr_branch.merge | cut -d / -f 3)
+	echo $(git config branch.$curr_branch.merge 2> /dev/null | cut -d / -f 3)
 }
 
 ahead_behind() {
-    curr_branch=$(git rev-parse --abbrev-ref HEAD)
-    [[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
-    curr_remote=$(current_remote)
-    [[ "$curr_remote" == "" ]] && echo -e "${red}[ahead_behind] curr_remote NOT FOUND$norm" 1>&2 && return
-    curr_merge_branch=$(git config branch.$curr_branch.merge | cut -d / -f 3)
-    if [[ "$curr_merge_branch" == "" ]]; then
-    	echo -e "${red}[ahead_behind] curr_merge_branch NOT FOUND$norm" 1>&2 #&& return
-    	curr_merge_branch=$curr_branch
-      fi
-    git rev-list --left-right --count $curr_branch...$curr_remote/$curr_merge_branch | tr -s '\t' '|'
+	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+	[[ "$curr_branch" == "" ]] && return #&& echo "[ahead_behind] curr_branch NOT FOUND" 1>&2 
+	curr_remote=$(current_remote)
+	[[ "$curr_remote" == "" ]] && echo -e "${red}[ahead_behind] curr_remote NOT FOUND$norm" 1>&2 && return
+	curr_merge_branch=$(git config branch.$curr_branch.merge 2> /dev/null | cut -d / -f 3)
+	if [[ "$curr_merge_branch" == "" ]]; then
+		echo -e "${red}[ahead_behind] curr_merge_branch NOT FOUND$norm" 1>&2 #&& return
+		curr_merge_branch=$curr_branch
+	  fi
+	res=$(git rev-list --left-right --count $curr_branch...$curr_remote/$curr_merge_branch 2> /dev/null) #| tr -s '\t' "|\${red}"
+	arr=($(echo $res))
+	#echo ${#arr[*]} 1>&2
+	#echo ${arr[1]} 1>&2
+	[ ${arr[0]} -ne 0 ] && ahead="$green+${arr[0]}$norm"
+	[ ${arr[0]} -eq 0 ] && ahead="$cyan_dim${arr[0]}$norm"
+	[ ${arr[1]} -ne 0 ] && behind="$red-${arr[1]}$norm"
+	[ ${arr[1]} -eq 0 ] && behind="$cyan_dim${arr[1]}$norm"
+	echo -e "$ahead$cyan_dim:$norm$behind"
+	#↑n: ahead of remote by n commits
+	#↓n: behind remote by n commits
+	#L local branch, not remotely tracked
+}
+
+files_status () {
+	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
+	local total=$(echo "$all"| wc -l)
+	#echo total: $total 1>&2
+
+	local untracked=$(echo "$all"| grep -E "^\?\?" | wc -l)
+	untracked=`echo $untracked`
+	#echo "untracked:-$untracked" 1>&2
+	
+	local staged=$(echo "$all"| grep "^A" | wc -l)
+	staged=`echo $staged`
+	#echo staged: $staged 1>&2
+	
+	local changed=$(echo "$all"| grep -E "^.{0,1}M" | wc -l) # but unstaged
+	changed=`echo $changed`
+	#echo changed: $changed 1>&2
+	
+	local deleted=$(echo "$all"| grep -E "^.{0,1}D" | wc -l)
+	#deleted=`echo $deleted`
+	#echo deleted: $deleted 1>&2
+	
+	#local ignored=$(git status -s --ignored --porcelain 2> /dev/null)
+	#ignored=$(echo "$ignored"| grep "^!!" | wc -l)
+	#ignored=`echo $ignored`
+	#echo ignored: $ignored 1>&2
+
+	#✔: repository clean
+		#●n: there are n staged files
+	#✖n: there are n files with merge conflicts
+		#✚n: there are n changed but unstaged files
+	#…n: there are n untracked files
+	#⚑n: there are n stash entries
+	modi=$(( $staged + $changed ))
+	#echo modi: $modi 1>&2
+	local res
+	if [[ $total -gt 0 ]]; then
+		[[ $modi -gt 0 ]] && res=$res$(echo -e "${green}~$modi") #✚
+		res="$res$norm"
+		[[ $untracked -gt 0 ]] && res=$res$(echo -e "${green}+$untracked") #…
+		res="$res$norm"
+		[[ $deleted -gt 0 ]] && res=$res$(echo -e "${red}-$deleted") #✖
+		res="$res$norm"
+		#[[ $ignored -gt 0 ]] && res=$res$(echo -e "${grey} !$ignored") #…
+		#res="$res$norm"
+		echo -e " $res"
+	  fi
+}
+
+git_prompt(){
+	curr_branch=$(current_branch) 
+	[[ "$curr_branch" != "" ]] && echo -e " [$green $curr_branch$magenta_dim$(current_remote)$cyan_bold$(files_status)$cyan_bold ]$norm"
 }

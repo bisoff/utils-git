@@ -48,3 +48,4 @@ gos	<hash>		git show $1		# work <-> HEAD | <hash>
 ### Stash
 gost			git pop
 gust			git stash
+gib

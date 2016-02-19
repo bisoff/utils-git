@@ -44,9 +44,9 @@ current_remote() {
 			remotes=$(git remote show)
 			#echo "[current_remote] remotes: $remotes" 1>&2
 			local cn=$[$(echo "$remotes" | wc -l)]
-			[[ $cn -eq 1 ]] && echo $remotes && return
+			[[ $cn -eq 1 ]] && echo "$remotes" && return
 		  else
-		  	echo "$green_dim$remotes$norm"
+		  	echo "$remotes"
 		  fi
 	  fi	
 }
@@ -83,7 +83,7 @@ ahead_behind() {
 
 files_status () {
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
-	local total=$(echo "$all"| wc -l)
+	#local total=$(echo "$all"| wc -l)
 	#echo total: $total 1>&2
 
 	local untracked=$(echo "$all"| grep -E "^\?\?" | wc -l)
@@ -99,7 +99,7 @@ files_status () {
 	#echo changed: $changed 1>&2
 	
 	local deleted=$(echo "$all"| grep -E "^.{0,1}D" | wc -l)
-	#deleted=`echo $deleted`
+	deleted=`echo $deleted`
 	#echo deleted: $deleted 1>&2
 	
 	#local ignored=$(git status -s --ignored --porcelain 2> /dev/null)
@@ -116,7 +116,7 @@ files_status () {
 	modi=$(( $staged + $changed ))
 	#echo modi: $modi 1>&2
 	local res
-	if [[ $total -gt 0 ]]; then
+	if [[ $modi -gt 0 || $untracked -gt 0 || $deleted -gt 0 ]]; then
 		[[ $modi -gt 0 ]] && res=$res$(echo -e "${green}~$modi") #✚
 		res="$res$norm"
 		[[ $untracked -gt 0 ]] && res=$res$(echo -e "${green}+$untracked") #…
@@ -131,5 +131,5 @@ files_status () {
 
 git_prompt(){
 	curr_branch=$(current_branch) 
-	[[ "$curr_branch" != "" ]] && echo -e " [$green $curr_branch$magenta_dim->$(current_remote)$cyan_bold$(files_status)$cyan_bold ]$norm"
+	[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta_dim->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
 }

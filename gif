@@ -1,4 +1,0 @@
-#!/bin/bash
-#pwd | tr 'a-z' 'A-Z'
-echo -e "${red}git fetch$norm"
-git fetch -vv 2>&1 | grep "\-> "

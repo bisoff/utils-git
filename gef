@@ -1,2 +1,3 @@
 #!/bin/bash
-gif
+echo -e "${red}git fetch$norm"
+git fetch -vv 2>&1 | grep "\-> "

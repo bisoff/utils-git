@@ -8,20 +8,15 @@
 - g-help		print the file
 - gitsw			MSYS: change git version
 
-### Commit Fetch Push Pull 
- gec			~ gif
- gef			~ gif
-  gfe?
-gif			git fetch -vv		# fetch all remote branches
-gek			git pull
-goc	<msg>		git add -A .; git commit -m "$(echo $GITHOST)-$msg"
-gok	<msg>		goc "$*"; git push 
-guk			git push $curr_remote(only remote) $curr_branch -u
-
-### Branch (lookuped by substring !)
-gib	<branch>	git checkout <branch>  #switch to by
-gim	<branch>	git merge $branch>
-gimto	<branch>	git checkout $branch; git merge $currbranch; git checkout $currbranch
+### Config/Status
+gib			git branch -vv  	# only local branches	
+gibn          		git branch --no-merged  # not-merged branches (new)
+gibr 	<remote>	git branch -r -vv 	# info from remotes
+giba			git branch -vv -a 	# all branches - local and remote
+gibr			git branch -vv		# only remote branches	
+gir			git remote -v		# show remotes
+gis			git status --ignored	# files including untracked
+gic			ed gitconfig		# global params (aliases, colors, etc.)
 
 ### Log
 gih			git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
@@ -32,20 +27,23 @@ gilg+			git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s 
 gils	<commits_num>	git log -n $commits_num -last --pretty=format:"%h%x09%Creset%an%x09%x09%s" --decorate --numstat | grep -v "^$"  | grep -vE "^[0-9a-f]{7}" | grep -vE "^-"
 gils+	<commits_num>	git log -n $commits_num --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
-### Config/Status
-gib			git branch -vv  	# only local branches	
-gibn          		git branch --no-merged  
-gibr 	<remote>	git branch -r -vv 	# info from remotes
-giba			git branch -vv -a 	# all branches - local and remote
-gibr			git branch -vv		# only remote branches	
-gir			git remote -v		# show remotes
-gis			git status --ignored	# files including untracked
-
 ### Diff
 gid			git diff		# gis show??
 gos	<hash>		git show $1		# work <-> HEAD | <hash>
 
+### Commit Fetch Push Pull 
+gef			git fetch -vv		# fetch all remote branches
+gull			git pull
+gad	<msg>		git add -A .; git commit -m "$(echo $GITHOST)-$msg"
+gok	<msg>		goc "$*"; git push 
+gush			git push $curr_remote(only remote) $curr_branch -u
+
+### Branch (lookuped by substring !)
+gib	<branch>	git checkout <branch>  #switch to by
+gim	<branch>	git merge $branch>
+gimto	<branch>	git checkout $branch; git merge $currbranch; git checkout $currbranch
+
 ### Stash
-gost			git pop
-gust			git stash
-gib
+gst			git stash
+gpo			git pop
+gsl			git stash list

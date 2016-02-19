@@ -5,13 +5,14 @@ if [[ "$1" == "" ]];then
   else
   	commits_num=$1
   fi
-red="%C(red)" # "%x1b[31m"
+tab="%x09"
+ed="%C(red)" # "%x1b[31m"
 green="%C(green)" #"x1b[32m"
 norm="%x1b[0m"
 blue="%C(blue)" #"%x1b[33m%x1b[34m%x1b[40m"
 yellow="%C(yellow)"
 white="%C(reset)"
-tab="%x09"
+grey="%C(white dim)"
 
 HASH=%h
 TIME="%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08"
@@ -19,7 +20,7 @@ COMMIT="%s"
 BRANCH="%d"
 AUTHOR="%an"
 #git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"$red%h$green%d %x09% %s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
-git log --graph -n $commits_num --full-history --all --date=iso --color --pretty=format:"$red$HASH $tab$yellow$TIME $white$COMMIT $green$BRANCH $blue$AUTHOR $white"
+git log --graph -n $commits_num --full-history --all --date=iso --color --pretty=format:"$grey$HASH $tab$norm$yellow$TIME $white$COMMIT $green$BRANCH $blue$AUTHOR $white"
 
 
 #git log -n 20 --oneline --abbrev-commit --all --graph --pretty=format:"%C(yellow)%h%x09%Creset%x09%x09%s (%an)" $*

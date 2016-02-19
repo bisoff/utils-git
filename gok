@@ -1,4 +1,4 @@
 #!/bin/bash
-gad "$*"
+gco "$1"
 #git push #all --all
 gush

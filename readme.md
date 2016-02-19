@@ -29,6 +29,7 @@ gils+	<commits_num>	git log -n $commits_num --pretty=format:"%C(yellow)%h%Cred%d
 
 ### Diff
 gid			git diff		# gis show??
+gid	<hash>		git diff "$1" "$1~1"	# diffs in commit
 gos	<hash>		git show $1		# work <-> HEAD | <hash>
 
 ### Commit Fetch Push Pull 

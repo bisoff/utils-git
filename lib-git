@@ -46,7 +46,7 @@ current_remote() {
 			local cn=$[$(echo "$remotes" | wc -l)]
 			[[ $cn -eq 1 ]] && echo $remotes && return
 		  else
-		  	echo "$green_dim->$remotes$norm"
+		  	echo "$green_dim$remotes$norm"
 		  fi
 	  fi	
 }
@@ -131,5 +131,5 @@ files_status () {
 
 git_prompt(){
 	curr_branch=$(current_branch) 
-	[[ "$curr_branch" != "" ]] && echo -e " [$green $curr_branch$magenta_dim$(current_remote)$cyan_bold$(files_status)$cyan_bold ]$norm"
+	[[ "$curr_branch" != "" ]] && echo -e " [$green $curr_branch$magenta_dim->$(current_remote)$cyan_bold$(files_status)$cyan_bold ]$norm"
 }

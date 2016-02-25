@@ -6,9 +6,8 @@ msg=$1
 #echo -e "\033[0;34;48m sss \033[m"
 echo -e "BRANCH: $green$(current_branch)$norm"
 
-#test not staged and echo!
-
-[[ "$msg" == "" ]] && msg="$(echo $GITHOST)-up"
-git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
+git add -A .
+[[ "$msg" == "" ]] && msg=up
+git commit -m "$(echo $GITHOST)-$msg" # $(date +'%d.%m.%y_%k:%M')
 #gilf 1
 # exit

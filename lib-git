@@ -1,4 +1,19 @@
 #!/bin/bash
+tab="%x09"
+ed="%C(red)" # "%x1b[31m"
+git_green="%C(green)" #"x1b[32m"
+git_norm="%x1b[0m"
+git_blue="%C(blue)" #"%x1b[33m%x1b[34m%x1b[40m"
+git_yellow="%C(yellow)"
+git_white="%C(reset)"
+git_grey="%C(white dim)"
+
+HASH=%h
+TIME="%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08"
+COMMIT="%s"
+BRANCH="%d"
+AUTHOR="%an"
+
 find_branch() {
 	local mask=$1
 	#local __result_varname=$2

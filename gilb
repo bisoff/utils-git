@@ -2,13 +2,13 @@
 #git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
 . lib-git
 if [[ "$1" == "" ]];then
-	commits_num=10
+	commits_num=20
   else
   	commits_num=$1
   fi
 
 #git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"$red%h$green%d %x09% %s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
-git log --graph -n $commits_num --full-history --all --date=iso --color --pretty=format:"$git_grey$HASH $tab$git_norm$git_yellow$TIME $git_white$COMMIT $git_green$BRANCH $git_blue$AUTHOR $git_white" 
+git log --graph -n $commits_num --full-history --date=iso --color --pretty=format:"$git_grey$HASH $tab$git_norm$git_yellow$TIME $git_white$COMMIT $git_green$BRANCH $git_blue$AUTHOR $git_white" 
 #git log --graph -n $commits_num --full-history --all --date=format:'%m-%d' --color --pretty=format:"$grey$HASH $tab$norm$yellow%ad $white$COMMIT $green$BRANCH $blue$AUTHOR $white" # %Y-  %H:%M:%S
 
 #git log -n 20 --oneline --abbrev-commit --all --graph --pretty=format:"%C(yellow)%h%x09%Creset%x09%x09%s (%an)" $*

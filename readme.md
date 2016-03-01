@@ -46,14 +46,16 @@
 ### Branch (name looked up by substring ) ----------
 - gib	<branch>	# switch to by branch			git checkout <branch> 	
 - giba	<branch>	# switch to by branch		  	git checkout <branch> 	
+
+- gibn	<branch>	# create new branch			git checkout -b <branch> 
+
 - gibd  <branch>	# delete branch				git branch -d <branch>  # возможно если ветка была смержена
 - gibdd <branch>	# delete branch				git branch -D <branch>  # удалить в любом случае 
+
 - gim	<branch>	# merge from branch			git merge <branch>	
 - gimr	<branch>	# merge from branch (with pull remote)	git merge <branch>	
-- gimto	<branch>	# merge current branch with another	git checkout <branch>	
-								  git merge $currbranch
-								  git checkout $currbranch
-- gibn	<branch>	# create new branch			git checkout -b <branch> 
+- gimto	<branch>	# merge current branch to another	git checkout <branch>; git merge $currbranch; git checkout $currbranch
+
 
 ### Stash ------------------
 - gst			git stash

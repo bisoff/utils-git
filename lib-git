@@ -156,12 +156,12 @@ files_status () {
 
 		#[[ $ignored -gt 0 ]] && res=$res$(echo -e "${grey} !$ignored") #…
 		res="$res$norm"
-		echo -e " $res"
+		echo -e "$res"
 	  fi
 }
 
 git_prompt(){
 	curr_branch=$(current_branch) 
 	#[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
-	[[ "$curr_branch" != "" ]] && echo -e "$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$norm" #$green
+	[[ "$curr_branch" != "" ]] && echo -e "$green $curr_branch$magenta->$(current_remote) $cyan_bold$(files_status)$norm" #$green
 }

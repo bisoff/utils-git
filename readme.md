@@ -19,8 +19,9 @@
 - gir			# show remotes				git remote -v		
 - gis			# files including untracked		git status --ignored	
 
-- gic			# global params (aliases, colors, etc.)	ed gitconfig
-- gih			# edit readme.md			ed "$(dirname $0)/readme.md"
+- gec			# global git params 			ed ~/.gitconfig
+- gect			# repo params 				ed ./.git/config
+- geh			# edit readme.md			ed "$(dirname $0)/readme.md"
 
 
 ### Diff -----------------
@@ -31,15 +32,15 @@
 
 ### Commit Fetch Push Pull -----------------
 - gef			# fetch all remote branches		git fetch -vv		
-- gull			# pull (fetch and merge)		git pull
-- gad	<mask>		# stage all or by mask			git add -A .  OR  git add <mask>
+- gull		# pull (fetch and merge)		git pull
+- gus			# push 					git push $curr_remote(only remote) $curr_branch -u
+
+- ga	<mask>		# stage all or by mask			git add -A .  OR  git add <mask>
 - gac	<msg> 		# stage all and commit 			git add -A .; git commit -m "$msg"  # [[ "$msg" == "" ]]; $msg="$(echo $GITHOST)-up"
-- gco   <msg>		# commit staged				git commit -m "$msg"
-- gcom  <msg>		# commit ammend				git commit --amend -m "$1"
-- gcoma <msg>		# stage all & commit ammend		git commit --amend -m "$1"
-- gca   <msg>		# commit all				git commit -m "$msg"
-- gok	<msg>		# commit staged & push			gco "$*"; git push 
-- gush			# push 					git push $curr_remote(only remote) $curr_branch -u
+- gacm  <msg>		# stage all & commit ammend		git commit --amend -m "$1"
+- gc    <msg>		# commit staged				git commit -m "$msg"
+- gcm   <msg>		# commit ammend				git commit --amend -m "$1"
+- gok	<msg>		# commit staged & push			git add -A . ; git commit -m "$msg"; git push 
 
 
 ### Branch (name looked up by substring ) ----------

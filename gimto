@@ -1,8 +1,12 @@
 #!/bin/bash
 . lib-git
+
 currbranch=$(current_branch)
 echo currbranch: $currbranch
+
 tobranch=$(find_branch "$1")
+echo tobranch: $tobranch
+
   # [ $? -eq 0 ] 
 if [[ "$tobranch" != "" ]]; then
 	git checkout $branch

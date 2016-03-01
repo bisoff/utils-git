@@ -1,4 +1,4 @@
 #!/bin/bash
-gcoa "$1"
+gca "$1"
 #git push #all --all
 gus

@@ -141,20 +141,21 @@ files_status () {
 	if [[ $modi -gt 0 || $untracked -gt 0 || $deleted -gt 0 ]]; then
 		#[[ $modi -gt 0 ]] && res=$res$(echo -e "${green}~$modi") #✚
 		#res="$res$norm"
-		[[ $staged -gt 0 ]] && res=$res$(echo -e "${green}+$staged") #✚
-		res="$res$norm"
+		[[ $staged -gt 0 ]] && res=$res$(echo -e "${green}+$staged ") #✚
+		#res="$res$norm"
 
-		[[ $changed -gt 0 ]] && res=$res$(echo -e "${yellow}~$changed") #✚
-		res="$res$norm"
+		[[ $changed -gt 0 ]] && res=$res$(echo -e "${yellow_bright}~$changed ") #✚
+		#[[ $changed -gt 0 ]] && res=$res$(echo -e "${yellow}=$changed$norm") #✚
+		#res="$res$norm"
 
-		[[ $deleted -gt 0 ]] && res=$res$(echo -e "${red}-$deleted") #✖
-		res="$res$norm"
+		[[ $deleted -gt 0 ]] && res=$res$(echo -e "${red}-$deleted ") #✖
+		#res="$res$norm"
 
-		[[ $untracked -gt 0 ]] && res=$res$(echo -e "${red_bright} ?$untracked") #…
-		res="$res$norm"
+		[[ $untracked -gt 0 ]] && res=$res$(echo -e "${red_bright}?$untracked ") #…
+		#res="$res$norm"
 
 		#[[ $ignored -gt 0 ]] && res=$res$(echo -e "${grey} !$ignored") #…
-		#res="$res$norm"
+		res="$res$norm"
 		echo -e " $res"
 	  fi
 }
@@ -162,5 +163,5 @@ files_status () {
 git_prompt(){
 	curr_branch=$(current_branch) 
 	#[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
-	[[ "$curr_branch" != "" ]] && echo -e "$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green$norm "
+	[[ "$curr_branch" != "" ]] && echo -e "$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$norm" #$green
 }

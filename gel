@@ -1,0 +1,2 @@
+#!/bin/bash
+ed "$(dirname $0)/lib-git"

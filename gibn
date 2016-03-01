@@ -1,2 +1,8 @@
 #!/bin/bash
-git branch --no-merged
+#. lib-git
+if [[ "$1" == "" ]]; then
+	echo "first param must be Name"
+  else
+  	git checkout -b "$1"
+  fi
+

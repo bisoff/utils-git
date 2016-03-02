@@ -1,6 +1,5 @@
 #!/bin/bash
 . lib-git
-#echo -e "\033[0;34;48m sss \033[m"
 echo -e "BRANCH: $green$(current_branch)$norm"
 files="$1"
 [[ "$files" == "" ]] && git add -A .

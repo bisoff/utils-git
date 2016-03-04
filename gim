@@ -2,9 +2,22 @@
 . lib-git
 branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
 exitcode=$?
+[ $exitcode -ne 0 ] && echo not found && exit
+echo from branch: $branch
+
+currbranch=$(current_branch)
+echo currbranch: $currbranch
+
+git checkout $branch
+  [ $? -ne 0 ] && exit
+gul # fetch and merge
+  [ $? -ne 0 ] && exit
+
+git checkout $currbranch
+  [ $? -ne 0 ] && echo "FAIL! ANOTHER BRANCH !!" && exit
+
 #echo exitcode: $exitcode
 #echo current_branch: $(current_branch)
-[ $exitcode -ne 0 ] && echo not found && exit
 #[ $exitcode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && exit
 #[ $exitcode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && exit
 #[ $exitcode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && exit

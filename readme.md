@@ -52,8 +52,8 @@
 - gibd  <branch>	# delete branch				git branch -d <branch>  # возможно если ветка была смержена
 - gibdd <branch>	# delete branch				git branch -D <branch>  # удалить в любом случае 
 
-- gim	<branch>	# merge from branch			git merge <branch>	
-- gimr	<branch>	# merge from branch (with pull remote)	git merge <branch>	
+- gim	<branch>	# merge from branch (with pull before)	git merge <branch>
+- giml  <branch>   	# merge from branch (with local branch)	git merge <branch>  
 - gimto	<branch>	# merge current branch to another	git checkout <branch>; git merge $currbranch; git checkout $currbranch
 
 

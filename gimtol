@@ -9,12 +9,10 @@ echo tobranch: $tobranch
 
   # [ $? -eq 0 ] 
 if [[ "$tobranch" != "" ]]; then
-	git checkout $tobranch
-	  [ $? -ne 0 ] && exit
-	gul # fetch and merge
+	git checkout $branch
 	  [ $? -ne 0 ] && exit
 	git merge $currbranch
 	  [ $? -ne 0 ] && exit
 	git checkout $currbranch
-	#gil 7
+	gil 7
   fi

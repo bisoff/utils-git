@@ -1,0 +1,10 @@
+#!/bin/bash
+# rename current remote
+
+[[ "$1" == "" ]] && echo "[RENAME REMOTE] New name is missed !" && exit
+#remotes=$(ls -1)
+remotes=$(git remote show)
+#echo remotes: $remotes
+remotes_cnt=$(echo -e "$remotes" | wc -l)
+#echo remotes_cnt: $remotes_cnt
+[[ $remotes_cnt -eq 1 ]] && git remote rename $remotes "$1"

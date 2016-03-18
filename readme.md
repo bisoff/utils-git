@@ -8,6 +8,18 @@
 - g-help		print the file
 - gitsw			MSYS: change git version
 
+### Commit Fetch Push Pull -----------------
+- gef			# fetch all remote branches		git fetch -vv		
+- gull			# pull (fetch and merge)		git pull
+- gus			# push 					git push $curr_remote(only remote) $curr_branch -u
+
+- ga	<mask>		# stage all or by mask			git add -A .  OR  git add <mask>
+- gas	<mask>		# stage by mask, commit & push		ga gc gus
+- gac	<msg> 		# stage all and commit 			git add -A .; git commit -m "$msg"  # [[ "$msg" == "" ]]; $msg="$(echo $GITHOST)-up"
+- gacm  <msg>		# stage all & commit ammend		git commit --amend -m "$1"
+- gc    <msg>		# commit staged				git commit -m "$msg"
+- gcm   <msg>		# commit ammend				git commit --amend -m "$1"
+- gok	<msg>		# commit staged & push			git add -A . ; git commit -m "$msg"; git push 
 
 ### Config/Status -----------------
 - gib			# show local branches			git branch -vv  	
@@ -29,18 +41,6 @@
 - gid	<hash>		# diffs in commit			git diff "$1" "$1~1"	
 - gos	<hash>		# work <-> HEAD | <hash>		git show $1		
 
-
-### Commit Fetch Push Pull -----------------
-- gef			# fetch all remote branches		git fetch -vv		
-- gull		# pull (fetch and merge)		git pull
-- gus			# push 					git push $curr_remote(only remote) $curr_branch -u
-
-- ga	<mask>		# stage all or by mask			git add -A .  OR  git add <mask>
-- gac	<msg> 		# stage all and commit 			git add -A .; git commit -m "$msg"  # [[ "$msg" == "" ]]; $msg="$(echo $GITHOST)-up"
-- gacm  <msg>		# stage all & commit ammend		git commit --amend -m "$1"
-- gc    <msg>		# commit staged				git commit -m "$msg"
-- gcm   <msg>		# commit ammend				git commit --amend -m "$1"
-- gok	<msg>		# commit staged & push			git add -A . ; git commit -m "$msg"; git push 
 
 
 ### Branch (name looked up by substring ) ----------

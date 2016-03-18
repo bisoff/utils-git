@@ -1,0 +1,12 @@
+#!/bin/bash
+# add by mask, commit and push
+
+files="$1"
+msg=$2
+[[ "$files" == "" ]] && echo "[ADD AND PUSH] mask is missed !" && exit
+
+ga "$files"
+gc $msg
+gus
+
+

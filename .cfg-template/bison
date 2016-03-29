@@ -1,0 +1,41 @@
+#!/bin/bash
+export PATH=$PATH:~/prj/utils-git
+#export PATH=$PATH:/usr/bin #/usrlocal/opt/go/libexec/bin  - ??
+
+export GITUSER=bisoff
+export GITHOST=sk2
+
+export rectangle=""
+#export rectangle=`echo -e "\xE2\x88\x8E"`
+#export rectangle=`echo -e "\xF0\x9F\x80\xAB"`
+#export rectangle=`echo -e "\xE2\x97\xBC\xEF\xB8\x8E"`
+#export rectangle=`echo -e "\xE2\xA9\xA9"`
+
+#export triangle=`echo -e "\xE2\x96\xB6\xEF\xB8\x8E"`
+export triangle=`echo -e "\xE2\x96\xBA"`
+#export triangle=`echo -e "\xE2\xAB\xB8"`
+# ⩩ TRIPLE HORIZONTAL BAR WITH TRIPLE VERTICAL STROKE E2 A9 A9
+# ∎ END OF PROOF E2 88 8E
+# ◼︎ BLACK MEDIUM SQUARE E2 97 BC EF B8 8E
+# 🀫 MAHJONG TILE BACK F0 9F 80 AB
+# ► BLACK RIGHT-POINTING POINTER  E2 96 BA
+# ▶︎ BLACK RIGHT-POINTING TRIANGLE E2 96 B6 EF B8 8E
+# ⫸ TRIPLE NESTED GREATER-THAN E2 AB B8
+export nobreakspace=`echo -e "\xC2\xA0"`
+export zerowidthspace=`echo -e "\xE2\x80\x8B"`
+#0	Reset all attributes
+#1	Bright
+#2	Dim
+
+. lib-git
+#export PS1="$cyan_bold\w [ $green\$(current_branch) $magenta_dim-> \$(current_remote) \$(ahead_behind)$cyan_bold \$(files_status)$cyan_bold]:$norm" #$blue_dark[\u / \h] 
+#export PS1="$cyan_bold\w\$(git_prompt)$cyan_bold:$norm " #\$(ahead_behind)$cyan_bold \$(files_status)
+#export PS1="$cyan_back \w $norm\$(git_prompt)$norm$cyan_bold$triangle$triangle$triangle$norm " #\$(ahead_behind)$cyan_bold \$(files_status)$cyan_back 
+
+#echo -e "\[$green\] $curr_branch\[$magenta\]->$(current_remote) \[$cyan_bold\]$(files_status)\[$norm\]" #$green
+
+#export PS1="$cyan_back \w $norm$green\$(current_branch)$magenta->\$(current_remote) $cyan_bold`files_status`$norm$cyan_back > $norm " 
+export PS1="\[$cyan_back\] \w \[$norm\]\[$green\]\$(current_branch)\[$magenta\]\$(current_remote)\[$cyan_bold\]\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\]\[$cyan_back\] > \[$norm\] " 
+
+#export PS1="$blue_dark[\u / \h] $cyan_bold\w$green\$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'): \[\033[m\]" 
+

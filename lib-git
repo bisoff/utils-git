@@ -1,6 +1,6 @@
 #!/bin/bash
 tab="%x09"
-ed="%C(red)" # "%x1b[31m"
+git_red="%C(red)" # "%x1b[31m"
 git_green="%C(green)" #"x1b[32m"
 git_norm="%x1b[0m"
 git_blue="%C(blue)" #"%x1b[33m%x1b[34m%x1b[40m"
@@ -9,7 +9,7 @@ git_white="%C(reset)"
 git_grey="%C(white dim)"
 
 HASH=%h
-TIME="%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08"
+TIME="%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08" # backspace timezone 
 COMMIT="%s"
 BRANCH="%d"
 AUTHOR="%an"

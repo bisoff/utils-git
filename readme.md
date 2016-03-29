@@ -1,15 +1,7 @@
-## GIT TOOLS
-
-### Overview: -----------------
-- g*			aliases for lunch GIT commands (ex. for button bar in Total Commander)
-- gitsw			switch git version by renaming folder if you use some versions of CLI git.
-			  warning: to use it correctly (w/o context loose) run it as ". sw-git" and reopen shell
-- lib			find_branch() current_branch() 
-- g-help		print the file
-- gitsw			MSYS: change git version
+## GIT TOOLS (SCRIPTS)
 
 ### Commit Fetch Push Pull -----------------
-- gef			# fetch all remote branches		git fetch -vv		
+- gfe			# fetch all remote branches		git fetch -vv		
 - gull			# pull (fetch and merge)		git pull
 - gus			# push 					git push $curr_remote(only remote) $curr_branch -u
 
@@ -21,6 +13,7 @@
 - gcm   <msg>		# commit ammend				git commit --amend -m "$1"
 - gok	<msg>		# commit staged & push			git add -A . ; git commit -m "$msg"; git push 
 
+
 ### Config/Status -----------------
 - gib			# show local branches			git branch -vv  	
 - gibnm          	# show not-merged branches (new)	git branch --no-merged  
@@ -30,10 +23,6 @@
 
 - gir			# show remotes				git remote -v		
 - gis			# files including untracked		git status --ignored	
-
-- gec			# global git params 			ed ~/.gitconfig
-- gect			# repo params 				ed ./.git/config
-- geh			# edit readme.md			ed "$(dirname $0)/readme.md"
 
 
 ### Diff -----------------
@@ -72,3 +61,15 @@
 - gils	<commits_num>	git log -n $commits_num -last --pretty=format:"%h%x09%Creset%an%x09%x09%s" --decorate --numstat | grep -v "^$"  | grep -vE "^[0-9a-f]{7}" | grep -vE "^-"
 - gils+	<commits_num>	git log -n $commits_num --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
+
+### Service ------------------
+- gec           # global git params             ed ~/.gitconfig
+- gect          # repo params               ed ./.git/config
+- geh           # edit readme.md            ed "$(dirname $0)/readme.md"
+- gel           # edit lib-git
+
+- gitsw         MSYS: change git version
+- gitsw         switch git version by renaming folder if you use some versions of CLI git.
+              warning: to use it correctly (w/o context loose) run it as ". sw-git" and reopen shell
+- lib-git       common functions: find_branch() current_branch() 
+- g-help        cat the file

@@ -1,6 +1,6 @@
 ## GIT TOOLS (SCRIPTS)
 
-### Commit Fetch Push Pull -----------------
+### Commit / Fetch / Push / Pull -----------------
 - gfe			# fetch all remote branches		git fetch -vv		
 - gull			# pull (fetch and merge)		git pull
 - gus			# push 					git push $curr_remote(only remote) $curr_branch -u

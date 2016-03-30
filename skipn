@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+while (<>){
+    next if $. <= 5;
+    print;
+}

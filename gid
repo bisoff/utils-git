@@ -1,19 +1,15 @@
 #!/bin/bash
 [[ "$1" == "" ]] 		&& git diff --word-diff				&& exit # all files
 [[ $1 =~ [a-zA-Z0-9]{7} ]] 	&& git diff "$1" "$1~1" --word-diff		&& exit # hash
-#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff "$1" | more -R #less -R 	&& exit # file "HEAD~1" "HEAD" tail -n +6  sed -n '6,$p' # -R or --RAW-CONTROL-CHARS  Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)
-#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff "$1" | tail -n +6  
-#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff "$1" | sed -n '6,$p' 
+[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | tail -n +6  
+#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | sed -n '6,$p' 
+#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | more -R #less -R 	&& exit # file "HEAD~1" "HEAD" tail -n +6  sed -n '6,$p' # -R or --RAW-CONTROL-CHARS  Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)
 
-#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff "$1" | vim -R -
+#[[ "$1" != "" ]] 		&& CLICOLOR_FORCE= git diff HEAD --word-diff --color "$1" | less -R  #CLICOLOR_FORCE= ls -G | less -R
+#[[ "$1" != "" ]] 		&& awk '(NR > 5)' <(git diff HEAD --word-diff --color "$1")
 
-#[[ "$1" != "" ]] 		&& CLICOLOR_FORCE= git diff HEAD --word-diff "$1" | less -R 
-#CLICOLOR_FORCE= ls -G | less -R
-#[[ "$1" != "" ]] 		&& awk '(NR > 5)' <(git diff HEAD --word-diff "$1")
-while IFS= read line; do
-	echo -e "$line"
-  done < <(git diff HEAD --word-diff $1)
-#- read -r - Do not treat a backslash character in any special way. Consider each backslash to be part of the input line.
-#- Without setting IFS, by default the sequences of Space and Tab at the beginning and end of the lines are ignored (trimmed).
-#- Use printf instead of echo to avoid printing empty lines when the line consists of a single -e, -n or -E. 
-#However there is a workaround by using env POSIXLY_CORRECT=1 echo "$line" which executes your external GNU echo which supports it. See: How do I echo "-e"? http://stackoverflow.com/q/20003602/55075
+#rn=1
+#while IFS= read line; do
+#	[ $rn -gt 5 ] && printf '%s\n' "$line"
+#	(( rn = rn + 1 ))
+#  done < <(git diff HEAD --word-diff --color $1)

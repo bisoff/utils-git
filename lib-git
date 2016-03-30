@@ -50,8 +50,12 @@ current_branch() {
 	echo "$curr_branch"
 }
 
+# last tag - git describe --always --tag
+	# full - git log -1 --format="%H%n%aD"
+
 current_remote() {
-	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null) #имя ветки, в которую был внесен последний коммит
+	#git rev-parse <revision> - возвращает хеш коммита для указанной ревизии. Например, git rev-parse HEAD вернет хеш коммита, на который указывает HEAD.
 	#echo curr_branch: $curr_branch 1>&2
 	if [[ "$curr_branch" != "" ]]; then
 		#echo "[current_remote]curr_branch NOT FOUND" 1>&2 && return
@@ -69,7 +73,8 @@ current_remote() {
 }
 remote_for_ps1(){
 	curr_remote=$(current_remote)
-	[[ "$curr_remote" != "" ]] && curr_remote="-->$curr_remote "
+	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote "
+	echo "$curr_remote"
 }
 
 curr_merge_branch() {

@@ -197,3 +197,21 @@ git_prompt(){
 
 	#[[ "$curr_branch" != "" ]] && echo "$green $curr_branch$magenta-> $cyan_bold$(files_status)$norm" 
 }
+compare_with_remote(){
+	#curr_remote=$(current_remote)
+	LOCAL=$(git rev-parse @)
+	#REMOTE=$(git rev-parse @{u}) # from local
+	REMOTE=$(git ls-remote 2>/dev/null | awk "/HEAD/ {print \$1}")
+	BASE=$(git merge-base @ @{u})
+	#echo LOCAL:$LOCAL REMOTE:$REMOTE BASE:$BASE
+	if [ $LOCAL = $REMOTE ]; then
+		true #echo "Up-to-date"
+	  elif [ $LOCAL = $BASE ]; then
+		echo -e "${yellow} NEED TO PULL !${norm}"
+	  elif [ $REMOTE = $BASE ]; then
+		echo -e "${yellow} NEED TO PUSH !${norm}"
+	  else
+		echo -e "${red_bright}DIVERGED !!${norm}"
+	  fi
+
+}

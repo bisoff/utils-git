@@ -207,11 +207,11 @@ compare_with_remote(){
 	if [ $LOCAL = $REMOTE ]; then
 		true #echo "Up-to-date"
 	  elif [ $LOCAL = $BASE ]; then
-		echo -e "${yellow} NEED TO PULL !${norm}"
+		echo -e "${yellow}NEED TO PULL !${norm}" 1>&2
 	  elif [ $REMOTE = $BASE ]; then
-		echo -e "${yellow} NEED TO PUSH !${norm}"
+		echo -e "${yellow}NEED TO PUSH !${norm}" 1>&2
 	  else
-		echo -e "${red_bright}DIVERGED !!${norm}"
+		echo -e "${red_bright}DIVERGED !!${norm}" 1>&2
 	  fi
 
 }

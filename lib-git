@@ -46,10 +46,14 @@ find_branch() {
 current_branch() {
 	#echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 	curr_branch=`echo $(git rev-parse --abbrev-ref HEAD 2> /dev/null)`
+	#[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
+	echo "$curr_branch"
+}
+branch_for_ps1(){
+	curr_branch=$(current_branch)
 	[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
 	echo "$curr_branch"
 }
-
 # last tag - git describe --always --tag
 	# full - git log -1 --format="%H%n%aD"
 

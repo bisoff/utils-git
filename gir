@@ -1,5 +1,6 @@
 #!/bin/bash
 #git remote -v
+
 remotes=$(git remote show)
 #echo remotes: $remotes
 for name in $remotes; do 

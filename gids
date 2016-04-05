@@ -1,0 +1,15 @@
+#!/bin/bash
+#put fnames to arr
+array=($(gis | grep -v '??' | cut -c 4-)) 
+[ ${#array[@]} == 0 ] && echo "No files found" && exit
+
+# echo "${array[@]}"
+# for i in "${array[@]}"; do echo "$i"; done
+# echo cnt: ${#array[@]}
+
+#$i
+echo -e "$grey_back ${array[0]} $norm"
+gid "${array[0]}"
+#echo ${myArray[@]/green//} | cut -d/ -f1 | wc -w | tr -d ' ' # http://stackoverflow.com/questions/15028567/bash-array-get-index-from-value
+# gid fname (less??)
+# read choice (next prev exit) - f b q (pgUp/Dn/Esc)

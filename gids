@@ -1,15 +1,60 @@
 #!/bin/bash
+# shows all changed files in 'less' with wrap in next/prev/quit menu
+
 #put fnames to arr
 array=($(gis | grep -v '??' | cut -c 4-)) 
-[ ${#array[@]} == 0 ] && echo "No files found" && exit
-
-# echo "${array[@]}"
-# for i in "${array[@]}"; do echo "$i"; done
-# echo cnt: ${#array[@]}
+[ ${#array[@]} == 0 ] && echo "No files found" && exit # for i in "${array[@]}"; do echo "$i"; done # echo "${array[@]}"
+bound=${#array[@]} # echo bound: $bound
+(( bound = bound - 1 ))
+[ $bound -eq 0 ] && exit
 
 #$i
-echo -e "$grey_back ${array[0]} $norm"
-gid "${array[0]}"
+#echo -e "$grey_back ${array[0]} $norm"
+#echo gid "${array[0]}"
+
+git diff --stat
+current=0
+(( num = current + 1 )) # echo num: $num
+gid "${array[$current]}"
+echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+read -rsn1 n
+echo -e "$n"
+while true;	do
+	#clear
+	if [ "$n" == "N" -o "$n" == "n" ]; then
+		if [ $current -lt $bound ]; then 
+			(( current = current + 1 )) 
+			(( num = current + 1 ))
+			gid "${array[$current]}"
+			echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+			read -rsn1 n
+			echo -e "$n"
+		  else
+		  	echo -n -e "${red} $num is last index !${norm} (N:ext  P:revious  Q:uit) Enter your choice: " 
+			read -rsn1 n
+			echo -e "$n"
+		  fi
+	  fi
+	if [ "$n" == "P" -o "$n" == "p" ]; then
+	    if [ $current -gt 0 ]; then
+	    	(( current = current - 1 ))
+	    	(( num = current + 1 ))
+	    	gid "${array[$current]}"
+			echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+			read -rsn1 n
+			echo -e "$n"
+	      else
+			echo -n -e "${red} 0 is first index !${norm} (N:ext  P:revious  Q:uit) Enter your choice: "
+			read -rsn1 n
+			echo -e "$n"
+		  fi
+	  fi
+	if [ "$n" == "Q" -o "$n" == "q" ]; then 
+		break
+	  fi
+	#  *) invalid option;;
+	#esac
+done
 #echo ${myArray[@]/green//} | cut -d/ -f1 | wc -w | tr -d ' ' # http://stackoverflow.com/questions/15028567/bash-array-get-index-from-value
 # gid fname (less??)
 # read choice (next prev exit) - f b q (pgUp/Dn/Esc)

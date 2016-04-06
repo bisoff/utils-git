@@ -5,15 +5,22 @@
 if [[ "$1" == "" ]]; then
 	git diff --stat
 	array=($(git ls-files --others --exclude-standard)) 
-	echo -e " ${red}=== UNTRACKED: ===${norm}"
-	for i in "${array[@]}"; do echo -e " ${yellow}$i${norm}"; done
+	if [ "${#array[@]}" -ne 0 ]; then
+		echo -e " ${red}=== UNTRACKED: ===${norm}"
+		for i in "${array[@]}"; do echo -e " ${yellow}$i${norm}"; done
+	  fi
 	exit 
   fi
+
 # hash
-[[ $1 =~ [a-zA-Z0-9]{7} ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& exit 
+#echo "$1"
+[[ "$1" =~ "[a-zA-Z0-9]{7}" ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& exit 
 
 # one file
-[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color -U99999 "$1"| tail -n +6 | less -R	&& exit 
+#echo git diff HEAD --word-diff --color -U99999 "./$1"
+[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color -U99999 "$1" | tail -n +6 | less -MNR 	&& exit 
+# less $(git status -uno -s --color | cut -c 4-) # :n :p
+
 
 #[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | sed -n '6,$p' 
 #[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | more -R #less -R 	&& exit # file "HEAD~1" "HEAD" tail -n +6  sed -n '6,$p' # -R or --RAW-CONTROL-CHARS  Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)

@@ -1,60 +1,106 @@
 #!/bin/bash
 # shows all changed files in 'less' with wrap in next/prev/quit menu
 
-#put fnames to arr
-array=($(gis | grep -v '??' | cut -c 4-)) 
-[ ${#array[@]} == 0 ] && echo "No files found" && exit # for i in "${array[@]}"; do echo "$i"; done # echo "${array[@]}"
-bound=${#array[@]} # echo bound: $bound
-(( bound = bound - 1 ))
+# TODO: prev update
+# TODO: <CR>
+# TODO: <CR> update
+# TODO: refactoring - get_current_fname; show_error; prompt; key_action:++/--/same/err/quit(-1?) 
+# TODO: if total files > 9 -> wait second key press
+
+#put untracked fnames to arr
+arr=($(git ls-files --others --exclude-standard)) # 
+	#array=($(gis | grep -v '??' | cut -c 4-)) 
+	#array=($({(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}$i${norm}"; done;	} | awk '{print NR "\t" $0}' )) 
+#put tracked fnames to array:
+array=($({(git status -s --untracked-files --porcelain | grep -v '??' | cut -c 4-); for i in "${arr[@]}"; do echo "$i"; done;	})) 
+(( tot = ${#array[@]} )) #; echo tot: $tot #+ ${#arr[@]}
+[[ $tot -eq 0 ]] && echo "No files found" && exit #; for i in "${array[@]}"; do echo "$i"; done # echo "${array[@]}"
+bound=${#array[@]} #; echo bound: $bound
+#(( bound = bound - 1 ))
 [ $bound -eq 0 ] && exit
 
-#$i
-#echo -e "$grey_back ${array[0]} $norm"
-#echo gid "${array[0]}"
+#header:
+{(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;	} | awk '{print NR "\t" $0}' 
 
-git diff --stat
 current=0
+init_prompt="${green}Press key your choice${norm} (0..9-number_of_file  N-next  P:revious  Q-quit): " 
+looped_prompt="\n${green}Press key your choice${norm} (0..9-number_of_file  N-next  P:revious  Q-quit): "
 (( num = current + 1 )) # echo num: $num
-gid "${array[$current]}"
-echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+#gid "${array[$current]}"
+echo -n -e "$init_prompt"
 read -rsn1 n
-echo -e "$n"
+echo -n -e "$n"
 while true;	do
 	#clear
+	invalid=1
+	if [ "$n" == "Q" -o "$n" == "q" ]; then 
+		echo ""
+		break
+	  fi
+	if [ "$n" == "C" -o "$n" == "c" -o "$n" == "" ]; then
+		gid "${array[$current]}"
+		echo -n -e "  ${yellow}viewed '${array[$current]}${norm}' ${array[$current]}  "  #$(( current + 1 ))
+		read -rsn1 n
+		echo -n -e "$n"
+		# TODO: enter show like <CR>
+		invalid=0
+	  fi
 	if [ "$n" == "N" -o "$n" == "n" ]; then
 		if [ $current -lt $bound ]; then 
 			(( current = current + 1 )) 
-			(( num = current + 1 ))
-			gid "${array[$current]}"
-			echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+			if [ -f "${array[$current]}" ]; then
+				gid "${array[$current]}"
+				echo -n -e "  ${yellow}File (#$(( current + 1 ))) viewed - '${array[$current]}${norm}' $looped_prompt"  #$(( current + 1 ))
+			  else
+			  	echo -e "  ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '${array[$current]}'${norm}"
+				echo -n -e "$init_prompt"
+			  fi
 			read -rsn1 n
-			echo -e "$n"
+			echo -n -e "$n"
 		  else
-		  	echo -n -e "${red} $num is last index !${norm} (N:ext  P:revious  Q:uit) Enter your choice: " 
+		  	echo -n -e "  ${red} $(( current + 1 )) is last index !${norm} $looped_prompt" 
 			read -rsn1 n
-			echo -e "$n"
+			echo -n -e "$n"
 		  fi
+		invalid=0
 	  fi
 	if [ "$n" == "P" -o "$n" == "p" ]; then
-	    if [ $current -gt 0 ]; then
-	    	(( current = current - 1 ))
-	    	(( num = current + 1 ))
-	    	gid "${array[$current]}"
-			echo -n "$num: ${array[$current]} (N:ext  P:revious  Q:uit) Enter your choice: " 
+		if [ $current -gt 0 ]; then
+			(( current = current - 1 ))
+			gid "${array[$current]}"
+			echo -n -e "  ${yellow}File (#$(( current + 1 ))) viewed - '${array[$current]}${norm}' $looped_prompt" 
 			read -rsn1 n
-			echo -e "$n"
-	      else
-			echo -n -e "${red} 0 is first index !${norm} (N:ext  P:revious  Q:uit) Enter your choice: "
+			echo -n -e "$n"
+		  else
+			echo -n -e "  ${red} 1 is first index in list !${norm} $looped_prompt"
 			read -rsn1 n
-			echo -e "$n"
+			echo -n -e "$n"
 		  fi
+		invalid=0
 	  fi
-	if [ "$n" == "Q" -o "$n" == "q" ]; then 
-		break
+	if [[ $n =~ ^[0-9]$ ]]; then #if [ "$var" -eq "$var" ] 2>/dev/null; then
+		(( current = n - 1 ))
+		#if [ -f "${array[$current]}" ]; then
+			gid "${array[$current]}"
+			echo -n -e "  ${yellow}File (#$(( current + 1 ))) viewed - '${array[$current]}${norm}' $looped_prompt"  #$(( current + 1 ))
+		#  else
+		#  	echo -e "  ${yellow}File (#$(( current + 1 ))) '${array[$current]}' - not found (deleted?)${norm}"
+		#	echo -n -e "$init_prompt"
+		#  fi
+		read -rsn1 n
+		echo -n -e "$n"
+		invalid=0
 	  fi
-	#  *) invalid option;;
+	if [ $invalid -eq 1 ]; then
+		echo -n -e "  ${red} '$n' is invalid choice !${norm} $looped_prompt"
+		read -rsn1 n
+		echo -n -e "$n"
+	  fi
 	#esac
 done
 #echo ${myArray[@]/green//} | cut -d/ -f1 | wc -w | tr -d ' ' # http://stackoverflow.com/questions/15028567/bash-array-get-index-from-value
 # gid fname (less??)
 # read choice (next prev exit) - f b q (pgUp/Dn/Esc)
+get_current_fname() {
+	echo "${array[$current]}"
+}

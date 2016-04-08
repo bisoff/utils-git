@@ -1,0 +1,60 @@
+reset
+	http://gitready.com/beginner/2009/01/16/cleaning-up-untracked-files.html
+
+	git checkout . 			# отменить все изменения в текущем каталоге.
+	git checkout path/foo/bar 	# в любом каталоге относительно текущего
+	git checkout :/			# из любого вложенного каталога — во всем рабочем каталоге
+
+
+	# сброс изменений файла в рабочей директории проекта.
+	git checkout -- name_of_file # до того, каким оно было зафиксировано в репозитории 
+	# -- - нужно оставаться в текущей ветке
+
+	# отмена изменений в буфере нужно использовать команду:
+	git reset HEAD name_of_file # “вернет” файл name_of_file из буфера в рабочую директорию.
+
+
+git diff test 			# Это покажет вам что именно отличается между вашей рабочей директорией и снапшотом в ветке 'test'.
+git diff HEAD -- ./lib  	# ограничить сравнение определенным файлом или поддиректорией добавив path limiter (ограничитель пути):
+git diff --stat 		# которые ограничит вывод списком файлов с изменениями и с кратким текстовым графическим описанием сколько строк изменилось в каждом файле..
+
+
+git log --oneline -n 5 		# 5 last commits w/hash
+
+
+if your man pages opens in less you can use / to search over it.
+
+man find
+/-type
+n, for next search
+N for previous search
+
+
+https://github.com/yousseb/meld
+sudo brew install homebrew/gui/meld
+meld - Couldn't bind the translation domain. Some translations won't work
+
+remove all deps and reinstall brewed python and meld, now it works!
+
+python -c 'import sys,pprint;pprint.pprint(sys.path)'
+sudo brew uninstall harfbuzz
+sudo brew link --overwrite pkg-config
+sudo brew install harfbuzz
+
+git config --global diff.tool meld
+git config --global merge.tool meld
+ git difftool some-file.js
+ git difftool -d, то увидите дифф по всему проекту
+
+ 
+ external = /usr/bin/mcdiff "$1" "$2"
+
+ vimdiff??
+
+  d  = ! git difftool --tool=meld --no-prompt 2> /dev/null
+  ds = ! git d --staged
+  c- = ! sh -c 'git d ${1:-HEAD}~ ${1:-HEAD}' -
+
+  (1) — дифф рабочей копии
+(2) — дифф staged
+(3) — дифф коммита, по дефолту последнего 

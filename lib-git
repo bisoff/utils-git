@@ -186,6 +186,14 @@ git_staged(){
 	[[ $staged -eq 0 ]] && staged=""
 	echo "$staged"
 }
+git_changed(){
+	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
+	local changed=$(echo "$all"| grep -E "^.{0,1}M" | wc -l) # but unstaged
+	changed=`echo $changed`
+	[[ $changed -gt 0 ]] && changed="~$changed "
+	[[ $changed -eq 0 ]] && changed=""
+	echo "$changed"
+}
 git_deleted(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local deleted=$(echo "$all"| grep -E "^.{0,1}D" | wc -l)

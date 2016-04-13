@@ -77,7 +77,7 @@ current_remote() {
 	}
 remote_for_ps1(){
 	curr_remote=$(current_remote)
-	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote "
+	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote [$(get_remote_repo_name)] "
 	echo "$curr_remote"
 	}
 
@@ -225,8 +225,11 @@ compare_with_remote(){
 	  else
 		echo -e "${red_bright}DIVERGED !!${norm}" 1>&2
 	  fi
-	}
+		}
 
 git_rebase_status(){
 	git status | head -n 1 # rebase in progress; onto 0103a6e
+	}
+get_remote_repo_name(){
+	git config --get remote.$(current_remote).url | sed -E 's|.*/(.*).git/?$|\1|'	
 	}

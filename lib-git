@@ -41,19 +41,19 @@ find_branch() {
   	#local myresult="$__result"
   	#echo myresult: $myresult
   	#eval $__result="'$myresult'"
-}
+	}
 
 current_branch() {
 	#echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 	curr_branch=`echo $(git rev-parse --abbrev-ref HEAD 2> /dev/null)`
 	#[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
 	echo "$curr_branch"
-}
+	}
 branch_for_ps1(){
 	curr_branch=$(current_branch)
 	[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
 	echo "$curr_branch"
-}
+	}
 # last tag - git describe --always --tag
 	# full - git log -1 --format="%H%n%aD"
 
@@ -74,18 +74,18 @@ current_remote() {
 		  	echo "$remotes"
 		  fi
 	  fi	
-}
+	}
 remote_for_ps1(){
 	curr_remote=$(current_remote)
 	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote "
 	echo "$curr_remote"
-}
+	}
 
 curr_merge_branch() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
 	echo $(git config branch.$curr_branch.merge 2> /dev/null | cut -d / -f 3)
-}
+	}
 
 
 ahead_behind() {
@@ -113,7 +113,7 @@ ahead_behind() {
 	#↑n: ahead of remote by n commits
 	#↓n: behind remote by n commits
 	#L local branch, not remotely tracked
-}
+	}
 
 files_status () {
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
@@ -177,7 +177,7 @@ files_status () {
 		res="$res\$norm "
 		echo "$res"
 	  fi
-}
+	}
 git_staged(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local staged=$(echo "$all" | grep "^[ADM]" | wc -l) # git status -s --untracked-files --porcelain | grep "^(A|D|M)"
@@ -185,7 +185,7 @@ git_staged(){
 	[[ $staged -gt 0 ]] && staged="+$staged "
 	[[ $staged -eq 0 ]] && staged=""
 	echo "$staged"
-}
+	}
 git_changed(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local changed=$(echo "$all"| grep -E "^.{0,1}M" | wc -l) # but unstaged
@@ -193,7 +193,7 @@ git_changed(){
 	[[ $changed -gt 0 ]] && changed="~$changed "
 	[[ $changed -eq 0 ]] && changed=""
 	echo "$changed"
-}
+	}
 git_deleted(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local deleted=$(echo "$all"| grep -E "^.{0,1}D" | wc -l)
@@ -201,14 +201,14 @@ git_deleted(){
 	[[ $deleted -gt 0 ]] && deleted="-$deleted "
 	[[ $deleted -eq 0 ]] && deleted=""
 	echo "$deleted"
-}
+	}
 git_prompt(){
 
 	#[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
 	[[ "$curr_branch" != "" ]] && echo "$cyan_back \w $norm $green$curr_branch$magenta->$(current_remote) $cyan_bold$green+$staged$red-$deleted$norm$cyan_back > $norm " #$green
 
 	#[[ "$curr_branch" != "" ]] && echo "$green $curr_branch$magenta-> $cyan_bold$(files_status)$norm" 
-}
+	}
 compare_with_remote(){
 	#curr_remote=$(current_remote)
 	LOCAL=$(git rev-parse @)
@@ -225,5 +225,8 @@ compare_with_remote(){
 	  else
 		echo -e "${red_bright}DIVERGED !!${norm}" 1>&2
 	  fi
+	}
 
-}
+git_rebase_status(){
+	git status | head -n 1 # rebase in progress; onto 0103a6e
+	}

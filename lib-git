@@ -1,4 +1,6 @@
 #!/bin/bash
+# TODO: gids for commit - last ~1 ~2
+
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
 git_green="%C(green)" #"x1b[32m"

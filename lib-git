@@ -180,6 +180,7 @@ files_status () {
 		echo "$res"
 	  fi
 	}
+
 git_staged(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local staged=$(echo "$all" | grep "^[ADM]" | wc -l) # git status -s --untracked-files --porcelain | grep "^(A|D|M)"
@@ -189,8 +190,7 @@ git_staged(){
 	echo "$staged"
 	}
 git_changed(){
-	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
-	local changed=$(echo "$all"| grep -E "^.{0,1}M" | wc -l) # but unstaged
+	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^??|.{0,1}M" | wc -l) # but unstaged
 	changed=`echo $changed`
 	[[ $changed -gt 0 ]] && changed="~$changed "
 	[[ $changed -eq 0 ]] && changed=""
@@ -204,6 +204,7 @@ git_deleted(){
 	[[ $deleted -eq 0 ]] && deleted=""
 	echo "$deleted"
 	}
+
 git_prompt(){
 
 	#[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
@@ -235,3 +236,5 @@ git_rebase_status(){
 get_remote_repo_name(){
 	git config --get remote.$(current_remote).url | sed -E 's|.*/(.*).git/?$|\1|'	
 	}
+
+GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\]\[$cyan_back\] \t > \[$norm\] \$(renametab)" 

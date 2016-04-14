@@ -190,7 +190,7 @@ git_staged(){
 	echo "$staged"
 	}
 git_changed(){
-	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^??|.{0,1}M" | wc -l) # but unstaged
+	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^\?\?|.{0,1}M" | wc -l) # but unstaged
 	changed=`echo $changed`
 	[[ $changed -gt 0 ]] && changed="~$changed "
 	[[ $changed -eq 0 ]] && changed=""

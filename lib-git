@@ -4,17 +4,27 @@
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
 git_green="%C(green)" #"x1b[32m"
+git_green_dim="%C(green dim)"
+git_green_bold="%C(green bold)"
 git_norm="%x1b[0m"
 git_blue="%C(blue)" #"%x1b[33m%x1b[34m%x1b[40m"
 git_yellow="%C(yellow)"
-git_white="%C(reset)"
-git_grey="%C(white dim)"
-
+#git_white="%C(reset)"
+git_white="%C(white)" # bold
+git_grey="%C(dim white)"
+#    current = yellow reverse
+#  [color "diff"]
+    #meta = yellow bold
+    #frag = magenta bold
+    #old = red bold
+    #new = green bold
 HASH=%h
+COMMIT="%s" #text
 TIME="%ad%x08%x08%x08%x08%x08%x08%x08%x08%x08" # backspace timezone 
-COMMIT="%s"
-BRANCH="%d"
+TIME2="(%ar)"
+#BRANCH="%d"
 AUTHOR="%an"
+REFNAME="%d"
 
 find_branch() {
 	local mask=$1
@@ -237,4 +247,9 @@ get_remote_repo_name(){
 	git config --get remote.$(current_remote).url | sed -E 's|.*/(.*).git/?$|\1|'	
 	}
 
+#http://mediadoneright.com/content/ultimate-git-ps1-bash-prompt
+#export PS1="\\033[0;34;48m[\u / \h] \\033[0;32;49m\w$git_branch: \[\033[m\]" #\\033[0;33;49m
+#parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' }
+
 GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\]\[$cyan_back\] \t > \[$norm\] \$(renametab)" 
+#\[<color>\] чтобу у bash'а не ехала крыша при определении длины промпта и текст командной строки не "съезжал" на следующую строку.

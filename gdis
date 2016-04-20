@@ -40,4 +40,5 @@ if [[ "$1" != "" ]]; then
 #	[ $rn -gt 5 ] && printf '%s\n' "$line"
 #	(( rn = rn + 1 ))
 #  done < <(git diff HEAD --word-diff --color $1)
- git diff --stat=200 HEAD~1 HEAD --color | sed -n '$! p'
+
+#git diff --stat=200 HEAD~1 HEAD --color | sed -n '$! p'

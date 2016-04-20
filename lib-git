@@ -248,6 +248,18 @@ get_remote_repo_name(){
 	git config --get remote.$(current_remote).url | sed -E 's|.*/(.*).git/?$|\1|'	
 	}
 
+renametab() {
+	# todo: oldpwd for *nix (~/.oldpwd for msys only)
+	[[ "$(cat ~/.oldpwd)" == "$(pwd)" ]] && exit
+	#echo "-$(pwd)-" 1>&2
+	#echo "=$OLDPWD="  1>&2
+	#echo "rename tab" 1>&2
+	if [ "$ConEmuPID" != "" ]; then $ConEmuBaseDir/ConEmuC -GuiMacro Rename 0 "${PWD##*/}" 1> /dev/null; fi
+	if [ "$TERM_PROGRAM" == "Apple_Terminal" ]; then echo -ne "\033]0;${PWD##*/}\007"; fi
+	pwd > ~/.oldpwd
+	#PREV_TAB="${PWD##*/}"
+}
+
 #http://mediadoneright.com/content/ultimate-git-ps1-bash-prompt
 #export PS1="\\033[0;34;48m[\u / \h] \\033[0;32;49m\w$git_branch: \[\033[m\]" #\\033[0;33;49m
 #parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' }

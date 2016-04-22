@@ -2,7 +2,10 @@
 
 # all files
 #[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& exit 
-if [[ "$1" == "" ]]; then
+fname="$1"
+mode="$2"
+
+if [[ "fname" == "" ]]; then
 	array=($(git ls-files --others --exclude-standard)) 
 	{(git diff --stat=200 --color | sed -n '$! p'); for i in "${array[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;} | awk '{print NR "\t" $0}' #'NR!=FNR {FNR==1?c=NR:1} FNR<c-1'   awk 'NR>n{print A[NR%n]} {A[NR%n]=$0}' n=1
 	#array=($(git ls-files --others --exclude-standard)) 
@@ -15,15 +18,20 @@ if [[ "$1" == "" ]]; then
 
 # hash
 #echo "$1"
-[[ "$1" =~ "[a-zA-Z0-9]{7}" ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& exit 
+[[ "fname" =~ "[a-zA-Z0-9]{7}" ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& exit 
 
 # one file
 #echo git diff HEAD --word-diff --color -U99999 "./$1"
 if [[ "$1" != "" ]]; then
-	status=`echo $(git status "$1" -s | cut -c 1-3)` #; echo status:$status #; exit
-	[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && exit # untracked
-	[[ "$status" == "D" ]]	&& git show HEAD:"$1" | less -MNR && exit #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
-	git diff HEAD --color -U99999 "$1" | tail -n +6 | less -MNR 
+	if [ "$mode" == "" ]; then
+		status=`echo $(git status "fname" -s | cut -c 1-3)` #; echo status:$status #; exit
+		[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && exit # untracked
+		[[ "$status" == "D" ]]	&& git show HEAD:"fname" | less -MNR && exit #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
+		git diff HEAD --color -U99999 "$1" | tail -n +6 | less -MNR 
+	  else
+	  	[ "$mode" == "last" ] && git diff HEAD~1 HEAD --color -U99999 "$fname" | tail -n +7 | less -MNR 
+	  	[ "$mode" == "prev" ] && git diff HEAD~2 HEAD~1 --color -U99999 "$fname" | tail -n +7 | less -MNR 
+	  fi
 	#exit 
   fi
 # less $(git status -uno -s --color | cut -c 4-) # :n :p

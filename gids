@@ -1,28 +1,42 @@
 #!/bin/bash
 # shows menu to choose file which diff you want to view
 
+mode="$1" # "": work/head  last:head/head~1
 # TODO: if total files > 9 -> wait second key
+# TODO: add nexp/prev commit (correct gids and pass "hash~<n> hash~<-n>")
+# TODO: to view deleted file - cirrect gdis)
 
 #put untracked fnames to arr
-arr=($(git ls-files --others --exclude-standard)) # 
+if [ "$mode " == "" ]; then
+	arr=($(git ls-files --others --exclude-standard)) 
+  fi
 	#array=($(gis | grep -v '??' | cut -c 4-)) 
 	#array=($({(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}$i${norm}"; done;	} | awk '{print NR "\t" $0}' )) 
 
 #put tracked fnames to array:
-array=($({(git status -s --untracked-files --porcelain | grep -v '??' | cut -c 4-); for i in "${arr[@]}"; do echo "$i"; done;	})) 
-(( tot = ${#array[@]} )) #; echo tot: $tot #+ ${#arr[@]}
-[[ $tot -eq 0 ]] && echo "No files found" && exit #; for i in "${array[@]}"; do echo "$i"; done # echo "${array[@]}"
+[ "$mode" == "" ] && array=($({(git status -s --untracked-files --porcelain | grep -v '??' | cut -c 4-); for i in "${arr[@]}"; do echo "$i"; done;	})) 
+[ "$mode" == "last" ] && array=($(git diff head head~1 --name-only | sed -E "s/^(.*)$/\"\1\"/g" )) #   while read x; do echo '"'"$x"'"'; done
+[ "$mode" == "prev" ] && array=($(git diff head~1 head~2 --name-only | sed -E "s/^(.*)$/\"\1\"/g" ))
+
+(( tot = ${#array[@]} )) 
+#echo tot: $tot #+ ${#arr[@]}
+[[ $tot -eq 0 ]] && echo "No files found" && exit 
+#echo "${array[0]}"
+#for i in "${array[@]}"; do echo "$i"; done; exit # echo "${array[@]}"
+clear
 bound=${#array[@]} 
 (( bound = bound - 1 )) #; echo bound: $bound
 
 # show header with enumed file list:
-{(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;	} | awk '{print NR "\t" $0}' 
+[ "$mode" == "" ] && {(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;	} | awk '{print NR "\t" $0}' 
+[ "$mode" == "last" ] && (git diff head head~1 --stat --color) | sed -n '$! p' | awk '{print NR "\t" $0}' 
+[ "$mode" == "prev" ] && (git diff head~1 head~2 --stat --color) | sed -n '$! p' | awk '{print NR "\t" $0}' 
 
 # show menu
 current=0 # current index for view diff
 init_prompt="${yellow}Press key with your choice${norm} - (${green}0..9${norm}-file_number  ${green}N${norm}-next  ${green}P${norm}:revious  ${green}<CR>${norm}-current  ${green}Q${norm}-quit: " 
 looped_prompt="\n$init_prompt"
-prompt_out=" ${yellow}Viewed #$(( current + 1 )) - '${array[$current]}'${norm} $looped_prompt"
+#prompt_out=" ${yellow}Viewed #$(( current + 1 )) - '${array[$current]}'${norm} $looped_prompt"
 fail_prompt=" ${red}$n is out of bounds (1..$(( bound + 1 )) ) !${norm} $looped_prompt"
 (( num = current + 1 )) # echo num: $num
 #gid "${array[$current]}"
@@ -78,9 +92,11 @@ while true;	do
 		echo -n -e "$n"
 		continue
 	  fi
+	echo "${array[$current]}"
 	if [ -f "${array[$current]}" ]; then
-		gid "${array[$current]}"
-		echo -n -e "$prompt_out"  #$(( current + 1 ))
+		#echo gdis "${array[$current]}" "$mode"
+		gdis "${array[$current]}" "$mode"
+		echo -n -e "${yellow} Viewed $(( current + 1 )) - '${array[$current]}'${norm} $looped_prompt" # "$prompt_out"  #$(( current + 1 ))
 	  else
 	  	echo -e " ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '${array[$current]}'${norm}"
 		echo -n -e "$init_prompt"

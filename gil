@@ -3,15 +3,17 @@
 #http://stackoverflow.com/questions/1057564/pretty-git-branch-graphs
 . lib-git
 if [[ "$1" == "" ]];then
-	commits_num=10
+	commits_num=20
   else
   	commits_num=$1
   fi
 
+BRANCH="$d"
 	#git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"$red%h$green%d %x09% %s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
-git log --graph -n $commits_num --full-history --all --date=iso --color --author-date-order \
+git log --graph -n $commits_num --full-history --source  --all --date=iso --color --author-date-order --decorate \
 	--pretty=format:"$git_green$COMMIT $git_yellow$HASH $git_norm$git_white$TIME2 $BRANCH $git_grey $AUTHOR $git_white $git_green $REFNAME" #$git_blue $git_green
-
+# git stores the branch name at the most recent commit of the branch. All commits in the history are equal and anonymous
+#	--pretty=oneline  --decorate
 #        while IFS=+ read -r hash time branch message; do                                            \
 #            timelength=$(echo \"$time\" | sed -r \"s:[^ ][[]([0-9]{1,2}(;[0-9]{1,2})?)?m::g\");     \
 #            timelength=$(echo \"16+${#time}-${#timelength}\" | bc);                                 \

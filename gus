@@ -13,4 +13,4 @@ echo -e "${red}git push $curr_remote $curr_branch$norm"  #-u
 #curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 #echo curr_remote: $curr_remote
 #echo curr_branch: $curr_branch
-git push #"$curr_remote" "$curr_branch" # -u #all --all
+git push "$curr_remote" "$curr_branch" # -u #all --all

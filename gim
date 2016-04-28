@@ -1,20 +1,19 @@
 #!/bin/bash
 . lib-git
-branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
+source_branch=$(find_branch "$1") #; echo branch: $branch
 exitcode=$?
 [ $exitcode -ne 0 ] && echo not found && exit
-echo from branch: $branch
 
 currbranch=$(current_branch)
-echo currbranch: $currbranch
+echo "from '$source_branch' to '$currbranch'"
 
-git checkout $branch
-  [ $? -ne 0 ] && exit
-gul # fetch and merge
-  [ $? -ne 0 ] && exit
+echo "Pull '$source_branch'"
+#git checkout $branch
+gib $source_branch || exit
+gul || exit
 
-git checkout $currbranch
-  [ $? -ne 0 ] && echo "FAIL! ANOTHER BRANCH !!" && exit
+#git checkout $source_branch
+gib $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && exit)
 
 #echo exitcode: $exitcode
 #echo current_branch: $(current_branch)
@@ -22,5 +21,5 @@ git checkout $currbranch
 #[ $exitcode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && exit
 #[ $exitcode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && exit
 
-git merge $branch
+git merge $source_branch
 #echo done

@@ -92,10 +92,10 @@ while true;	do
 		echo -n -e "$n"
 		continue
 	  fi
-	echo "${array[$current]}"
+	#echo "${array[$current]}"
 	if [ -f "${array[$current]}" ]; then
 		#echo gdis "${array[$current]}" "$mode"
-		gdis "${array[$current]}" "$mode"
+		gdi1 "${array[$current]}" "$mode"
 		echo -n -e "${yellow} Viewed $(( current + 1 )) - '${array[$current]}'${norm} $looped_prompt" # "$prompt_out"  #$(( current + 1 ))
 	  else
 	  	echo -e " ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '${array[$current]}'${norm}"

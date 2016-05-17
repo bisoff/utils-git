@@ -92,13 +92,16 @@ while true;	do
 		echo -n -e "$n"
 		continue
 	  fi
-	#echo "${array[$current]}"
-	if [ -f "${array[$current]}" ]; then
+	# pwd
+	#[ ! -f "./${array[$current]}" ] && echo -e "\n" && ls "./${array[$current]}" # - not found
+	eval file_wo_quotes="${array[$current]}"
+	#echo -e "\n$n"
+	if [ -f "$file_wo_quotes" ]; then
 		#echo gdis "${array[$current]}" "$mode"
-		gdi1 "${array[$current]}" "$mode"
-		echo -n -e "${yellow} Viewed $(( current + 1 )) - '${array[$current]}'${norm} $looped_prompt" # "$prompt_out"  #$(( current + 1 ))
+		gdi1 "$file_wo_quotes" "$mode"
+		echo -n -e "${yellow} Viewed $(( current + 1 )) - '$file_wo_quotes'${norm} $looped_prompt" # "$prompt_out"  #$(( current + 1 ))
 	  else
-	  	echo -e " ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '${array[$current]}'${norm}"
+	  	echo -e " ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '$file_wo_quotes'${norm}"
 		echo -n -e "$init_prompt"
 	  fi
 	read -rsn1 n

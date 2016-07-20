@@ -2,6 +2,9 @@
 # TODO: gids for commit - last ~1 ~2
 # get all branches from remote (after clone)
 
+UTILS_GIT_TRACE=0
+alias log_print='[ "$UTILS_GIT_TRACE" == "1" ] && echo -e 1>&2 '
+
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
 git_green="%C(green)" #"x1b[32m"
@@ -264,5 +267,5 @@ renametab() {
 #export PS1="\\033[0;34;48m[\u / \h] \\033[0;32;49m\w$git_branch: \[\033[m\]" #\\033[0;33;49m
 #parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' }
 
-GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\]\[$cyan_back\] \t > \[$norm\] \$(renametab)" 
+GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\] \[$cyan_back\] \t > \[$norm\] \$(renametab)" 
 #\[<color>\] чтобу у bash'а не ехала крыша при определении длины промпта и текст командной строки не "съезжал" на следующую строку.

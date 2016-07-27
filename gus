@@ -3,9 +3,14 @@
 curr_remote=$(current_remote)
 #echo curr_remote: $curr_remote
 if [[ "$curr_remote" == "" ]]; then 
-	curr_remote=$(girs)
-	cn=$[$(echo "$curr_remote" | wc -l)]
-	[[ $cn -ne 1 ]] && curr_remote=""
+	manual_remote="$1"
+	if [[ "$manual_remote" == "" ]]; then
+		curr_remote=`git remote show`
+		cnt=$[$(echo "$curr_remote" | wc -l)]
+		[[ $cnt -ne 1 ]] && curr_remote=""
+	  else
+		curr_remote=`git remote show | grep $manual_remote`
+	  fi
   fi
 [[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && exit
 curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
@@ -13,4 +18,5 @@ echo -e "${red}git push $curr_remote $curr_branch$norm"  #-u
 #curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 #echo curr_remote: $curr_remote
 #echo curr_branch: $curr_branch
-git push "$curr_remote" "$curr_branch" # -u #all --all
+git push "$curr_remote" "$curr_branch" -u #all --all
+

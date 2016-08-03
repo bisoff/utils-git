@@ -279,10 +279,7 @@ cmd_git_color_git_diff() {
 	    fi
 	}
 cmd_git_help() {
-	utility_path=$(echo "`dirname \"$0\"`")
-	echo $utility_path
-	#cat 
-	less $utility_path/readme.md 
+	less "$HOME_UTILS_GIT/readme.md"
 	}
 
 cmd_git_append_and_commit() {

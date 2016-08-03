@@ -1,5 +1,0 @@
-#!/bin/bash
-utility_path=$(echo "`dirname \"$0\"`")
-echo $utility_path
-#cat 
-less $utility_path/readme.md 

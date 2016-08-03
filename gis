@@ -1,4 +1,0 @@
-#!/bin/bash
-#pwd | tr 'a-z' 'A-Z'
-. lib-git
-git status -s --untracked-files $* # --porcelain

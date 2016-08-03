@@ -1,2 +1,0 @@
-#!/bin/bash
-ed "$(dirname $0)/readme.md"

@@ -1,7 +1,0 @@
-#!/bin/bash
-if [[ "$1" == "" ]];then
-	commits_num=7
-  else
-  	commits_num=$1
-  fi
-git log --all --full-history --decorate --date=iso --pretty=format:"%C(red)%h - %C(green) %d %C(yellow)%s %C(blue)(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset" -n $commits_num --name-status

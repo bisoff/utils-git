@@ -1,4 +1,0 @@
-#!/bin/bash
-gac "$1"
-#git push #all --all
-gus

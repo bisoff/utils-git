@@ -1,3 +1,0 @@
-#!/bin/bash
-git diff --name-status | xargs --delimiter="\n" color_git_diff
-#git status -s --untracked-files $* # --porcelain

@@ -675,7 +675,7 @@ cmd_git_last_n_commits_stat_with_hash(){
 cmd_git_branch_merge_after_pull(){
 	source_branch=$(find_branch "$1") #; echo branch: $branch
 	exitcode=$?
-	[ $exitcode -ne 0 ] && echo not found && exit
+	[ $exitcode -ne 0 ] && echo not found && return
 
 	currbranch=$(current_branch)
 	echo "from '$source_branch' to '$currbranch'"
@@ -686,7 +686,7 @@ cmd_git_branch_merge_after_pull(){
 	gul || exit
 
 	#git checkout $source_branch
-	gib $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && exit)
+	gib $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
 
 	#echo exitcode: $exitcode
 	#echo current_branch: $(current_branch)

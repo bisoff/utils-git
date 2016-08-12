@@ -39,7 +39,7 @@ find_branch() {
 	#echo find_res1: $find_res 1>&2
 	local cn=$[$(echo "$find_res" | wc -l)] # found count
 	#echo cn: $cn 1>&2
-	[[ $cn -gt 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 1 #echo "$find_res" 1>&2 && 
+	[[ $cn -gt 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && return 1 #echo "$find_res" 1>&2 && 
 	
 	if [[ "$find_res" != "" ]]; then 
 		__result=$find_res
@@ -47,10 +47,10 @@ find_branch() {
 		# find all by *<mask>*
 		local find_res=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "$mask") 
 		#echo find_res2: $find_res 1>&2
-		[[ "$find_res" == "" ]] && echo "Branch containing $mask - NOT FOUND " 1>&2 && exit 2 
+		[[ "$find_res" == "" ]] && echo "Branch containing $mask - NOT FOUND " 1>&2 && return 2 
 		#echo find_res:"$find_res"
 		cn=$[$(echo "$find_res" | wc -l)] # found count
-		[[ $cn > 1 ]] && echo "Branch containing $mask - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && exit 3 #echo "$find_res" 1>&2 && 
+		[[ $cn > 1 ]] && echo "Branch containing $mask - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && return 3 #echo "$find_res" 1>&2 && 
 		__result=$find_res
   	  fi
   	echo $__result
@@ -249,7 +249,7 @@ branch_for_ps1(){
 	}
 renametab() {
 	# todo: oldpwd for *nix (~/.oldpwd for msys only)
-	[[ "$(cat ~/.oldpwd)" == "$(pwd)" ]] && exit
+	[[ "$(cat ~/.oldpwd)" == "$(pwd)" ]] && return
 	#echo "-$(pwd)-" 1>&2
 	#echo "=$OLDPWD="  1>&2
 	#echo "rename tab" 1>&2
@@ -318,7 +318,7 @@ cmd_git_append_and_commit(){ # gac
 	cd "$rootpath"
 	git add -A .
 	if [[ "$msg" == "" ]]; then
-		[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && exit
+		[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
 		msg="$(echo $GITHOST)-up"
 	  fi
 	git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
@@ -352,7 +352,7 @@ cmd_git_append_by_mask_commit_and_push(){ # gas
 	# add by mask, commit and push
 	files="$1"
 	msg=$2
-	[[ "$files" == "" ]] && echo "[ADD AND PUSH] mask is missed !" && exit
+	[[ "$files" == "" ]] && echo "[ADD AND PUSH] mask is missed !" && return
 
 	cmd_git_append "$files"
 	cmd_git_сommit_staged $msg
@@ -368,7 +368,7 @@ cmd_git_сommit_staged(){ # gc
 	#test not staged and echo!
 
 	if [[ "$msg" == "" ]]; then
-		[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && exit
+		[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && return
 		msg="$(echo $GITHOST)-up"
 	  fi
 	git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
@@ -387,7 +387,7 @@ cmd_git_commit_staged_amend(){ # gcm
 cmd_git_diff_file_list_this_and_prior_commits(){ # gdi gdi1
 
 	# all files
-	#[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& exit 
+	#[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& return 
 	fname="$1"
 	mode="$2"
 
@@ -399,32 +399,32 @@ cmd_git_diff_file_list_this_and_prior_commits(){ # gdi gdi1
 		#	echo -e " ${yellow_back}== UNTRACKED ==${norm}"
 		#	for i in "${array[@]}"; do echo -e " ${yellow}$i${norm}"; done
 		#  fi
-		exit 
+		return 
 	  fi
 
 	# hash
 	#echo "$1"
-	[[ "fname" =~ "[a-zA-Z0-9]{7}" ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& exit 
+	[[ "fname" =~ "[a-zA-Z0-9]{7}" ]] 	&& git diff "$1" "$1~1" --word-diff  --color | less -R			&& return 
 
 	# one file
 	#echo git diff HEAD --word-diff --color -U99999 "./$1"
 	if [[ "$1" != "" ]]; then
 		if [ "$mode" == "" ]; then
-			status=`echo $(git status "fname" -s | cut -c 1-3)` #; echo status:$status #; exit
-			[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && exit # untracked
-			[[ "$status" == "D" ]]	&& git show HEAD:"fname" | less -MNR && exit #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
+			status=`echo $(git status "fname" -s | cut -c 1-3)` #; echo status:$status #; return
+			[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && return # untracked
+			[[ "$status" == "D" ]]	&& git show HEAD:"fname" | less -MNR && return #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
 			git diff HEAD --color -U99999 "$1" | tail -n +6 | less -MNR 
 		  else
 		  	[ "$mode" == "last" ] && git diff HEAD~1 HEAD --color -U99999 "$fname" | tail -n +7 | less -MNR 
 		  	[ "$mode" == "prev" ] && git diff HEAD~2 HEAD~1 --color -U99999 "$fname" | tail -n +7 | less -MNR 
 		  fi
-		#exit 
+		#return 
 	  fi
 	# less $(git status -uno -s --color | cut -c 4-) # :n :p
 
 
 	#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | sed -n '6,$p' 
-	#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | more -R #less -R 	&& exit # file "HEAD~1" "HEAD" tail -n +6  sed -n '6,$p' # -R or --RAW-CONTROL-CHARS  Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)
+	#[[ "$1" != "" ]] 		&& git diff HEAD --word-diff --color "$1" | more -R #less -R 	&& return # file "HEAD~1" "HEAD" tail -n +6  sed -n '6,$p' # -R or --RAW-CONTROL-CHARS  Like -r, but only ANSI "color" escape sequences are output in "raw" form. (...)
 
 	#[[ "$1" != "" ]] 		&& CLICOLOR_FORCE= git diff HEAD --word-diff --color "$1" | less -R  #CLICOLOR_FORCE= ls -G | less -R
 	#[[ "$1" != "" ]] 		&& awk '(NR > 5)' <(git diff HEAD --word-diff --color "$1")
@@ -459,9 +459,9 @@ cmd_git_diff_file_list_menu(){ # gdifs gids gdis
 
 	(( tot = ${#array[@]} )) 
 	#echo tot: $tot #+ ${#arr[@]}
-	[[ $tot -eq 0 ]] && echo "No files found" && exit 
+	[[ $tot -eq 0 ]] && echo "No files found" && return 
 	#echo "${array[0]}"
-	#for i in "${array[@]}"; do echo "$i"; done; exit # echo "${array[@]}"
+	#for i in "${array[@]}"; do echo "$i"; done; return # echo "${array[@]}"
 	clear
 	bound=${#array[@]} 
 	(( bound = bound - 1 )) #; echo bound: $bound
@@ -590,9 +590,9 @@ cmd_git_branch_delete_any_way(){ # gibdf
 		echo branch name IS MISSED 1>&2 && exit
 	  else
 	  	branch=$(find_branch "$1") 
-	  	[[ "$branch" == "" ]] && echo -e "${red}branch NOT FOUND$norm" 1>&2 && exit
+	  	[[ "$branch" == "" ]] && echo -e "${red}branch NOT FOUND$norm" 1>&2 && return
 	  	curr_branch=$(current_branch)
-	  	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
+	  	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && return
 	  	git branch -D $branch
 	  fi
 	}
@@ -601,9 +601,9 @@ cmd_git_branch_delete_if_merged(){ # gibd
 		echo branch name IS MISSED 1>&2 && return
 	  else
 	  	branch=$(find_branch "$1") 
-	  	[[ "$branch" == "" ]] && echo -e "${red}branch NOT FOUND$norm" 1>&2 && exit
+	  	[[ "$branch" == "" ]] && echo -e "${red}branch NOT FOUND$norm" 1>&2 && return
 	  	curr_branch=$(current_branch)
-	  	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
+	  	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && return
 	  	git branch -d $branch # если ветка была смержена
 	  fi
 	}
@@ -693,8 +693,8 @@ cmd_git_last_n_commits_stat_with_hash(){ # gilsh
 
 cmd_git_branch_merge_after_pull(){ # gim
 	source_branch=$(find_branch "$1") #; echo branch: $branch
-	exitcode=$?
-	[ $exitcode -ne 0 ] && echo not found && return
+	returncode=$?
+	[ $returncode -ne 0 ] && echo not found && return
 
 	currbranch=$(current_branch)
 	echo "from '$source_branch' to '$currbranch'"
@@ -707,24 +707,24 @@ cmd_git_branch_merge_after_pull(){ # gim
 	#git checkout $source_branch
 	cmd_git_branch_show_local_or_switch $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
 
-	#echo exitcode: $exitcode
+	#echo returncode: $returncode
 	#echo current_branch: $(current_branch)
-	#[ $exitcode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && exit
-	#[ $exitcode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && exit
-	#[ $exitcode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && exit
+	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
+	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
+	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
 
 	git merge $source_branch
 	#echo done
 	}
 cmd_git_branch_merge_with_local(){ # giml
 	branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
-	exitcode=$?
-	#echo exitcode: $exitcode
+	returncode=$?
+	#echo returncode: $returncode
 	#echo current_branch: $(current_branch)
-	[ $exitcode -ne 0 ] && echo not found && return
-	#[ $exitcode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && exit
-	#[ $exitcode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && exit
-	#[ $exitcode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && exit
+	[ $returncode -ne 0 ] && echo not found && return
+	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
+	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
+	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
 
 	git merge $branch
 	#echo done
@@ -795,7 +795,7 @@ cmd_git_remotes_show_detail(){ # gird
 	}
 cmd_git_remote_rename(){ # girn
 	# rename current remote
-	[[ "$1" == "" ]] && echo "[RENAME REMOTE] New name is missed !" && exit
+	[[ "$1" == "" ]] && echo "[RENAME REMOTE] New name is missed !" && return
 	#remotes=$(ls -1)
 	curr_remote=`current_remote`
 	# echo curr_remote: $curr_remote
@@ -834,6 +834,28 @@ cmd_git_status_untracked(){ # gisu
 	compare_with_remote
 	}
 
+cmd_git_switch_version(){
+	#echo "Use syntax: . gitsw"
+	[[ "$APPS" = "" ]] && echo "\$APPS is not defined; setup it (ex. in ~/.bash_profile or by 'varadd APPS <path>') and reopen shell" && return 1
+
+	if [ -d "$APPS/Git2.4.6" ]; then
+		echo "set default git to 2.4.6"
+		cmd //c "move %APPS%/Git %APPS%/Git1.9.5 && move %APPS%/Git2.4.6 %APPS%/Git"
+	  else
+		if [ -d "$APPS/Git1.9.5" ]; then
+			echo "set default git to 1.9.5"
+			cmd //c "move %APPS%/Git %APPS%/Git2.4.6 && move %APPS%/Git1.9.5 %APPS%/Git"
+		  fi
+	  fi
+	}
+cmd_git_commit_and_push(){
+	gac "$1"
+	#git push #all --all
+	gus
+	}
+cmd_git_show_file_diff(){
+	git show $1
+	}
 
 cmd_git_fetch(){ # gfe
 	echo -e "${red}git fetch$norm"
@@ -847,7 +869,7 @@ cmd_git_pull(){ # gul
 		cn=$[$(echo "$curr_remote" | wc -l)]
 		[[ $cn -ne 1 ]] && curr_remote=""
 	  fi
-	[[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && exit
+	[[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && return
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
 	echo -e "${red}git pull $curr_remote $curr_branch$norm"  #-u
 	git pull $curr_remote $curr_branch #--all 

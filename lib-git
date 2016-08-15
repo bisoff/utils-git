@@ -682,11 +682,11 @@ cmd_git_branch_merge_after_pull(){ # gim
 
 	echo "Pull '$source_branch'"
 	#git checkout $branch
-	gib $source_branch || return
-	gul || {gib source_branch} # || return
+	cmd_git_branch_show_local_or_switch $source_branch || return
+	gul || cmd_git_branch_show_local_or_switch $source_branch # || return
 
 	#git checkout $source_branch
-	gib $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
+	cmd_git_branch_show_local_or_switch $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
 
 	#echo exitcode: $exitcode
 	#echo current_branch: $(current_branch)

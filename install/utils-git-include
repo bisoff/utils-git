@@ -1,0 +1,53 @@
+#!/bin/bash
+
+export HOME_UTILS_GIT="$UTILS_ROOT/utils-git" # $UTILS_ROOT declared in ~/.utils-env/utils-env-include
+export PATH=$HOME_UTILS_GIT:$PATH
+
+# ~/.bash_profile -> ~/.utils-git/utils-git-include -> ~/prj/\!utils/utils-git/lib-git
+. "$HOME_UTILS_GIT/lib-git"
+. "$HOME/.utils-git/utils-git-aliases"
+#export PATH=$PATH:~/prj/utils-git
+
+export GITUSER="<GIT_USER>"
+node=$(uname -n)
+export GITHOST="$node"
+
+export rectangle=""
+#export rectangle=`echo -e "\xE2\x88\x8E"`
+#export rectangle=`echo -e "\xF0\x9F\x80\xAB"`
+#export rectangle=`echo -e "\xE2\x97\xBC\xEF\xB8\x8E"`
+#export rectangle=`echo -e "\xE2\xA9\xA9"`
+
+
+export triangle=`echo -e "\xE2\x96\xBA"`
+#export triangle=`echo -e "\xE2\xAB\xB8"`
+#export triangle=`echo -e "\xE2\x96\xB6\xEF\xB8\x8E"`
+# ⩩ TRIPLE HORIZONTAL BAR WITH TRIPLE VERTICAL STROKE E2 A9 A9
+# ∎ END OF PROOF E2 88 8E
+# ◼︎ BLACK MEDIUM SQUARE E2 97 BC EF B8 8E
+# 🀫 MAHJONG TILE BACK F0 9F 80 AB
+# ► BLACK RIGHT-POINTING POINTER  E2 96 BA
+# ▶︎ BLACK RIGHT-POINTING TRIANGLE E2 96 B6 EF B8 8E
+# ⫸ TRIPLE NESTED GREATER-THAN E2 AB B8
+
+export nobreakspace=`echo -e "\xC2\xA0"`
+export zerowidthspace=`echo -e "\xE2\x80\x8B"`
+#0	Reset all attributes
+#1	Bright
+#2	Dim
+
+#export PS1="$cyan_bold\w [ $green\$(current_branch) $magenta_dim-> \$(current_remote) \$(ahead_behind)$cyan_bold \$(files_status)$cyan_bold]:$norm" #$blue_dark[\u / \h] 
+#export PS1="$cyan_bold\w\$(git_prompt)$cyan_bold:$norm " #\$(ahead_behind)$cyan_bold \$(files_status)
+#export PS1="$cyan_back \w $norm\$(git_prompt)$norm$cyan_bold$triangle$triangle$triangle$norm " #\$(ahead_behind)$cyan_bold \$(files_status)$cyan_back 
+#export PS1="$blue_dark[\u / \h] $cyan_bold\w$green\$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'): \[\033[m\]" 
+#export PS1="$cyan_bold\w [ $green\$(current_branch) $magenta_dim-> \$(current_remote) \$(ahead_behind)$cyan_bold \$(files_status)$cyan_bold]:$norm" #$blue_dark[\u / \h] 
+#export PS1="$cyan_bold\w\$(git_prompt)$cyan_bold:$norm " #\$(ahead_behind)$cyan_bold \$(files_status)
+#export PS1="$cyan_back \w $norm\$(git_prompt)$norm$cyan_bold$triangle$triangle$triangle$norm " #\$(ahead_behind)$cyan_bold \$(files_status)$cyan_back 
+#GIT_PROMPT="$cyan_back \w $green\$(branch_for_ps1)$magenta\$(remote_for_ps1)${yellow}\$(git_changed)$norm$green\$(git_staged)$red\$(git_deleted)$norm$cyan_back \t > $norm \$(resettab)" #$cyan_bold
+#PS1="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\]\[$cyan_back\] \t > \[$norm\] \$(renametab)" 
+PS1="$GIT_PROMPT"
+
+#`renametab` \$(env | grep OLDPWD > ~/.oldpwd) \$(renametab)
+# \w $(branch_for_ps1) $(remote_for_ps1) $(git_changed) $(git_staged) $(git_deleted) \t >  $(resettab)
+#while sleep 1;do tput sc;tput cup 0 $(($(tput cols)-11));echo -e "`date +%H:%M:%S`";tput rc;done &
+#export PS1="$blue_dark[\u / \h] $cyan_bold\w$green\$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'): \[\033[m\]" 

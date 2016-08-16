@@ -1,0 +1,78 @@
+#!/bin/bash
+
+alias glr='. "$HOME_UTILS_GIT/lib-git"; . "$HOME/.utils-git/utils-git-aliases"'					# reload
+alias g-help='cmd_git_help'						# 
+#alias xxxxx='less -n -r $UTILS_PRJ_HOME/readme.adoc'			#			view readme
+
+alias gac='cmd_git_append_and_commit'					# 
+alias gacm='cmd_git_append_and_commit_amend'				# 
+alias gad='cmd_git_append_by_names'					# 
+alias gas='cmd_git_append_by_mask_commit_and_push'			# 
+
+alias пс='cmd_git_сommit_staged'					# 
+alias gcm='cmd_git_commit_staged_amend'					# 
+alias gdi='cmd_git_diff_file_list_this_and_prior_commits'		# 
+alias gdifs='cmd_git_diff_file_list_menu'				# 
+alias gids='cmd_git_diff_file_list_menu'				# 
+alias gdis='cmd_git_diff_file_list_menu'				# 
+
+alias gec='ed ~/.gitconfig'						# 
+alias gect='ed ./.git/config'						# 
+alias gecu='ed ~/.utils-git/default'					# 
+
+alias geh='ed "$HOME_UTILS_GIT/readme.md"'				
+alias gel='ed "$HOME_UTILS_GIT/lib-git"'					# 			edit library (lib-prj) # to find it needs chmod +x lib-prj
+alias gea='ed "$HOME/.utils-git/utils-git-aliases"'			#
+alias gei='ed "$HOME/.utils-git/utils-prj-include"'			# 
+
+alias gfe='cmd_git_fetch'						#
+alias gib='cmd_git_branch_show_local_or_switch'				#
+alias gibs='cmd_git_branch_show_local_or_switch'			#
+alias giba='cmd_git_branch_show_local_and_remote'			# show local and remote branches
+alias gibnm='cmd_git_branch_show_unmerged'				# show not-merged branches (new branches)
+alias gibr='cmd_git_branch_show_remote_only'				# only remote branches
+
+alias gibd='cmd_git_branch_delete'					# delete branch
+alias gibdf='cmd_git_branch_delete_any_way'				# delete branch forced
+alias gibn='cmd_git_branch_new'						# create new branch
+
+alias gil='cmd_git_log_host_first'					# simple commit list
+alias gilb='cmd_git_log_hash_irst'					# simple commit list
+
+alias gilf='cmd_git_log_with_files'					# commites with files
+alias gilm='cmd_git_log_hash_first_with_merges'				# merge tree
+alias gild='cmd_git_log_with_file_diff'					# with diffs
+ alias gilh='cmd_git_gilh'						# ??
+alias gils='cmd_git_last_n_commits_stat_simple'				# 
+alias gilsh='cmd_git_last_n_commits_stat_with_hash'			# 
+
+alias gim='cmd_git_branch_merge_after_pull'				# 
+alias giml='cmd_git_branch_merge_with_local'				# 
+alias gimto='cmd_git_branch_target_branch_with_this_after_pull'		# 
+alias gimtol='cmd_git_branch_target_local_branch_with_this'		# 
+
+alias girs='cmd_git_remotes_show'					# 
+alias gird='cmd_git_remotes_show_detail'				# show remotes
+alias girn='cmd_git_remote_rename'					# rename current remote
+
+alias gis='cmd_git_status_with_untracked'					# 
+alias gisc='cmd_git_status_colored'					# 
+alias gisi='cmd_git_status_ignored'					# 
+alias gisu='cmd_git_status_untracked'					# 
+
+alias gitsw='cmd_git_switch_version'					# 
+
+alias gok='cmd_git_commit_and_push'					# 
+alias gos='cmd_git_show_file_diff'					# 
+
+alias gstl='cmd_git_stash_list'					# 
+alias gst='cmd_git_stash_save'					# 
+alias gsp='cmd_git_stash_pop'					# 
+
+alias gul='cmd_git_pull'					# 
+alias gus='cmd_git_commit_and_push'					# 
+
+# unalias pstate; unalias pstatex; unalias pfixall; unalias pgetall; unalias psaveall; unalias psyncall
+
+#alias xxxxx='. "$HOME/.utils-prj/utils-prj-aliases"; . "$HOME/.utils-prj/utils-prj-include"' # 			reload lib and aliases
+alias g-uninstall=''									# 

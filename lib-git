@@ -300,7 +300,6 @@ cmd_git_switch_version(){ # gitsw
 		  fi
 	  fi
 	}
-
 cmd_git_append(){ # ga
 	echo -e "BRANCH: $green$(current_branch)$norm"
 	files="$1"

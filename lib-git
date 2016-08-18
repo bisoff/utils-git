@@ -278,8 +278,12 @@ cmd_git_color_git_diff() {
 	    else echo -e "$2"
 	    fi
 	}
-cmd_git_help() {
-	less "$HOME_UTILS_GIT/readme.md"
+cmd_git_help(){
+	clear
+	#less -n -r $HOME_UTILS_GIT/readme.clr
+	while IFS='' read -r line || [[ -n "$line" ]]; do
+		eval "echo -e \"$line\""
+	done < <(cat $HOME_UTILS_GIT/help.clr ) #| head -n 2
 	}
 
 cmd_git_append_and_commit() {

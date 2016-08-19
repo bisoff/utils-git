@@ -516,7 +516,7 @@ cmd_git_diff_file_list_menu() {
 		#echo -e "\n$n"
 		if [ -f "$file_wo_quotes" ]; then
 			#echo gdis "${array[$current]}" "$mode"
-			gdi1 "$file_wo_quotes" "$mode"
+			cmd_git_diff_file_list_this_and_prior_commits "$file_wo_quotes" "$mode"
 			echo -n -e "${yellow} Viewed $(( current + 1 )) - '$file_wo_quotes'${norm} $looped_prompt" # "$prompt_out"  #$(( current + 1 ))
 		  else
 		  	echo -e " ${yellow}File (#$(( current + 1 ))) not found (deleted?) - '$file_wo_quotes'${norm}"
@@ -591,7 +591,6 @@ cmd_git_branch_delete_any_way() {
 	  	git branch -D $branch
 	  fi
 	}
-
 
 cmd_git_log_host_first(){
 	#git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"

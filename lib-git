@@ -877,25 +877,40 @@ cmd_git_pull(){ # gul
 	git pull $curr_remote $curr_branch #--all 
 	}
 cmd_git_push(){ # gus
-	curr_remote=$(current_remote)
-	# echo -e "{}PUSH to $curr_remote"
-	if [[ "$curr_remote" == "" ]]; then 
-		manual_remote="$1"
-		if [[ "$manual_remote" == "" ]]; then
-			curr_remote=`git remote show`
+	manual_remote="$1"
+	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
+	if [[ "$manual_remote" == "" ]]; then # параметр не указан
+		curr_remote=$(current_remote)
+		# echo -e "{}PUSH to $curr_remote"
+		if [[ "$curr_remote" == "" ]]; then 
+			curr_remote=`git remote show` # если один то сделать его default (upstream)
 			cnt=$[$(echo "$curr_remote" | wc -l)]
 			[[ $cnt -ne 1 ]] && curr_remote=""
-		  else
-			curr_remote=`git remote show | grep $manual_remote`
 		  fi
+		if [[ "$curr_remote" == "" ]]; then
+			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
+			# return
+		  else
+			echo -e "git PUSH to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			git push "$curr_remote" "$curr_branch" -u #all --all
+		  fi
+	  else
+	  	remotes=$(git remote show)
+		for name in $remotes; do 
+			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
+				# echo -e "${red}$name$norm"
+				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
+				git push -u "$curr_remote" "$curr_branch":"$curr_branch"  #all --all
+			  #else
+			  	#echo $name
+			  fi
+		  done
+
+		# curr_remote=`git remote show | grep $manual_remote`
 	  fi
-	[[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && return
-	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	echo -e "git PUSH to ${red}$curr_remote$norm / $green$curr_branch$norm"  #-u
 	#curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 	#echo curr_remote: $curr_remote
 	#echo curr_branch: $curr_branch
-	git push "$curr_remote" "$curr_branch" -u #all --all
 	}
 cmd_git_commit_and_push(){ # gok 
 	cmd_git_append_and_commit "$1"

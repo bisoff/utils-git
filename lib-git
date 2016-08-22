@@ -887,8 +887,8 @@ cmd_git_pull(){ # gul
 			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PULL to ${red}$name$norm: $green$curr_branch$norm"  #-u
-				git pull -u "$name" "$curr_branch"  #all --all
-				#git branch --set-upstream-to <remote-name>
+				git pull "$name" "$curr_branch"  #all --all
+				git branch --set-upstream-to "$name"
 			  #else
 			  	#echo $name
 			  fi

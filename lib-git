@@ -864,17 +864,37 @@ cmd_git_fetch(){ # gfe
 	git fetch -vv --all 2>&1 | grep "\-> "
 	}
 cmd_git_pull(){ # gul
-	curr_remote=$(current_remote)
-	echo curr_remote: $curr_remote
-	if [[ "$curr_remote" == "" ]]; then 
-		curr_remote=$(cmd_git_remotes_show)
-		cn=$[$(echo "$curr_remote" | wc -l)]
-		[[ $cn -ne 1 ]] && curr_remote=""
-	  fi
-	[[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && return
+	manual_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	echo -e "${red}git pull $curr_remote $curr_branch$norm"  #-u
-	git pull $curr_remote $curr_branch #--all 
+	if [[ "$manual_remote" == "" ]]; then # параметр не указан
+		curr_remote=$(current_remote)
+		# echo -e "{}PUSH to $curr_remote"
+		if [[ "$curr_remote" == "" ]]; then 
+			#curr_remote=$(cmd_git_remotes_show)
+			curr_remote=`git remote show` # если один то сделать его default (upstream)
+			cnt=$[$(echo "$curr_remote" | wc -l)]
+			[[ $cnt -ne 1 ]] && curr_remote=""
+		  fi
+		if [[ "$curr_remote" == "" ]]; then
+			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
+			# return
+		  else
+			echo -e "git PULL to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			git push "$curr_remote" "$curr_branch" -u #all --all
+		  fi
+	  else
+	  	remotes=$(git remote show)
+		for name in $remotes; do 
+			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
+				# echo -e "${red}$name$norm"
+				echo -e "git PULL to ${red}$name$norm: $green$curr_branch$norm"  #-u
+				git pull -u "$name" "$curr_branch"  #all --all
+				#git branch --set-upstream-to <remote-name>
+			  #else
+			  	#echo $name
+			  fi
+		  done
+	  fi
 	}
 cmd_git_push(){ # gus
 	manual_remote="$1"
@@ -900,7 +920,7 @@ cmd_git_push(){ # gus
 			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
-				git push -u "$name" "$curr_branch":"$curr_branch"  #all --all
+				git push -u "$name" "$curr_branch" #all --all
 				#git branch --set-upstream-to <remote-name>
 			  #else
 			  	#echo $name

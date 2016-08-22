@@ -867,7 +867,7 @@ cmd_git_push(){ # gus
 	  fi
 	[[ "$curr_remote" == "" ]] && echo -e "${red}current remote NOT FOUND$norm" 1>&2 && exit
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	echo -e "git PUSH ${red}$curr_remote$norm $curr_branch"  #-u
+	echo -e "git PUSH to ${red}$curr_remote$norm / $green$curr_branch$norm"  #-u
 	#curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 	#echo curr_remote: $curr_remote
 	#echo curr_branch: $curr_branch

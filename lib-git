@@ -896,6 +896,7 @@ cmd_git_pull(){ # gul
 			# return
 		  else
 			echo -e "git PULL to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			# git pull --stat --no-rebase #--all --quiet
 			git fetch -vv "$curr_remote" "$curr_branch"
 			git merge "$curr_remote"/"$curr_branch"
 			git branch --set-upstream-to "$curr_remote"

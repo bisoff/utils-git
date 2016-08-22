@@ -828,6 +828,9 @@ cmd_git_remote_rename(){ # girn
 		  fi
 	  fi
 	}
+cmd_git_remote_set_default(){ # giru
+	git branch --set-upstream-to $1/$(current_branch)
+	}
 
 cmd_git_status_with_untracked(){ # gis
 	#pwd | tr 'a-z' 'A-Z'
@@ -933,7 +936,7 @@ cmd_git_push(){ # gus
 			# return
 		  else
 			echo -e "git PUSH to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
-			git push "$curr_remote" "$curr_branch" -u #all --all
+			git push "$curr_remote" "$curr_branch" #all --all
 		  fi
 	  else
 	  	remotes=$(git remote show)
@@ -941,7 +944,7 @@ cmd_git_push(){ # gus
 			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
-				git push -u "$name" "$curr_branch" #all --all
+				git push "$name" "$curr_branch" #all --all
 				#git branch --set-upstream-to <remote-name>
 			  #else
 			  	#echo $name

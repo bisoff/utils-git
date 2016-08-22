@@ -905,9 +905,12 @@ cmd_git_pull(){ # gul
 				# echo -e "${red}$name$norm"
 				echo -e "git PULL to ${red}$name$norm: $green$curr_branch$norm"  #-u
 				#git pull "$name" "$curr_branch"  #all --all
+				echo "fetch"
 				git fetch -vv "$name" "$curr_branch"
+v				echo "merge"
 				git merge "$name"/"$curr_branch"
-				git branch --set-upstream-to "$name"
+				echo "upstream"
+				git branch --set-upstream-to "$name" "$curr_branch"
 			  #else
 			  	#echo $name
 			  fi
@@ -970,4 +973,3 @@ cmd_git_stash_pop(){ # gsp
 	git stash pop
 	}
 
-git merge bb/master

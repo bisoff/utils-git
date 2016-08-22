@@ -608,6 +608,8 @@ cmd_git_branch_delete_if_merged(){ # gibd
 	}
 
 cmd_git_log_host_first(){ # gil
+	# 	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
+	# 	git branch -d $branch # если ветка была смержена
 	#git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
 	#http://stackoverflow.com/questions/1057564/pretty-git-branch-graphs
 
@@ -918,7 +920,6 @@ cmd_git_commit_and_push(){ # gok
 cmd_git_show_file_diff(){ # gos
 	git show $1
 	}
-
 cmd_git_stash_save(){ # gst
 	git stash #save
 	}

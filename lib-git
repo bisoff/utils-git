@@ -874,7 +874,7 @@ cmd_git_show_file_diff(){
 
 cmd_git_fetch(){ # gfe
 	echo -e "${red}git fetch$norm"
-	git fetch -vv --all 2>&1 | grep "\-> "
+	git fetch -vv --all 2>&1 | grep "\-> " # This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
 	}
 cmd_git_pull(){ # gul
 	manual_remote="$1"
@@ -893,7 +893,10 @@ cmd_git_pull(){ # gul
 			# return
 		  else
 			echo -e "git PULL to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
-			git push "$curr_remote" "$curr_branch" -u #all --all
+			git fetch -vv "$curr_remote" "$curr_branch"
+			git merge "$curr_remote"/"$curr_branch"
+			git branch --set-upstream-to "$curr_remote"
+			#git push "$curr_remote" "$curr_branch" -u #all --all
 		  fi
 	  else
 	  	remotes=$(git remote show)
@@ -901,7 +904,9 @@ cmd_git_pull(){ # gul
 			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PULL to ${red}$name$norm: $green$curr_branch$norm"  #-u
-				git pull "$name" "$curr_branch"  #all --all
+				#git pull "$name" "$curr_branch"  #all --all
+				git fetch -vv "$name" "$curr_branch"
+				git merge "$name"/"$curr_branch"
 				git branch --set-upstream-to "$name"
 			  #else
 			  	#echo $name
@@ -965,3 +970,4 @@ cmd_git_stash_pop(){ # gsp
 	git stash pop
 	}
 
+git merge bb/master

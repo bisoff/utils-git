@@ -900,7 +900,8 @@ cmd_git_push(){ # gus
 			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
-				git push -u "$curr_remote" "$curr_branch":"$curr_branch"  #all --all
+				git push -u "$name" "$curr_branch":"$curr_branch"  #all --all
+				#git branch --set-upstream-to <remote-name>
 			  #else
 			  	#echo $name
 			  fi

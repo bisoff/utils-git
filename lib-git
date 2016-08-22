@@ -916,7 +916,6 @@ cmd_git_commit_and_push(){ # gok
 	#git push #all --all
 	cmd_git_push
 	}
-
 cmd_git_show_file_diff(){ # gos
 	git show $1
 	}

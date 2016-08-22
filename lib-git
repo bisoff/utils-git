@@ -905,12 +905,12 @@ cmd_git_pull(){ # gul
 				# echo -e "${red}$name$norm"
 				echo -e "git PULL to ${red}$name$norm: $green$curr_branch$norm"  #-u
 				#git pull "$name" "$curr_branch"  #all --all
-				echo "fetch"
+				#echo "fetch"
 				git fetch -vv "$name" "$curr_branch"
-v				echo "merge"
+				#echo "merge"
 				git merge "$name"/"$curr_branch"
 				echo "upstream"
-				git branch --set-upstream-to "$name" "$curr_branch"
+				#git branch --set-upstream-to "$name"/"$curr_branch"
 			  #else
 			  	#echo $name
 			  fi
@@ -957,7 +957,7 @@ cmd_git_push(){ # gus
 cmd_git_commit_and_push(){ # gok 
 	cmd_git_append_and_commit "$1"
 	#git push #all --all
-	cmd_git_push
+	cmd_git_push all
 	}
 
 cmd_git_show_file_diff(){ # gos

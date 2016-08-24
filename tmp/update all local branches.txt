@@ -1,0 +1,373 @@
+update all local branches
+http://stackoverflow.com/questions/4318161/can-git-pull-all-update-all-my-local-branches
+
+for remote in `git branch -r`; do git branch --track $remote; done
+git pull --all
+
+
+git fetch --all
+for branch in "$@"; do
+    git checkout "$branch"      || exit 1
+    git rebase "origin/$branch" || exit 1 # You should change git rebase origin/$branch to git pull, so that it will fetch from the appropriate tracking branch (presumably on origin) and either merge or rebase as determined by the config
+done
+
+
+#   `git-pull-all` to pull all your local branches from origin
+#   `git-pull-all remote` to pull all your local branches from a named remote
+function git-pull-all() {
+    START=$(git symbolic-ref --short -q HEAD);
+    for branch in $(git branch | sed 's/^.//'); do
+        git checkout $branch;
+        git pull ${1:-origin} $branch || break;
+    done;
+    git checkout $START;
+};
+function git-push-all() {
+    git push --all ${1:-origin};
+};
+
+
+git fetch origin
+git update-ref refs/heads/other-branch origin/other-branch
+# to update the position of your local branch without having to check it out.
+# I don't usually have unpushed changes on multiple branches, and just want to update my various local branches to match the remote. This solution is much nicer than my usual delete/re-checkout method!
+
+
+https://github.com/muhqu/dotfiles
+
+ffwd-update
+$ git remote update 					# fetch the lates revs
+$ git remote show 					# get a list of local branches that track a remote branch (e.g. branches that can be used with git pull)
+$ git rev-list --count <REMOTE_BRANCH>..<LOCAL_BRANCH>	# check how many commit the local branch is behind the remote (and ahead vice versa)
+$ git branch -l -f <LOCAL_BRANCH> -t <REMOTE_BRANCH>	# if the local branch is 0 commits ahead and 1 or more commits behind, it can be fast-forwarded 
+
+if the local branch is 1 or more commits ahead, it can NOT be fast-forwarded and needs to be merged or rebased by hand
+
+
+
+#!/bin/bash
+# ex. $ git ffwd-update
+# Fetching origin
+#  branch bigcouch was 10 commit(s) behind of origin/bigcouch. reseting local branch to remote
+#  branch develop was 3 commit(s) behind of origin/develop. reseting local branch to remote
+#  branch master is 6 commit(s) behind and 1 commit(s) ahead of origin/master. could not be fast-forwarded
+main() {
+  REMOTES="$@";
+  if [ -z "$REMOTES" ]; then
+    REMOTES=$(git remote);
+  fi
+  REMOTES=$(echo "$REMOTES" | xargs -n1 echo)
+  CLB=$(git branch -l|awk '/^\*/{print $2}');
+  echo "$REMOTES" | while read REMOTE; do
+    git remote update $REMOTE
+    git remote show $REMOTE -n \
+    | awk '/merges with remote/{print $5" "$1}' \
+    | while read line; do
+      RB=$(echo "$line"|cut -f1 -d" ");
+      ARB="refs/remotes/$REMOTE/$RB";
+      LB=$(echo "$line"|cut -f2 -d" ");
+      ALB="refs/heads/$LB";
+      NBEHIND=$(( $(git rev-list --count $ALB..$ARB 2>/dev/null) +0));
+      NAHEAD=$(( $(git rev-list --count $ARB..$ALB 2>/dev/null) +0));
+      if [ "$NBEHIND" -gt 0 ]; then
+        if [ "$NAHEAD" -gt 0 ]; then
+          echo " branch $LB is $NBEHIND commit(s) behind and $NAHEAD commit(s) ahead of $REMOTE/$RB. could not be fast-forwarded";
+        elif [ "$LB" = "$CLB" ]; then
+          echo " branch $LB was $NBEHIND commit(s) behind of $REMOTE/$RB. fast-forward merge";
+          git merge -q $ARB;
+        else
+          echo " branch $LB was $NBEHIND commit(s) behind of $REMOTE/$RB. reseting local branch to remote";
+          git branch -l -f $LB -t $ARB >/dev/null;
+        fi
+      fi
+    done
+  done
+}
+
+main $@
+
+
+https://github.com/aanand/git-up
+https://github.com/msiemens/PyGitUp - clone of git-up for Python   (pip install --user git-up)
+
+
+$ cat ~/bin/git/git-update-all
+#!/bin/bash
+# Update all local branches, checking out each branch in succession.
+# Eventually returns to the original branch. Use "-n" for dry-run.
+
+git_update_all() {
+  local run br
+  br=$(git name-rev --name-only HEAD 2>/dev/null)
+  [ "$1" = "-n" ] && shift && run=echo
+
+  for x in $( git branch | cut -c3- ) ; do
+     $run git checkout $x && $run git pull --ff-only || return 2
+  done
+
+  [ ${#br} -gt 0 ] && $run git checkout "$br"
+}
+git_update_all "$@"
+
+
+If you add ~/bin/git to your PATH (assuming the file is ~/bin/git/git-update-all), you can just run: 
+$ git update-all
+
+
+
+
+
+git-fetch
+we use git-fetch to update non-current branches and git pull --ff-only for the current branch. It:
+    Doesn't require checking out branches
+    Updates branches only if they can be fast-forwarded
+    Will report when it can't fast-forward
+
+#!/bin/bash
+currentbranchref="$(git symbolic-ref HEAD 2>&-)"
+git branch -r | grep -v ' -> ' | while read remotebranch
+do
+    # Split <remote>/<branch> into remote and branchref parts
+    remote="${remotebranch%%/*}"
+    branchref="refs/heads/${remotebranch#*/}"
+
+    if [ "$branchref" == "$currentbranchref" ]
+    then
+        echo "Updating current branch $branchref from $remote..."
+        git pull --ff-only
+    else
+        echo "Updating non-current ref $branchref from $remote..."
+        git fetch "$remote" "$branchref:$branchref"
+    fi
+done
+
+From the manpage for git-fetch:
+
+   <refspec>
+       The format of a <refspec> parameter is an optional plus +, followed by the source ref <src>,
+       followed by a colon :, followed by the destination ref <dst>.
+
+       The remote ref that matches <src> is fetched, and if <dst> is not empty string, the local ref
+       that matches it is fast-forwarded using <src>. If the optional plus + is used, the local ref is
+       updated even if it does not result in a fast-forward update.
+
+By specifying git fetch <remote> <ref>:<ref> (without any +) we get a fetch that updates the local ref only when it can be fast-forwarded.
+
+Note: this assumes the local and remote branches are named the same (and that you want to track all branches), it should really use information about which local branches you have and what they are set up to track.
+
+
+
+
+
+    By default pulls from origin for all branches that are setup to track origin, allows you to specify a different remote if desired.
+    If your current branch is in a dirty state then it stashes your changes and will attempt to restore these changes at the end.
+    For each local branch that is set up to track a remote branch will:
+        git checkout branch
+        git pull origin
+    Finally, will return you to your original branch and restore state.
+
+** I use this but have not tested thoroughly, use at own risk. See an example of this script in a .bash_alias file here.
+
+    # Do a pull on all branches that are tracking a remote branches, will from origin by default.
+    # If current branch is dirty, will stash changes and reply after pull.
+    # Usage: pullall [remoteName]
+
+    alias pullall=pullAll
+    function pullAll (){
+     # if -h then show help
+     if [[ $1 == '-h' ]]
+    then
+      echo "Description: Pulls new changes from upstream on all branches that are tracking remotes."
+      echo 
+      echo "Usage: "
+      echo "- Default: pullall"
+      echo "- Specify upstream to pull from: pullall [upstreamName]"
+      echo "- Help: pull-all -h"
+    else
+
+     # default remote to origin
+     remote="origin"
+     if [ $1 != "" ]
+     then
+       remote=$1
+     fi
+
+     # list all branches that are tracking remote
+     # git branch -vv : list branches with their upstreams
+     # grep origin : keep only items that have upstream of origin
+     # sed "s/^.."... : remove leading *
+     # sed "s/^"..... : remove leading white spaces
+     # cut -d" "..... : cut on spaces, take first item
+     # cut -d splits on space, -f1 grabs first item
+     branches=($(git branch -vv | grep $remote | sed "s/^[ *]*//" | sed "s/^[ /t]*//" | cut -d" " -f1))
+
+     # get starting branch name
+     startingBranch=$(git rev-parse --abbrev-ref HEAD)
+
+     # get starting stash size
+     startingStashSize=$(git stash list | wc -l)
+
+     echo "Saving starting branch state: $startingBranch"
+     git stash
+
+     # get the new stash size
+     newStashSize=$(git stash list | wc -l)
+
+     # for each branch in the array of remote tracking branches
+     for branch in ${branches[*]}
+     do
+       echo "Switching to $branch"
+       git checkout $branch
+
+       echo "Pulling $remote"
+       git pull $remote
+
+     done
+
+     echo "Switching back to $startingBranch"
+     git checkout $startingBranch
+
+     # compare before and after stash size to see if anything was stashed
+     if [ "$startingStashSize" -lt "$newStashSize" ]
+     then
+       echo "Restoring branch state"
+       git stash pop
+     fi
+    fi
+    }
+
+
+
+
+
+If refs/heads/master can be fast-forwarded to refs/remotes/foo/master, the output of
+
+git merge-base refs/heads/master refs/remotes/foo/master
+
+should return the SHA1 id that refs/heads/master points to. With this, you can put together a script that automatically updates all local branches that have had no diverting commits applied to them.
+
+This little shell script (I called it git-can-ff) illustrates how it can be done.
+
+#!/bin/sh
+
+set -x
+
+usage() {
+    echo "usage: $(basename $0) <from-ref> <to-ref>" >&2
+    exit 2
+}
+
+[ $# -ne 2 ] && usage
+
+FROM_REF=$1
+TO_REF=$2
+
+FROM_HASH=$(git show-ref --hash $FROM_REF)
+TO_HASH=$(git show-ref --hash $TO_REF)
+BASE_HASH=$(git merge-base $FROM_REF $TO_REF)
+
+if [ "$BASE_HASH" = "$FROM_HASH" -o \
+     "$BASE_HASH" = "$FROM_REF" ]; then
+    exit 0
+else
+    exit 1
+fi
+
+
+
+
+#!/bin/sh
+CURRENT=`git rev-parse --abbrev-ref HEAD`
+git fetch --all
+for branch in "$@"; do
+  if ["$branch" -ne "$CURRENT"]; then
+    git checkout "$branch" || exit 1
+    git rebase "origin/$branch" || exit 1
+  fi
+done
+git checkout "$CURRENT" || exit 1
+git rebase "origin/$CURRENT" || exit 1
+
+This, after it finishes, leaves working copy checked out from the same branch as it was before the script was called.
+
+The git pull version:
+
+#!/bin/sh
+CURRENT=`git rev-parse --abbrev-ref HEAD`
+git fetch --all
+for branch in "$@"; do
+  if ["$branch" -ne "$CURRENT"]; then
+    git checkout "$branch" || exit 1
+    git pull || exit 1
+  fi
+done
+git checkout "$CURRENT" || exit 1
+git pull || exit 1
+
+
+
+To complete the answer by Matt Connolly, this is a safer way to update local branch references that can be fast-forwarded, without checking out the branch. It does not update branches that cannot be fast-forwarded (i.e. that have diverged), and it does not update the branch that is currently checked out (because then the working copy should be updated as well).
+
+git fetch
+
+head="$(git symbolic-ref HEAD)"
+git for-each-ref --format="%(refname) %(upstream)" refs/heads | while read ref up; do
+    if [ -n "$up" -a "$ref" != "$head" ]; then
+        mine="$(git rev-parse "$ref")"
+        theirs="$(git rev-parse "$up")"
+        base="$(git merge-base "$ref" "$up")"
+        if [ "$mine" != "$theirs" -a "$mine" == "$base" ]; then
+            git update-ref "$ref" "$theirs"
+        fi
+    fi
+done
+
+
+
+
+
+This solution has a nice colorful output, gracefully handles your current working directory, and is fast because it doesn't do any checkouts, and leaves your working directory in tact. Also, it is just a shell script with no dependencies other than git. (only tested on OSX so far)
+
+#!/usr/bin/env bash
+
+gitup(){    
+RED='\033[33;31m'
+YELLO='\033[33;33m'
+GREEN='\033[33;32m'
+NC='\033[0m' # No Color
+
+HEAD=$(git rev-parse HEAD)
+CHANGED=$(git status --porcelain | wc -l)
+
+echo "Fetching..."
+git fetch --all --prune &>/dev/null
+for branch in `git for-each-ref --format='%(refname:short)' refs/heads`; do
+
+    LOCAL=$(git rev-parse --quiet --verify $branch)
+    if [ "$HEAD" = "$LOCAL" ] && [ $CHANGED -gt 0 ]; then
+        echo -e "${YELLO}WORKING${NC}\t\t$branch"
+    elif git rev-parse --verify --quiet $branch@{u}&>/dev/null; then
+        REMOTE=$(git rev-parse --quiet --verify $branch@{u})
+        BASE=$(git merge-base $branch $branch@{u})
+
+        if [ "$LOCAL" = "$REMOTE" ]; then
+           echo -e "${GREEN}OK${NC}\t\t$branch" 
+        elif [ "$LOCAL" = "$BASE" ]; then
+            if [ "$HEAD" = "$LOCAL" ]; then
+                git merge $REMOTE&>/dev/null
+            else
+                git branch -f $branch $REMOTE
+            fi
+            echo -e "${GREEN}UPDATED${NC}\t\t$branch"
+        elif [ "$REMOTE" = "$BASE" ]; then
+            echo -e "${RED}AHEAD${NC}\t\t$branch"
+        else
+            echo -e "${RED}DIVERGED${NC}\t\t$branch"
+        fi
+    else
+        echo -e "${RED}NO REMOTE${NC}\t$branch"
+    fi
+done
+}
+
+https://github.com/davestimpert/gitup

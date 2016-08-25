@@ -1,5 +1,6 @@
 	☐	checkout hash
 	☐	gok - push/pull всех веток в текущий remote
+	☐	gdifs if no changes then for last commit
 
 	☐	grev - revert all files
 

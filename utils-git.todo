@@ -1,1 +1,12 @@
 	☐	checkout hash
+	☐	gok - push/pull всех веток в текущий remote
+
+	☐	grev - revert all files
+
+	gis unmerged!! rebase in progress!! 
+	git rebase --continue
+	git add
+	git rebase --skip
+	giv - git --version
+	git config --global git-up.rebase.auto false  # To turn off the automatic rebasing behavior of git-up (gem install git-up)
+	git pull -r # git sync

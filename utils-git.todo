@@ -4,6 +4,7 @@
 
 	☐	grev - revert all files
 
+	☐	сделать gme - для merge после gul(FETCH) gac 
 	
 	gis unmerged!! rebase in progress!! 
 	git rebase --continue

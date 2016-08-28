@@ -9,7 +9,7 @@ UTILS_GIT_ALIASES="utils-git-aliases"
 case "$UTILS_GIT_THE_OS" in
 	MINGW*)
 		UTILS_GIT_TIMESTAMP=`stat -c %y $HOME_UTILS_GIT/lib-git`
-		UTILS_GIT_ALIAS_TIMESTAMP=`stat -c %y $HOME/.utils-git/$UTILS_PRJ_ALIASES`
+		UTILS_GIT_ALIAS_TIMESTAMP=`stat -c %y $HOME/.utils-git/$UTILS_GIT_ALIASES`
 		;;
 	Darwin)
 		UTILS_GIT_TIMESTAMP=$(stat -f "%Sm" -t "%h %U %G %s" "$HOME_UTILS_GIT/lib-git")

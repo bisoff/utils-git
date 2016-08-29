@@ -2,7 +2,6 @@ ${cyan}Commit / Fetch / Push / Pull${norm}
   ${yellow}gfe${norm}			- fetch all remote branches		git fetch -vv		
   ${yellow}gull${norm}			- pull (fetch and merge)		git pull
   ${yellow}gus${norm}			- push 					git push $curr_remote(only remote) $curr_branch -u
-
   ${yellow}ga${norm}	<mask>		- stage all or by mask			git add -A .  OR  git add <mask>
   ${yellow}gas${norm}	<mask>		- stage by mask, commit & push		ga gc gus
   ${yellow}gac${norm}	<msg> 		- stage all and commit 			git add -A .; git commit -m "$msg"  # [[ "$msg" == "" ]]; $msg="$(echo $GITHOST)-up"
@@ -10,40 +9,32 @@ ${cyan}Commit / Fetch / Push / Pull${norm}
   ${yellow}gc${norm}    <msg>		- commit staged				git commit -m "$msg"
   ${yellow}gcm${norm}   <msg>		- commit ammend				git commit --amend -m "$1"
   ${yellow}gok${norm}	<msg>		- commit staged & push			git add -A . ; git commit -m "$msg"; git push 
-
 ${cyan}Config/Status${norm}
   ${yellow}gib${norm}			- show local branches			git branch -vv  	
   ${yellow}gibnm${norm}         	- show not-merged branches (new)	git branch --no-merged  
   ${yellow}gibr${norm} 	<remote>	- show remotes				git branch -r -vv 	
   ${yellow}giba${norm}			- show local and remote branches  	git branch -vv -a 	
   ${yellow}gibr${norm}			- only remote branches			git branch -vv		
-
-  ${yellow}gir${norm}			- show remotes				git remote -v		
   ${yellow}gis${norm}			- files including untracked		git status --ignored	
-
+  ${yellow}girs${norm}      - show remotes        git remote -v   
+  ${yellow}gird${norm}      - show remotes in detail       git remote show <name>
 ${cyan}Diff${norm}
   ${yellow}gid${norm}			- gis show??				git diff
   ${yellow}gid${norm}	<hash>		- diffs in commit			git diff "$1" "$1~1"	
   ${yellow}gos${norm}	<hash>		- work <-> HEAD | <hash>		git show $1		
-
 ${cyan}Branch (name looked up by substring )${norm}
   ${yellow}gib${norm}	<branch>	- switch to by branch			git checkout <branch> 	
   ${yellow}giba${norm}	<branch>	- switch to by branch		  	git checkout <branch> 	
-
   ${yellow}gibn${norm}	<branch>	- create new branch			git checkout -b <branch> 
-
   ${yellow}gibd${norm}  <branch>	- delete branch				git branch -d <branch>  # возможно если ветка была смержена
   ${yellow}gibdd${norm} <branch>	- delete branch				git branch -D <branch>  # удалить в любом случае 
-
   ${yellow}gim${norm}	<branch>	- merge from branch (with pull before)	git merge <branch>
   ${yellow}giml${norm}  <branch>   	- merge from branch (with local branch)	git merge <branch>  
   ${yellow}gimto${norm}	<branch>	- merge current branch to another	git checkout <branch>; git merge $currbranch; git checkout $currbranch
-
 ${cyan}Stash${norm}
   ${yellow}gst${norm}			- 					git stash
   ${yellow}gsp${norm}			- 					git pop
   ${yellow}gsl${norm}			- 					git stash list
-
 ${cyan}Log${norm}
   ${yellow}gilh${norm}			- 					git log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   ${yellow}gil${norm}	<commits_num>	- 					git log --graph -n $commits_num --full-history --all --date=iso --color --pretty=format:\".......
@@ -52,14 +43,12 @@ ${cyan}Log${norm}
   ${yellow}gilg+${norm}			- 					git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative -p
   ${yellow}gils${norm}	<commits_num>	- 					git log -n $commits_num -last --pretty=format:"%h%x09%Creset%an%x09%x09%s" --decorate --numstat | grep -v "^$"  | grep -vE "^[0-9a-f]{7}" | grep -vE "^-"
   ${yellow}gils+${norm}	<commits_num>	- 					git log -n $commits_num --pretty=format:\"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]\" --decorate --numstat
-
 ${cyan}Service${norm}
-  ${yellow}gec${norm}			- global git params			ed ~/.gitconfig
-  ${yellow}gect${norm}			- repo params				ed ./.git/config
+  ${yellow}gec${norm}			- edit global git config			ed ~/.gitconfig
+  ${yellow}gect${norm}			- edit The repo git config 				ed ./.git/config
   ${yellow}geh${norm}			- edit help.clr				ed $HOME_UTILS_GIT/help.clr
   ${yellow}ger${norm}			- edit readme.md			ed $HOME_UTILS_GIT/readme.md
   ${yellow}gel${norm}			- edit lib-git
-
   ${yellow}gitsw${norm}			- MSYS: change git version
   ${yellow}gitsw${norm}			- switch git version by renaming folder if you use some versions of CLI git. WARNING: to use it correctly (w/o context loose) run it as ". sw-git" and reopen shell
   ${yellow}lib-git${norm}		- common functions: find_branch() current_branch() 

@@ -339,12 +339,12 @@ cmd_git_help(){ # g-help
 	#less -n -r $UTILS_PRJ_HOME/readme.clr
 	while IFS='' read -r line || [[ -n "$line" ]]; do
 		eval "echo -e \"$line\""
-	done < <(cat $UTILS_GIT_HOME/help.clr ) #| head -n 2
+	done < <(cat $HOME_UTILS_GIT/help.clr ) #| head -n 2
 	}
-cmd_git_uninstall(){ # g-uninstall
+cmd_git_uninstall(){ 					# g-uninstall
 	null
 	}
-cmd_git_switch_version(){ # gitsw
+cmd_git_switch_version(){ 				# gitsw
 	#echo "Use syntax: . gitsw"
 	[[ "$APPS" = "" ]] && echo "\$APPS is not defined; setup it (ex. in ~/.bash_profile or by 'varadd APPS <path>') and reopen shell" && exit 1
 
@@ -358,7 +358,7 @@ cmd_git_switch_version(){ # gitsw
 		  fi
 	  fi
 	}
-cmd_git_switch_version(){ # gitsw
+cmd_git_switch_version(){ 				# gitsw
 	#echo "Use syntax: . gitsw"
 	[[ "$APPS" = "" ]] && echo "\$APPS is not defined; setup it (ex. in ~/.bash_profile or by 'varadd APPS <path>') and reopen shell" && exit 1
 
@@ -372,13 +372,13 @@ cmd_git_switch_version(){ # gitsw
 		  fi
 	  fi
 	}
-cmd_git_append(){ # ga
+cmd_git_append(){ 					# ga
 	echo -e "BRANCH: $green$(current_branch)$norm"
 	files="$1"
 	[[ "$files" == "" ]] && git add -A .
 	[[ "$files" != "" ]] && git add "$files"
 	}
-cmd_git_append_and_commit(){ # gac
+cmd_git_append_and_commit(){ 				# gac
 	msg=$1
 	#pwd | tr 'a-z' 'A-Z'
 	#echo -e "\033[0;34;48m sss \033[m"
@@ -398,7 +398,7 @@ cmd_git_append_and_commit(){ # gac
 	#cmd_git_log_with_files 1
 	# exit
 	}
-cmd_git_append_and_commit_amend(){ # gacm
+cmd_git_append_and_commit_amend(){ 			# gacm
 	echo -e "BRANCH: $green$(current_branch)$norm"
 
 	git add -A .
@@ -409,7 +409,7 @@ cmd_git_append_and_commit_amend(){ # gacm
 		git commit --amend 
 	  fi
 	}
-cmd_git_append_by_names(){ # gad
+cmd_git_append_by_names(){ 				# gad
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel` # get repo root path
 	cd "$rootpath"
@@ -419,7 +419,7 @@ cmd_git_append_by_names(){ # gad
 	[[ "$files" != "" ]] && git add "$files"
 	cd "$savepath"
 	}
-cmd_git_append_by_mask_commit_and_push(){ # gas
+cmd_git_append_by_mask_commit_and_push(){ 		# gas
 	# add by mask, commit and push
 	files="$1"
 	msg=$2
@@ -430,7 +430,7 @@ cmd_git_append_by_mask_commit_and_push(){ # gas
 	cmd_git_push
 	}
 
-cmd_git_сommit_staged(){ # gc
+cmd_git_сommit_staged(){ 				# gc
 	msg=$1
 	#pwd | tr 'a-z' 'A-Z'
 	#echo -e "\033[0;34;48m sss \033[m"
@@ -444,7 +444,7 @@ cmd_git_сommit_staged(){ # gc
 	  fi
 	git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
 	}
-cmd_git_commit_staged_amend(){ # gcm
+cmd_git_commit_staged_amend(){ 				# gcm
 	echo -e "BRANCH: $green$(current_branch)$norm"
 
 	#test not staged and echo!
@@ -455,7 +455,7 @@ cmd_git_commit_staged_amend(){ # gcm
 	  fi
 	}
 
-cmd_git_diff_file_list_this_and_prior_commits(){ # gdi gdi1
+cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 
 	# all files
 	#[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& return 
@@ -508,7 +508,7 @@ cmd_git_diff_file_list_this_and_prior_commits(){ # gdi gdi1
 
 	#git diff --stat=200 HEAD~1 HEAD --color | sed -n '$! p'
 	}
-cmd_git_diff_file_list_menu(){ # gdifs gids gdis
+cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 	# shows menu to choose file which diff you want to view
 
 	mode="$1" # "": work/head  last:head/head~1
@@ -619,7 +619,7 @@ cmd_git_diff_file_list_menu(){ # gdifs gids gdis
 	  done
 	}
 
-cmd_git_branch_show_local_and_remote(){ # giba
+cmd_git_branch_show_local_and_remote(){			# giba
 	echo "local and remote branches:"
 	if [[ "$1" == "" ]]; then
 		git branch -avv
@@ -628,15 +628,15 @@ cmd_git_branch_show_local_and_remote(){ # giba
 	  	[ $? -eq 0 ] && git checkout  $branch
 	  fi
 	}
-cmd_git_branch_show_remote_only(){ # gibr
+cmd_git_branch_show_remote_only(){ 			# gibr
 	echo "remote branches:"
 	git branch -r -vv #all
 	}
-cmd_git_branch_show_unmerged(){ # gibnm
+cmd_git_branch_show_unmerged(){ 			# gibnm
 	echo "unmerged branches:"
 	git branch --no-merged
 	}
-cmd_git_branch_show_local_or_switch(){ # gib gibs
+cmd_git_branch_show_local_or_switch(){ 			# gib gibs
 	if [[ "$1" == "" ]]; then
 		echo "local branches:"
 		git branch -lvv
@@ -649,14 +649,14 @@ cmd_git_branch_show_local_or_switch(){ # gib gibs
 	  fi
 	}
 
-cmd_git_branch_new(){ # gibn
+cmd_git_branch_new(){ 					# gibn
 	if [[ "$1" == "" ]]; then
 		echo "[CREATE NEW BRANCH] first param must be Name"
 	  else
 	  	git checkout -b "$1"
 	  fi
 	}
-cmd_git_branch_delete_any_way(){ # gibdf
+cmd_git_branch_delete_any_way(){ 			# gibdf
 	if [[ "$1" == "" ]]; then
 		echo branch name IS MISSED 1>&2 && exit
 	  else
@@ -667,7 +667,7 @@ cmd_git_branch_delete_any_way(){ # gibdf
 	  	git branch -D $branch
 	  fi
 	}
-cmd_git_branch_delete_if_merged(){ # gibd
+cmd_git_branch_delete_if_merged(){ 			# gibd
 	if [[ "$1" == "" ]]; then
 		echo branch name IS MISSED 1>&2 && return
 	  else
@@ -679,7 +679,7 @@ cmd_git_branch_delete_if_merged(){ # gibd
 	  fi
 	}
 
-cmd_git_log_host_first(){ # gil
+cmd_git_log_host_first(){ 				# gil
 	# 	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
 	# 	git branch -d $branch # если ветка была смержена
 	#git log --graph -n 20 --full-history --all --date=iso --color --pretty=format:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s $blue(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset"
@@ -709,7 +709,7 @@ cmd_git_log_host_first(){ # gil
 	#git log -n 20 --oneline --abbrev-commit --all --graph --pretty=format:"%C(yellow)%h%x09%Creset%x09%x09%s (%an)" $*
 	#git log -last --pretty=format:"%C(yellow)%h%x09%Creset%an%x09%x09%s" --decorate -20 --graph $*
 	}
-cmd_git_log_hash_first(){ # gilb
+cmd_git_log_hash_first(){ 				# gilb
 	if [[ "$1" == "" ]];then
 		commits_num=20
 	  else
@@ -723,7 +723,7 @@ cmd_git_log_hash_first(){ # gilb
 	#git log -n 20 --oneline --abbrev-commit --all --graph --pretty=format:"%C(yellow)%h%x09%Creset%x09%x09%s (%an)" $*
 	#git log -last --pretty=format:"%C(yellow)%h%x09%Creset%an%x09%x09%s" --decorate -20 --graph $*
 	}
-cmd_git_log_with_files(){ # gilf
+cmd_git_log_with_files(){ 				# gilf
 	if [[ "$1" == "" ]];then
 		commits_num=7
 	  else
@@ -731,16 +731,16 @@ cmd_git_log_with_files(){ # gilf
 	  fi
 	git log --all --full-history --decorate --date=iso --pretty=format:"%C(red)%h - %C(green) %d %C(yellow)%s %C(blue)(%an - %ad%x08%x08%x08%x08%x08%x08%x08%x08%x08)%Creset" -n $commits_num --name-status
 	}
-cmd_git_log_hash_first_with_merges(){ # gilm
+cmd_git_log_hash_first_with_merges(){ 			# gilm
 	git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative 
 	}
-cmd_git_log_with_file_diff(){ # gild
+cmd_git_log_with_file_diff(){ 				# gild
 	git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative -p
 	}
-cmd_git_gilh(){ # gilh ?? 
+cmd_git_gilh(){ 					# gilh ?? 
 	git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short #??
 	}
-cmd_git_last_n_commits_stat_simple(){ # gils
+cmd_git_last_n_commits_stat_simple(){ 			# gils
 	if [[ "$1" == "" ]];then
 		commits_num=10
 	  else
@@ -752,7 +752,7 @@ cmd_git_last_n_commits_stat_simple(){ # gils
 
 	#git log --numstat --pretty --oneline 0f5d22e..HEAD -- <filename>
 	}
-cmd_git_last_n_commits_stat_with_hash(){ # gilsh
+cmd_git_last_n_commits_stat_with_hash(){ 		# gilsh
 	if [[ "$1" == "" ]];then
 		commits_num=10
 	  else
@@ -764,7 +764,7 @@ cmd_git_last_n_commits_stat_with_hash(){ # gilsh
 	#git log --numstat --pretty --oneline 0f5d22e..HEAD -- <filename>
 	}
 
-cmd_git_branch_merge_after_pull(){ # gim
+cmd_git_branch_merge_after_pull(){ 			# gim
 	source_branch=$(find_branch "$1") #; echo branch: $branch
 	exitcode=$?
 	[ $exitcode -ne 0 ] && echo not found && return
@@ -789,7 +789,7 @@ cmd_git_branch_merge_after_pull(){ # gim
 	git merge $source_branch
 	#echo done
 	}
-cmd_git_branch_merge_with_local(){ # giml
+cmd_git_branch_merge_with_local(){ 			# giml
 	branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
 	returncode=$?
 	#echo returncode: $returncode
@@ -802,7 +802,7 @@ cmd_git_branch_merge_with_local(){ # giml
 	git merge $branch
 	#echo done
 	}
-cmd_git_branch_target_branch_with_this_after_pull(){ # gimto
+cmd_git_branch_target_branch_with_this_after_pull(){ 	# gimto
 	currbranch=$(current_branch)
 	echo currbranch: $currbranch
 
@@ -821,7 +821,7 @@ cmd_git_branch_target_branch_with_this_after_pull(){ # gimto
 		#gil 7
 	  fi
 	}
-cmd_git_branch_target_local_branch_with_this(){ # gimtol
+cmd_git_branch_target_local_branch_with_this(){ 	# gimtol
 	currbranch=$(current_branch)
 	echo currbranch: $currbranch
 
@@ -839,7 +839,7 @@ cmd_git_branch_target_local_branch_with_this(){ # gimtol
 	  fi
 	}
 
-cmd_git_remotes_show(){ # girs
+cmd_git_remotes_show(){ 				# girs
 	#git remote -v
 	curr_remote=$(current_remote)
 	remotes=$(git remote show)
@@ -852,7 +852,7 @@ cmd_git_remotes_show(){ # girs
 		  fi
 	  done
 	}
-cmd_git_remotes_show_detail(){ # gird
+cmd_git_remotes_show_detail(){ 				# gird
 	#git remote -v
 	remotes=$(git remote show)
 	#echo remotes: $remotes
@@ -865,8 +865,11 @@ cmd_git_remotes_show_detail(){ # gird
 		  	git remote show $name
 		  fi
 	  done
+	# when - error: invalid branch.master.merge; cannot rebase onto > 1 branch
+	# run gect and replace for [branch "ex.master"] 
+	# 'rebase = true' to 'rebase = false'
 	}
-cmd_git_remote_rename(){ # girn
+cmd_git_remote_rename(){				# girn
 	# rename current remote
 	[[ "$1" == "" ]] && echo "[RENAME REMOTE] New name is missed !" && return
 	#remotes=$(ls -1)
@@ -886,31 +889,31 @@ cmd_git_remote_rename(){ # girn
 		  fi
 	  fi
 	}
-cmd_git_remote_set_default(){ # giru
+cmd_git_remote_set_default(){ 				# giru
 	git branch --set-upstream-to $1/$(current_branch)
 	}
 
-cmd_git_status_with_untracked(){ # gis
+cmd_git_status_with_untracked(){ 			# gis
 	#pwd | tr 'a-z' 'A-Z'
 	git status -s --untracked-files $* # --porcelain
 	}
-cmd_git_status_colored(){ # gisc
+cmd_git_status_colored(){				# gisc
 	#git diff --name-status | xargs cmd_git_color_git_diff #--delimiter="\n"  -L1
 	git diff --name-status -z| while IFS= read -d '' a; do read -d '' b; cmd_git_color_git_diff $a "$b"; done 
 	# xargs -L1 git push --all --quiet -u
 	# xargs -I% svn rm %
 	#git status -s --untracked-files $* # --porcelain
 	}
-cmd_git_status_ignored(){ # gisi
+cmd_git_status_ignored(){ 				# gisi
 	git status --ignored
 	}
-cmd_git_status_untracked(){ # gisu
+cmd_git_status_untracked(){ 				# gisu
 	#pwd | tr 'a-z' 'A-Z'
 	git status -s --untracked-files $* # --porcelain
 	compare_with_remote
 	}
 
-cmd_git_switch_version(){
+cmd_git_switch_version(){				# gsw
 	#echo "Use syntax: . gitsw"
 	[[ "$APPS" = "" ]] && echo "\$APPS is not defined; setup it (ex. in ~/.bash_profile or by 'varadd APPS <path>') and reopen shell" && return 1
 
@@ -924,20 +927,15 @@ cmd_git_switch_version(){
 		  fi
 	  fi
 	}
-cmd_git_commit_and_push(){
-	gac "$1"
-	#git push #all --all
-	gus
-	}
 cmd_git_show_file_diff(){
 	git show $1
 	}
 
-cmd_git_fetch(){ # gfe
+cmd_git_fetch(){ 					# gfe
 	echo -e "${red}git fetch$norm"
 	git fetch -vv --all 2>&1 | grep "\-> " # This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
 	}
-cmd_git_pull(){ # gul
+cmd_git_pull(){ 					# gul
 	manual_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
 	if [[ "$manual_remote" == "" ]]; then # параметр не указан
@@ -979,7 +977,7 @@ cmd_git_pull(){ # gul
 		  done
 	  fi
 	}
-cmd_git_push(){ # gus
+cmd_git_push(){ 					# gus
 	manual_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
 	if [[ "$manual_remote" == "" ]]; then # параметр не указан
@@ -1016,22 +1014,22 @@ cmd_git_push(){ # gus
 	#echo curr_remote: $curr_remote
 	#echo curr_branch: $curr_branch
 	}
-cmd_git_commit_and_push(){ # gok 
+cmd_git_commit_and_push(){ 				# gok 
 	cmd_git_append_and_commit "$1"
 	#git push #all --all
 	cmd_git_push all
 	}
 
-cmd_git_show_file_diff(){ # gos
+cmd_git_show_file_diff(){ 				# gos
 	git show $1
 	}
-cmd_git_stash_save(){ # gst
+cmd_git_stash_save(){ 					# gst
 	git stash #save
 	}
-cmd_git_stash_list(){ # gstl
+cmd_git_stash_list(){ 					# gstl
 	git stash list
 	}
-cmd_git_stash_pop(){ # gsp
+cmd_git_stash_pop(){ 					# gsp
 	git stash pop
 	}
 

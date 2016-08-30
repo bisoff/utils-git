@@ -1,4 +1,5 @@
 	☐	checkout hash
+	☐	gisx - show NEED PUSH/PULL
 	☐	gok - push/pull всех веток в текущий remote
 	☐	gdifs if no changes then for last commit
 	☐	gef = gfe

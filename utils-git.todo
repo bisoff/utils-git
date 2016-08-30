@@ -1,6 +1,13 @@
 	☐	checkout hash
 	☐	gok - push/pull всех веток в текущий remote
 	☐	gdifs if no changes then for last commit
+	☐	gef = gfe
+	☐	gefa - fetch all bramches
+	☐	gula - fetch and merge all branches
+	☐	view conflicts
+	☐	to PS1 add rebase status
+	☐	to PS1 try \[ \]
+	☐	yellow for cmd params in help.clr
 
 	☐	grev - revert all files
 

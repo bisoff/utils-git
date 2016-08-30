@@ -16,8 +16,8 @@ ${cyan}Config/Status${norm}
   ${yellow}giba${norm}			- show local and remote branches  	git branch -vv -a 	
   ${yellow}gibr${norm}			- only remote branches			git branch -vv		
   ${yellow}gis${norm}			- files including untracked		git status --ignored	
-  ${yellow}girs${norm}      - show remotes        git remote -v   
-  ${yellow}gird${norm}      - show remotes in detail       git remote show <name>
+  ${yellow}girs${norm}			- show remotes        git remote -v   
+  ${yellow}gird${norm}			- show remotes in detail       git remote show <name>
 ${cyan}Diff${norm}
   ${yellow}gid${norm}			- gis show??				git diff
   ${yellow}gid${norm}	<hash>		- diffs in commit			git diff "$1" "$1~1"	

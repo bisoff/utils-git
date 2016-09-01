@@ -358,20 +358,11 @@ cmd_git_switch_version(){ 				# gitsw
 		  fi
 	  fi
 	}
-cmd_git_switch_version(){ 				# gitsw
-	#echo "Use syntax: . gitsw"
-	[[ "$APPS" = "" ]] && echo "\$APPS is not defined; setup it (ex. in ~/.bash_profile or by 'varadd APPS <path>') and reopen shell" && exit 1
-
-	if [ -d "$APPS/Git2.4.6" ]; then
-		echo "set default git to 2.4.6"
-		cmd //c "move %APPS%/Git %APPS%/Git1.9.5 && move %APPS%/Git2.4.6 %APPS%/Git"
-	  else
-		if [ -d "$APPS/Git1.9.5" ]; then
-			echo "set default git to 1.9.5"
-			cmd //c "move %APPS%/Git %APPS%/Git2.4.6 && move %APPS%/Git1.9.5 %APPS%/Git"
-		  fi
-	  fi
+cmd_utils_git_edit_gitignore(){				# gei
+	rootpath=`git rev-parse --show-toplevel`
+	ed $rootpath/.gitignore
 	}
+
 cmd_git_append(){ 					# ga
 	echo -e "BRANCH: $green$(current_branch)$norm"
 	files="$1"

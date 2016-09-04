@@ -610,13 +610,13 @@ cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 	  done
 	}
 
-cmd_git_branch_show_local_and_remote(){			# giba
+cmd_git_branch_show_local_and_remote(){			# giba - add
 	echo "local and remote branches:"
 	if [[ "$1" == "" ]]; then
-		git branch -avv
+		git branch -avv #  List of all branches and their corresponding remote branches
 	  else
 	  	branch=$(find_branch "$1") 
-	  	[ $? -eq 0 ] && git checkout  $branch
+	  	[ $? -eq 0 ] && git checkout $branch
 	  fi
 	}
 cmd_git_branch_show_remote_only(){ 			# gibr
@@ -944,7 +944,7 @@ cmd_git_pull(){ 					# gul
 		  else
 			echo -e "git PULL from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
 			# git pull --stat --no-rebase #--all --quiet
-			git fetch -vv "$curr_remote" "$curr_branch"
+			git fetch -vv "$curr_remote" "$curr_branch" # vv -  отслеживаемые ветки
 			git merge "$curr_remote"/"$curr_branch"
 			git branch --set-upstream-to "$curr_remote"/"$curr_branch"
 			#git push "$curr_remote" "$curr_branch" -u #all --all

@@ -366,8 +366,11 @@ cmd_utils_git_edit_gitignore(){				# gei
 cmd_git_append(){ 					# ga
 	echo -e "BRANCH: $green$(current_branch)$norm"
 	files="$1"
-	[[ "$files" == "" ]] && git add -A .
-	[[ "$files" != "" ]] && git add "$files"
+	if [[ "$files" == "" ]]; then
+		git add -A .
+	  else
+		git add "$files"
+	  fi
 	}
 cmd_git_append_and_commit(){ 				# gac
 	msg=$1
@@ -610,10 +613,13 @@ cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 	  done
 	}
 
-cmd_git_branch_show_local_and_remote(){			# giba - add
-	echo "local and remote branches:"
+cmd_git_branch_show_local_or_switch(){ 			# gib gibs
 	if [[ "$1" == "" ]]; then
-		git branch -avv #  List of all branches and their corresponding remote branches
+		echo "local branches:"
+		git branch -lvv
+		#git for-each-ref --format='%(refname:short) <- %(upstream:short)' refs/heads
+		#git for-each-ref --format=$'\n'' '' '' '' '' '' ''/%(refname:short);%(upstream:short)' refs/heads | tr ';' $'\n'
+		#git rev-parse --symbolic-full-name --abbrev-ref master@{u}
 	  else
 	  	branch=$(find_branch "$1") 
 	  	[ $? -eq 0 ] && git checkout $branch
@@ -627,13 +633,10 @@ cmd_git_branch_show_unmerged(){ 			# gibnm
 	echo "unmerged branches:"
 	git branch --no-merged
 	}
-cmd_git_branch_show_local_or_switch(){ 			# gib gibs
+cmd_git_branch_show_local_and_remote(){			# giba - add
+	echo "local and remote branches:"
 	if [[ "$1" == "" ]]; then
-		echo "local branches:"
-		git branch -lvv
-		#git for-each-ref --format='%(refname:short) <- %(upstream:short)' refs/heads
-		#git for-each-ref --format=$'\n'' '' '' '' '' '' ''/%(refname:short);%(upstream:short)' refs/heads | tr ';' $'\n'
-		#git rev-parse --symbolic-full-name --abbrev-ref master@{u}
+		git branch -avv #  List of all branches and their corresponding remote branches
 	  else
 	  	branch=$(find_branch "$1") 
 	  	[ $? -eq 0 ] && git checkout $branch

@@ -1,36 +1,39 @@
-${cyan}Commit / Fetch / Push / Pull${norm}
+${cyan}Sync${norm}
   ${yellow}gfe${norm}			- fetch all remote branches		git fetch -vv		
   ${yellow}gull${norm}			- pull (fetch and merge)		git pull
   ${yellow}gus${norm}			- push 					git push $curr_remote(only remote) $curr_branch -u
+  ${yellow}gok${norm}	<msg>		- commit staged & push			git add -A . ; git commit -m "\$msg"; git push 
+${cyan}Add (stage) / Commit${norm}
   ${yellow}ga${norm}	<mask>		- stage all or by mask			git add -A .  OR  git add <mask>
-  ${yellow}gas${norm}	<mask>		- stage by mask, commit & push		ga gc gus
-  ${yellow}gac${norm}	<msg> 		- stage all and commit 			git add -A .; git commit -m "$msg"  # [[ "$msg" == "" ]]; $msg="$(echo $GITHOST)-up"
-  ${yellow}gacm${norm}  <msg>		- stage all & commit ammend		git commit --amend -m "$1"
-  ${yellow}gc${norm}    <msg>		- commit staged				git commit -m "$msg"
-  ${yellow}gcm${norm}   <msg>		- commit ammend				git commit --amend -m "$1"
-  ${yellow}gok${norm}	<msg>		- commit staged & push			git add -A . ; git commit -m "$msg"; git push 
-${cyan}Config/Status${norm}
-  ${yellow}gib${norm}			- show local branches			git branch -vv  	
-  ${yellow}gibnm${norm}         	- show not-merged branches (new)	git branch --no-merged  
-  ${yellow}gibr${norm} 	<remote>	- show remotes				git branch -r -vv 	
-  ${yellow}giba${norm}			- show local and remote branches  	git branch -vv -a 	
-  ${yellow}gibr${norm}			- only remote branches			git branch -vv		
-  ${yellow}gis${norm}			- files including untracked		git status --ignored	
-  ${yellow}girs${norm}			- show remotes        git remote -v   
-  ${yellow}gird${norm}			- show remotes in detail       git remote show <name>
+  ${yellow}gas${norm}   <mask> <msg>	- stage by mask, commit & push		git add "\$files"; git commit -m "\$msg"; git push "\$next_remote" "\$curr_branch"
+  ${yellow}gac${norm}	<msg> 		- stage all and commit 			git add -A .; git commit -m "\$msg"
+  ${yellow}gacm${norm}  <msg>		- stage all & commit ammend		git add -A .; git commit --amend -m "\$msg"
+  ${yellow}gcm${norm}   <msg>		- commit ammend				git commit --amend -m "\$msg"
+  ${yellow}gc${norm}    <msg>		- commit staged				git commit -m "\$msg"
+${cyan}Branches${norm}
+  ${yellow}gib${norm}			- show local branches or switch		git branch -l -vv | git checkout \$branch
+  ${yellow}gibs${norm}			- same gib
+  ${yellow}gibr${norm}			- only remote branches			git branch -r -vv	
+  ${yellow}giba${norm}			- show local and remote branches  	git branch -a -vv
+  ${yellow}gibnm${norm}         	- show not-merged branches (new)	git branch --no-merged
+${cyan}Remotes${norm}
+  ${yellow}girs${norm}			- show remotes				git remote -v   
+  ${yellow}gird${norm}			- show remotes in detail		git remote show <name>
+  ${yellow}girn${norm}			- rename remote				git remote rename  .. 
 ${cyan}Diff${norm}
+  ${yellow}gis${norm}			- files including untracked		git status --ignored	
   ${yellow}gid${norm}			- gis show??				git diff
   ${yellow}gid${norm}	<hash>		- diffs in commit			git diff "$1" "$1~1"	
   ${yellow}gos${norm}	<hash>		- work <-> HEAD | <hash>		git show $1		
-${cyan}Branch (name looked up by substring )${norm}
+${cyan}Branch (substring valid too)${norm}
   ${yellow}gib${norm}	<branch>	- switch to by branch			git checkout <branch> 	
-  ${yellow}giba${norm}	<branch>	- switch to by branch		  	git checkout <branch> 	
+  ${yellow}giba${norm}	<branch>	- same gib
   ${yellow}gibn${norm}	<branch>	- create new branch			git checkout -b <branch> 
-  ${yellow}gibd${norm}  <branch>	- delete branch				git branch -d <branch>  # возможно если ветка была смержена
+  ${yellow}gibd${norm}  <branch>	- delete branch	if merged		git branch -d <branch>  
   ${yellow}gibdd${norm} <branch>	- delete branch				git branch -D <branch>  # удалить в любом случае 
   ${yellow}gim${norm}	<branch>	- merge from branch (with pull before)	git merge <branch>
   ${yellow}giml${norm}  <branch>   	- merge from branch (with local branch)	git merge <branch>  
-  ${yellow}gimto${norm}	<branch>	- merge current branch to another	git checkout <branch>; git merge $currbranch; git checkout $currbranch
+  ${yellow}gimto${norm}	<branch>	- merge current branch to another	git checkout <branch>; git merge \$currbranch; git checkout \$currbranch
 ${cyan}Stash${norm}
   ${yellow}gst${norm}			- 					git stash
   ${yellow}gsp${norm}			- 					git pop
@@ -44,12 +47,10 @@ ${cyan}Log${norm}
   ${yellow}gils${norm}	<commits_num>	- 					git log -n $commits_num -last --pretty=format:"%h%x09%Creset%an%x09%x09%s" --decorate --numstat | grep -v "^$"  | grep -vE "^[0-9a-f]{7}" | grep -vE "^-"
   ${yellow}gils+${norm}	<commits_num>	- 					git log -n $commits_num --pretty=format:\"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]\" --decorate --numstat
 ${cyan}Service${norm}
-  ${yellow}gec${norm}			- edit global git config			ed ~/.gitconfig
-  ${yellow}gect${norm}			- edit The repo git config 				ed ./.git/config
+  ${yellow}gec${norm}			- edit global git config		ed ~/.gitconfig
+  ${yellow}gect${norm}			- edit the repo git config 		ed ./.git/config
   ${yellow}geh${norm}			- edit help.clr				ed $HOME_UTILS_GIT/help.clr
   ${yellow}ger${norm}			- edit readme.md			ed $HOME_UTILS_GIT/readme.md
-  ${yellow}gel${norm}			- edit lib-git
-  ${yellow}gitsw${norm}			- MSYS: change git version
-  ${yellow}gitsw${norm}			- switch git version by renaming folder if you use some versions of CLI git. WARNING: to use it correctly (w/o context loose) run it as ". sw-git" and reopen shell
-  ${yellow}lib-git${norm}		- common functions: find_branch() current_branch() 
-  ${yellow}g-help${norm}		- cat the file
+  ${yellow}gel${norm}			- edit lib-git functions for aliases
+  ${yellow}gitsw${norm}			- switch git version by renaming folder if you install a few versions of git (for windows users)
+  ${yellow}g-help${norm}		- the help

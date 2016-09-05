@@ -2,7 +2,7 @@
 # TODO: gids for commit - last ~1 ~2
 # get all branches from remote (after clone)
 
-UTILS_GIT_TRACE=1
+UTILS_GIT_TRACE=0
 UTILS_GIT_THE_OS=$(uname -s)
 UTILS_GIT_INCLUDE="utils-git-include"
 UTILS_GIT_ALIASES="utils-git-aliases"
@@ -73,7 +73,7 @@ cmd_utils_git_wrapper(){
 	local params
 	while :
 	do
-		#echo "arg: $1"
+		log_print "arg: $1"
 		case "$1" in
 			#-h|--help) ;;
 			-v) UTILS_GIT_TRACE=1 ;;
@@ -83,7 +83,7 @@ cmd_utils_git_wrapper(){
 		  esac
 		shift
 	done
-	#echo "params: $params"
+	log_print "params: $params"
 	eval $cmd_one "$params" #"$@*"
 	# UTILS_GIT_TRACE=0
 	}
@@ -1027,3 +1027,36 @@ cmd_git_stash_pop(){ 					# gsp
 	git stash pop
 	}
 
+cmd_git_remote_add(){					# gira
+	remote_alias=$1
+	log_print "remote_alias: $remote_alias"
+	if [ "$remote_alias" == "" ]; then
+		echo -e "${red}remote alias is missing${norm}"
+		return
+	  fi
+	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
+	log_print "remote_url: $remote_url"
+	remote_url=`eval echo "$remote_url"`
+	log_print "remote_url: $remote_url"
+	if [ "$remote_url" == "" ]; then
+		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
+		return
+	  fi
+	prj_name=$(basename `git rev-parse --show-toplevel`)
+	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
+	git remote add $remote_alias "$remote_url/$prj_name.git"
+	}
+cmd_git_remote_del(){					# gire
+	remote_alias=$1
+	log_print "remote_alias: $remote_alias"
+	if [ "$remote_alias" == "" ]; then
+		echo -e "${red}remote alias is missing${norm}"
+		return
+	  fi
+	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
+	if [ "$remote_url" == "" ]; then
+		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
+		return
+	  fi
+	git remote remove $remote_alias
+	}

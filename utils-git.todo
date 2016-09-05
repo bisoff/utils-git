@@ -1,3 +1,5 @@
+
+	☐	перенести get_sync_status элементы в библиотеку lib-git
 	☐	checkout hash
 	☐	gisx - show NEED PUSH/PULL
 	☐	gok - push/pull всех веток в текущий remote

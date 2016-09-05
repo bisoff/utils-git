@@ -1,20 +1,20 @@
 
 	☐	перенести get_sync_status элементы в библиотеку lib-git
+	☐	cmd_git rename to cmd_utils_git
 	☐	checkout hash
 	☐	gisx - show NEED PUSH/PULL
 	☐	gok - push/pull всех веток в текущий remote
 	☐	gdifs if no changes then for last commit
 	☐	gef = gfe
-	☐	gefa - fetch all bramches
+	☐	gefa - fetch all branches
 	☐	gula - fetch and merge all branches
+	☐	gusa - push all branches
 	☐	view conflicts
 	☐	to PS1 add rebase status
 	☐	to PS1 try \[ \]
 	☐	yellow for cmd params in help.clr
-
 	☐	grev - revert all files
-
-	☐	сделать gme - для merge после gul(FETCH) gac 
+	☐	gme - merge после gul(FETCH) gac 
 	
 	gis unmerged!! rebase in progress!! 
 	git rebase --continue

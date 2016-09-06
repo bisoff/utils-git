@@ -1042,9 +1042,17 @@ cmd_git_remote_add(){					# gira
 		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
 		return
 	  fi
+		if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
+		  print $2;
+		}
+		return
 	prj_name=$(basename `git rev-parse --show-toplevel`)
 	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
 	git remote add $remote_alias "$remote_url/$prj_name.git"
+	git ls-remote "$remote_url/$prj_name.git" 2> \dev\null
+	if [ $? != 0 ]; then
+		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
+		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
 	}
 cmd_git_remote_del(){					# gire
 	remote_alias=$1

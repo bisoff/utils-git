@@ -270,16 +270,23 @@ git_staged(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local staged=$(echo "$all" | grep "^[ADM]" | wc -l) # git status -s --untracked-files --porcelain | grep "^(A|D|M)"
 	staged=`echo $staged`
-	[[ $staged -gt 0 ]] && staged="+$staged "
-	[[ $staged -eq 0 ]] && staged=""
+	[[ "$staged" != "0" ]] && staged=" {$staged}"
+	[[ "$staged" == "0" ]] && staged=""
 	echo "$staged"
 	}
 git_changed(){
-	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^\?\?|.{0,1}M" | wc -l) # but unstaged
+	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^.{0,1}M" | wc -l) # but unstaged \?\?|
 	changed=`echo $changed`
-	[[ $changed -gt 0 ]] && changed="~$changed "
-	[[ $changed -eq 0 ]] && changed=""
+	[[ "$changed" != "0" ]] && changed=" ~$changed"
+	[[ "$changed" == "0" ]] && changed=""
 	echo "$changed"
+	}
+git_untracked(){
+	local untracked=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E '^\?\?' | wc -l)
+	untracked=`echo $untracked`
+	[[ "$untracked" != "0" ]] && untracked=" +$untracked"
+	[[ "$untracked" == "0" ]] && untracked=""
+	echo "$untracked"
 	}
 git_deleted(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
@@ -297,7 +304,7 @@ git_prompt(){
 	}
 remote_for_ps1(){
 	curr_remote=$(current_remote)
-	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote [$(get_remote_repo_name)] "
+	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote [$(get_remote_repo_name)]"
 	echo "$curr_remote"
 	}
 branch_for_ps1(){
@@ -316,7 +323,8 @@ renametab() {
 	pwd > ~/.oldpwd
 	#PREV_TAB="${PWD##*/}"
 	}
-GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$cyan_bold\]\[$yellow\]\$(git_changed)\[$green\]\$(git_staged)\[$red\]\$(git_deleted)\[$norm\] \[$cyan_back\] \t > \[$norm\] \$(renametab)" 
+GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$green\]\$(git_staged)\[$yellow\]\$(git_changed)\[$red\]\$(git_untracked)\[$blue_dim\]\$(git_deleted)\[$norm\] \[$cyan_back\] \t > \[$norm\] \$(renametab)"
+	#\[$cyan_bold\]
 	#http://mediadoneright.com/content/ultimate-git-ps1-bash-prompt
 	#export PS1="\\033[0;34;48m[\u / \h] \\033[0;32;49m\w$git_branch: \[\033[m\]" #\\033[0;33;49m
 	#parse_git_branch() { git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/' }
@@ -1042,15 +1050,15 @@ cmd_git_remote_add(){					# gira
 		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
 		return
 	  fi
-		if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
-		  print $2;
-		}
+		#if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
+		#  print $2;
+		#}
 		return
 	prj_name=$(basename `git rev-parse --show-toplevel`)
 	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
 	git remote add $remote_alias "$remote_url/$prj_name.git"
 	git ls-remote "$remote_url/$prj_name.git" 2> \dev\null
-	if [ $? != 0 ]; then
+	#if [ $? != 0 ]; then
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
 	}

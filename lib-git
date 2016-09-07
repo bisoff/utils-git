@@ -953,29 +953,32 @@ cmd_git_pull(){ 					# gul
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "git ${red}FETCH${norm} from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			echo -e "[utils-git] ${red}FETCH${norm} from ${green}$curr_remote/$curr_branch$norm"  #-u
 			# git pull --stat --no-rebase #--all --quiet
 			git fetch -vv "$curr_remote" "$curr_branch" # vv -  отслеживаемые ветки
-			echo -e "git ${red}MERGE${norm} with $green$curr_remote/$curr_branch$norm"  #-u
+			echo "result (\$?): $?"
+			echo -e "[utils-git] ${red}MERGE${norm} with $green$curr_remote/$curr_branch$norm"  #-u
 			git merge "$curr_remote"/"$curr_branch"
-			git branch --set-upstream-to "$curr_remote"/"$curr_branch"
+			#git branch --set-upstream-to "$curr_remote"/"$curr_branch"
 			#git push "$curr_remote" "$curr_branch" -u #all --all
 		  fi
 	  else
 	  	remotes=$(git remote show)
-		for name in $remotes; do 
-			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
-				# echo -e "${red}$name$norm"
-				echo -e "git ${red}PULL${norm} from ${red}$name$norm: $green$curr_branch$norm"  #-u
-				#git pull "$name" "$curr_branch"  #all --all
+		for next_remote in $remotes; do 
+			if [[ "$next_remote" == "$one_remote" || "$one_remote" = "all" ]]; then
+				# echo -e "${red}$next_remote$norm"
+				echo -e "[utils-git] ${red}FETCH${norm} from ${green}$next_remote/$green$curr_branch$norm"  #-u
+				#git pull "$next_remote" "$curr_branch"  #all --all
 				#echo "fetch"
-				git fetch -vv "$name" "$curr_branch"
+				git fetch -vv "$next_remote" "$curr_branch"
+				echo "result (\$?): $?"
 				#echo "merge"
-				git merge "$name"/"$curr_branch"
+				echo -e "[utils-git] ${red}MERGE${norm} with $green$next_remote/$curr_branch$norm"  #-u
+				git merge "$next_remote"/"$curr_branch"
 				#echo "upstream"
-				#git branch --set-upstream-to "$name"/"$curr_branch"
+				#git branch --set-upstream-to "$next_remote"/"$curr_branch"
 			  #else
-			  	#echo $name
+			  	#echo $next_remote
 			  fi
 		  done
 	  fi

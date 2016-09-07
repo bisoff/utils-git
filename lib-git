@@ -953,10 +953,10 @@ cmd_git_pull(){ 					# gul
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "git FETCH from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			echo -e "git ${red}FETCH${norm} from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
 			# git pull --stat --no-rebase #--all --quiet
 			git fetch -vv "$curr_remote" "$curr_branch" # vv -  отслеживаемые ветки
-			echo -e "git MERGE with $green$curr_remote/$curr_branch$norm"  #-u
+			echo -e "git ${red}MERGE${norm} with $green$curr_remote/$curr_branch$norm"  #-u
 			git merge "$curr_remote"/"$curr_branch"
 			git branch --set-upstream-to "$curr_remote"/"$curr_branch"
 			#git push "$curr_remote" "$curr_branch" -u #all --all
@@ -966,7 +966,7 @@ cmd_git_pull(){ 					# gul
 		for name in $remotes; do 
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "git PULL from ${red}$name$norm: $green$curr_branch$norm"  #-u
+				echo -e "git ${red}PULL${norm} from ${red}$name$norm: $green$curr_branch$norm"  #-u
 				#git pull "$name" "$curr_branch"  #all --all
 				#echo "fetch"
 				git fetch -vv "$name" "$curr_branch"
@@ -995,7 +995,7 @@ cmd_git_push(){ 					# gus
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "git PUSH to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			echo -e "git ${red}PUSH${norm} to ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
 			git push "$curr_remote" "$curr_branch" #all --all
 		  fi
 	  else
@@ -1003,7 +1003,7 @@ cmd_git_push(){ 					# gus
 		for name in $remotes; do 
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
+				echo -e "git ${red}PUSH${norm} to ${red}$name$norm: $green$curr_branch$norm"  #-u
 				git push "$name" "$curr_branch" #all --all
 				#git branch --set-upstream-to <remote-name>
 			  #else

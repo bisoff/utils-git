@@ -938,9 +938,9 @@ cmd_git_fetch(){ 					# gfe
 	git fetch -vv --all 2>&1 | grep "\-> " # This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
 	}
 cmd_git_pull(){ 					# gul
-	manual_remote="$1"
+	one_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	if [[ "$manual_remote" == "" ]]; then # параметр не указан
+	if [[ "$one_remote" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
 		# echo -e "{}PUSH to $curr_remote"
 		if [[ "$curr_remote" == "" ]]; then 
@@ -953,9 +953,10 @@ cmd_git_pull(){ 					# gul
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "git PULL from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
+			echo -e "git FETCH from ${red}$curr_remote$norm: $green$curr_branch$norm"  #-u
 			# git pull --stat --no-rebase #--all --quiet
 			git fetch -vv "$curr_remote" "$curr_branch" # vv -  отслеживаемые ветки
+			echo -e "git MERGE with $green$curr_remote/$curr_branch$norm"  #-u
 			git merge "$curr_remote"/"$curr_branch"
 			git branch --set-upstream-to "$curr_remote"/"$curr_branch"
 			#git push "$curr_remote" "$curr_branch" -u #all --all
@@ -963,7 +964,7 @@ cmd_git_pull(){ 					# gul
 	  else
 	  	remotes=$(git remote show)
 		for name in $remotes; do 
-			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
+			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PULL from ${red}$name$norm: $green$curr_branch$norm"  #-u
 				#git pull "$name" "$curr_branch"  #all --all
@@ -980,9 +981,9 @@ cmd_git_pull(){ 					# gul
 	  fi
 	}
 cmd_git_push(){ 					# gus
-	manual_remote="$1"
+	one_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	if [[ "$manual_remote" == "" ]]; then # параметр не указан
+	if [[ "$one_remote" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
 		# echo -e "{}PUSH to $curr_remote"
 		if [[ "$curr_remote" == "" ]]; then 
@@ -1000,7 +1001,7 @@ cmd_git_push(){ 					# gus
 	  else
 	  	remotes=$(git remote show)
 		for name in $remotes; do 
-			if [[ "$name" == "$manual_remote" || "$manual_remote" = "all" ]]; then
+			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "git PUSH to ${red}$name$norm: $green$curr_branch$norm"  #-u
 				git push "$name" "$curr_branch" #all --all
@@ -1010,7 +1011,7 @@ cmd_git_push(){ 					# gus
 			  fi
 		  done
 
-		# curr_remote=`git remote show | grep $manual_remote`
+		# curr_remote=`git remote show | grep $one_remote`
 	  fi
 	#curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 	#echo curr_remote: $curr_remote

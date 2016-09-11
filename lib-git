@@ -1075,6 +1075,7 @@ cmd_git_push(){ 					# gus
 		  else
 			echo -e "[utils-git] ${red}PUSH${norm} to ${green}$curr_remote/$green$curr_branch$norm"  #-u
 			git push "$curr_remote" "$curr_branch" #all --all
+			echo "result (\$?): $?"
 		  fi
 	  else
 	  	remotes=$(git remote show)
@@ -1083,6 +1084,7 @@ cmd_git_push(){ 					# gus
 				# echo -e "${red}$name$norm"
 				echo -e "[utils-git] ${red}PUSH${norm} to ${green}$name/$green$curr_branch$norm"  #-u
 				git push "$name" "$curr_branch" #all --all
+				echo "result (\$?): $?"
 				#git branch --set-upstream-to <remote-name>
 			  #else
 			  	#echo $name

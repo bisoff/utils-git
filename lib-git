@@ -628,6 +628,10 @@ cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 		echo -n -e "$n"
 	  done
 	}
+cmd_git_diff_clear_all(){				# dclear
+	git reset --hard
+	git clean -f 
+	}
 
 cmd_git_branch_show_local_or_switch(){ 			# gib gibs
 	if [[ "$1" == "" ]]; then

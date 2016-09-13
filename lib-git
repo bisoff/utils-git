@@ -956,6 +956,7 @@ cmd_git_remote_delete(){				# gird
 	}
 cmd_git_remote_add(){					# gira
 	remote_alias=$1
+	prj_group=$2
 	#remote_url=$2
 	[ "$remote_alias" == "" ] && error "remote alias is missed (1st param)" && return
 	#[ "$remote_url" == "" ] && error "remote url is missed (2nd param)" && return
@@ -987,7 +988,8 @@ cmd_git_remote_add(){					# gira
 				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 				echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 				res=`curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=$prj_name --data is_private='true' -k -s`
-				jq '' <<< "$res"
+				#jq '' <<< "$res"
+				echo "$?: $?"
 				;;
 			*github*)
 				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
@@ -1006,7 +1008,18 @@ cmd_git_remote_add(){					# gira
 				
 				TOKEN=`jq -r '.private_token' <<< $res`
 				log_print "TOKEN: $TOKEN"
-				curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$prj_name" "namespace_id=pyt" -X POST "$remote_url/api/v3/projects"
+				res=`curl -s --header "PRIVATE-TOKEN:$TOKEN" "$remote_url/api/v3/namespaces?search=$prj_group"`
+				found=`jq 'length' <<< $res`
+				if [ "$found" != "1" ]; then
+					error "Group not found or ambigiouse!"
+					jq -r '.[] | .name ' <<<$res
+					return
+				  else
+				  	group_id=`jq '.[] | .id' <<< $res`
+				  	set -x
+					curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$prj_name" "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects"
+					set +x
+				  fi
 				#set +x
 				#curl "PRIVATE-TOKEN:$TOKEN"  $remote_url/api/v3/projects -d "{ \"name\": \"bar\" }" # -H "Content-Type:application/json" 
 
@@ -1025,6 +1038,7 @@ cmd_git_remote_add(){					# gira
 
 				# curl -s $remote_url/api/v3/groups?private_token=$TOKEN | jq -r '.[] | .name' # groups / namespaces list
 				# curl -s --header "PRIVATE-TOKEN:$TOKEN" "http://gitlab.mivar.ru/api/v3/namespaces" | jq -r '.[] | .path' # same
+				# curl -s --header "PRIVATE-TOKEN:$TOKEN" "http://gitlab.mivar.ru/api/v3//groups" | jq -r '.[] | (.id|tostring) + "\t" + .name '
 
 				;;
 			*)

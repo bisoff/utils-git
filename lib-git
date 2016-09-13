@@ -12,8 +12,8 @@ case "$UTILS_GIT_THE_OS" in
 		UTILS_GIT_ALIAS_TIMESTAMP=`stat -c %y $HOME/.utils-git/$UTILS_GIT_ALIASES`
 		;;
 	Darwin)
-		UTILS_GIT_TIMESTAMP=$(stat -f "%Sm" -t "%h %U %G %s" "$HOME_UTILS_GIT/lib-git")
-		UTILS_GIT_ALIAS_TIMESTAMP=$(stat -f "%Sm" -t "%h %U %G %s" "$HOME/.utils-git/$UTILS_GIT_ALIASES")
+		UTILS_GIT_TIMESTAMP=`stat -f "%Sm" -t "%F %T" $HOME_UTILS_GIT/lib-git`
+		UTILS_GIT_ALIAS_TIMESTAMP=`stat -f "%Sm" -t "%F %T" "$HOME/.utils-git/$UTILS_GIT_ALIASES"`
 		;;
 	# linux??)
 		# UTILS_PRJ_SED_BACKUP=??
@@ -60,8 +60,8 @@ cmd_utils_git_wrapper(){
 			utils_git_alias_timestamp_current=`stat -c %y $HOME/.utils-git/$UTILS_GIT_ALIASES`
 			;;
 		Darwin)
-			utils_git_timestamp_current=$(stat -f "%Sm" -t "%h %U %G %s" "$HOME_UTILS_GIT/lib-git")
-			utils_git_alias_timestamp_current=$(stat -f "%Sm" -t "%h %U %G %s" "$HOME/.utils-git/$UTILS_GIT_ALIASES")
+			utils_git_timestamp_current=`stat -f "%Sm" -t "%F %T" $HOME_UTILS_GIT/lib-git`
+			utils_git_alias_timestamp_current=`stat -f "%Sm" -t "%F %T" "$HOME/.utils-git/$UTILS_GIT_ALIASES"`
 			;;
 		# linux??)
 			# UTILS_GIT_TIMESTAMP=??
@@ -70,7 +70,11 @@ cmd_utils_git_wrapper(){
 	  esac
 	[ "$utils_git_timestamp_current" != "$UTILS_GIT_TIMESTAMP" ] && echo "Updating commands..." && source "$HOME_UTILS_GIT/lib-git"
 	[ "$utils_git_alias_timestamp_current" != "$UTILS_GIT_ALIAS_TIMESTAMP" ] && echo "Updating aliases..." && source "$HOME/.utils-git/$UTILS_GIT_ALIASES"
-	#echo "wrapper2"
+
+	log_print "UTILS_GIT_TIMESTAMP:               $UTILS_GIT_TIMESTAMP"
+	log_print "utils_git_timestamp_current:       $utils_git_timestamp_current"
+	log_print "UTILS_GIT_ALIAS_TIMESTAMP:         $UTILS_GIT_ALIAS_TIMESTAMP"
+	log_print "utils_git_alias_timestamp_current: $utils_git_alias_timestamp_current"
 	shift
 	local params
 	while :
@@ -471,10 +475,17 @@ cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 	#[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& return 
 	fname="$1"
 	mode="$2"
+	#echo "fname: $fname"
+	#echo "mode:  $mode"
 
-	if [[ "fname" == "" ]]; then
-		array=($(git ls-files --others --exclude-standard)) # untracked
-		{(git diff --stat=200 --color | sed -n '$! p'); for i in "${array[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;} | awk '{print NR "\t" $0}' #'NR!=FNR {FNR==1?c=NR:1} FNR<c-1'   awk 'NR>n{print A[NR%n]} {A[NR%n]=$0}' n=1
+	if [[ "$fname" == "" ]]; then
+		{
+			git diff --stat=200 --color | sed -n '$! p'
+			array=($(git ls-files --others --exclude-standard)) # untracked
+			for i in "${array[@]}"; do 
+				echo -e " ${yellow}UNTRACKED: $i${norm}"
+			  done
+		} | awk '{print NR "\t" $0}' #'NR!=FNR {FNR==1?c=NR:1} FNR<c-1'   awk 'NR>n{print A[NR%n]} {A[NR%n]=$0}' n=1
 		#array=($(git ls-files --others --exclude-standard)) 
 		#if [ "${#array[@]}" -ne 0 ]; then
 		#	echo -e " ${yellow_back}== UNTRACKED ==${norm}"
@@ -491,7 +502,7 @@ cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 	#echo git diff HEAD --word-diff --color -U99999 "./$1"
 	if [[ "$1" != "" ]]; then
 		if [ "$mode" == "" ]; then
-			status=`echo $(git status "fname" -s | cut -c 1-3)` #; echo status:$status #; return
+			return
 			[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && return # untracked
 			[[ "$status" == "D" ]]	&& git show HEAD:"fname" | less -MNR && return #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
 			git diff HEAD --color -U99999 "$1" | tail -n +6 | less -MNR 
@@ -535,6 +546,8 @@ cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 
 	#put tracked fnames to array:
 	[ "$mode" == "" ] && array=($({(git status -s --untracked-files --porcelain | grep -v '??' | cut -c 4-); for i in "${arr[@]}"; do echo "$i"; done;	})) 
+	(( tot = ${#array[@]} )) 
+	[[ $tot -eq 0 ]] && mode="last"
 	[ "$mode" == "last" ] && array=($(git diff head head~1 --name-only | sed -E "s/^(.*)$/\"\1\"/g" )) #   while read x; do echo '"'"$x"'"'; done
 	[ "$mode" == "prev" ] && array=($(git diff head~1 head~2 --name-only | sed -E "s/^(.*)$/\"\1\"/g" ))
 
@@ -549,7 +562,7 @@ cmd_git_diff_file_list_menu(){ 				# gdifs gids gdis
 
 	# show header with enumed file list:
 	[ "$mode" == "" ] && {(git diff --stat=200 --color | sed -n '$! p'); for i in "${arr[@]}"; do echo -e " ${yellow}UNTRACKED: $i${norm}"; done;	} | awk '{print NR "\t" $0}' 
-	[ "$mode" == "last" ] && (git diff head head~1 --stat --color) | sed -n '$! p' | awk '{print NR "\t" $0}' 
+	[ "$mode" == "last" ] && (git diff head~ head --stat --color) | sed -n '$! p' | awk '{print NR "\t" $0}' 
 	[ "$mode" == "prev" ] && (git diff head~1 head~2 --stat --color) | sed -n '$! p' | awk '{print NR "\t" $0}' 
 
 	# show menu
@@ -952,24 +965,74 @@ cmd_git_remote_add(){					# gira
 	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
 	[ "$remote_url" == "" ] && error "remote alias is missed (1st param)" && return
 
-	log_print "remote_url: $remote_url"
 	remote_url=`eval echo "$remote_url"`
 	log_print "remote_url: $remote_url"
 	if [ "$remote_url" == "" ]; then
-		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
+		error "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
 		return
 	  fi
 		#if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
 		#  print $2;
 		#}
-		return
 	prj_name=$(basename `git rev-parse --show-toplevel`)
 	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
 	git remote add $remote_alias "$remote_url/$prj_name.git"
-	git ls-remote "$remote_url/$prj_name.git" 2> \dev\null
-	#if [ $? != 0 ]; then
+	git ls-remote "$remote_url/$prj_name.git" 2> /dev/null
+	if [ $? != 0 ]; then
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
+		echo -e "${cyan}Create remote repo${norm}"
+		case "$remote_url" in
+			*bitbucket*)
+				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+				echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+				res=`curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=$prj_name --data is_private='true' -k -s`
+				jq '' <<< "$res"
+				;;
+			*github*)
+				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+				echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
+				#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
+				;;
+			*gitlab*)
+				[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
+				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+				#export PASSWORD
+				log_print "GITLABUSER: $GITLABUSER"
+				log_print "PASSWORD:   $PASSWORD"
+				res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
+				log_print "res:        $res"
+				
+				TOKEN=`jq -r '.private_token' <<< $res`
+				log_print "TOKEN: $TOKEN"
+				curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$prj_name" "namespace_id=pyt" -X POST "$remote_url/api/v3/projects"
+				#set +x
+				#curl "PRIVATE-TOKEN:$TOKEN"  $remote_url/api/v3/projects -d "{ \"name\": \"bar\" }" # -H "Content-Type:application/json" 
+
+				#curl -s -H "Content-Type:application/json" http://gitlab.mivar.ru/api/v3/projects?private_token=.. | jq -r '.[] | .name' # project list
+				#	GET /projects/owned
+				#	GET /projects/starred
+				#	GET /projects/all
+				#	GET /projects/:id
+				#	POST /projects # owned by the authenticated user.
+				#	POST /projects/user/:user_id # owned by the specified user
+				#	PUT /projects/:id # Updates an existing project
+				#	POST /projects/fork/:id
+				#	POST /projects/:id/star
+
+				# curl -s -H "Content-Type:application/json" http://gitlab.mivar.ru/api/v3/projects?private_token=$TOKEN | jq -r '.[] | (.id|tostring) + ": " + .name'
+
+				# curl -s $remote_url/api/v3/groups?private_token=$TOKEN | jq -r '.[] | .name' # groups / namespaces list
+				# curl -s --header "PRIVATE-TOKEN:$TOKEN" "http://gitlab.mivar.ru/api/v3/namespaces" | jq -r '.[] | .path' # same
+
+				;;
+			*)
+				error "method for remote repo create not found !"
+		  esac
+	  else
+		git ls-remote "$remote_url/$prj_name.git"
+	  fi
 	}
 
 cmd_git_status_with_untracked(){ 			# gis

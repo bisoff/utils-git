@@ -900,22 +900,20 @@ cmd_git_remote_rename(){				# girn
 	}
 cmd_git_remote_set_default(){ 				# giru
 	[ "$1" == "" ] && error "remote alias is missed (1st param)" && return
-	git branch --set-upstream-to $1/$(current_branch)
+	# TODO: test remote exists
+	git branch --set-upstream-to $1/$(current_branch) 2> /dev/null
+	if [ "$?" != "0" ]; then
+		git fetch $1 $(current_branch) #  branch 'bbs/master' does not exist
+		git branch --set-upstream-to $1/$(current_branch)
+	  fi
 	return
-
+	# todo
 	remote_alias=$1
 	log_print "remote_alias: $remote_alias"
 	if [ "$remote_alias" == "" ]; then
-		echo -e "${red}remote alias is missing${norm}"
-		return
+		null
+		# по всем веткам
 	  fi
-	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
-	if [ "$remote_url" == "" ]; then
-		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
-		return
-	  fi
-	git remote remove $remote_alias
-
 	}
 cmd_git_remote_delete(){				# gird
 	# delete remote
@@ -958,11 +956,10 @@ cmd_git_remote_add(){					# gira
 		#if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
 		#  print $2;
 		#}
-		return
 	prj_name=$(basename `git rev-parse --show-toplevel`)
 	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
 	git remote add $remote_alias "$remote_url/$prj_name.git"
-	git ls-remote "$remote_url/$prj_name.git" 2> \dev\null
+	git ls-remote "$remote_url/$prj_name.git" 2> /dev/null
 	#if [ $? != 0 ]; then
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
@@ -1008,7 +1005,8 @@ cmd_git_show_file_diff(){
 
 cmd_git_fetch(){ 					# gfe
 	echo -e "${red}git fetch$norm"
-	git fetch -vv --all 2>&1 | grep "\-> " # This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
+	git fetch -vv --all 2>&1 | grep "\-> " 
+	# This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
 	}
 cmd_git_pull(){ 					# gul
 	one_remote="$1"

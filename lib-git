@@ -981,71 +981,84 @@ cmd_git_remote_add(){					# gira
 	log_print "remote_name: $remote_name"
 	[ "$remote_name" == "" ] && error "remote name is not found" && return
 
+	local GROUP_ID
+	local GROUP_NAME
+	local REPO_URL
+	if [[ "$remote_url" =~ "gitlab" ]]; then
+		if [ "$TOKEN" == "" ]; then
+			res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
+			log_print "res:        $res"
+			
+			TOKEN=`jq -r '.private_token' <<< $res`
+		  fi
+		log_print "TOKEN: $TOKEN"
 
-	notice "git remote add $remote_alias $remote_url/$remote_name.git"
-	git remote add $remote_alias "$remote_url/$remote_name.git"
+		# find group
+		[ "$prj_group" == "" ] && prj_group=$GITUSER # $GITLABUSER
+		find_group=`curl -s --header "PRIVATE-TOKEN:$TOKEN" "$remote_url/api/v3/namespaces?search=$prj_group"`
+		log_print "find_group: $find_group"
+		found=`jq 'length' <<< $find_group`
+		log_print "found: $found"
+		if [ "$found" == "1" ]; then
+		  	GROUP_ID=`jq -r '.[] | .id' <<< $find_group`
+		  	GROUP_NAME=`jq -r '.[] | .path' <<< $find_group`
+		  else
+			error "Group not found or ambigiouse!"
+			jq -r '.[] | .name ' <<<$res
+			return
+		  fi
+		log_print "GROUP_NAME: $GROUP_NAME"
+		REPO_URL="$remote_url/$GROUP_NAME/$remote_name.git"
+	  else
+		REPO_URL="$remote_url/$remote_name.git"
+	  fi
+	log_print "REPO_URL: $REPO_URL"
 
-	res=`git ls-remote "$remote_url/$prj_name.git" 2>&1` # test remote exists  2> /dev/null
+	res=`git ls-remote "$REPO_URL" 2>&1` # test remote exists  2> /dev/null
 	res_code=$?
-	if [ "$res_code" == "0" ]; then
+	if [ "$res_code" != "0" ]; then # repo absent
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
 		notice "Create remote repo"
 		curr_branch=`current_branch`
+		if [[ "$remote_url" =~ "gitlab" ]]; then
+			[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+		  else
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+		  fi
 		case "$remote_url" in
 			*bitbucket*)
-				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
-				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 				res=`curl -k -s --user $GITUSER:$PASSWORD --data name=$remote_name --data is_private='true' https://api.bitbucket.org/1.0/repositories/`
 				#echo "$?: $?"
-				git fetch $remote_alias $curr_branch
-				#echo "$?: $?"
-				git branch --set-upstream-to $remote_alias/$curr_branch 
 				#jq '' <<< "$res"
-				#echo "$?: $?"
 				;;
 			*github*)
-				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
-				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$remote_name'"}' -k -s`
 				#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 				;;
 			*gitlab*)
-				[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
-				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 				#export PASSWORD
-				log_print "GITLABUSER: $GITLABUSER"
-				log_print "PASSWORD:   $PASSWORD"
-				res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
-				log_print "res:        $res"
-				
-				TOKEN=`jq -r '.private_token' <<< $res`
-				log_print "TOKEN: $TOKEN"
-				res=`curl -s --header "PRIVATE-TOKEN:$TOKEN" "$remote_url/api/v3/namespaces?search=$prj_group"`
-				found=`jq 'length' <<< $res`
-				if [ "$found" != "1" ]; then
-					error "Group not found or ambigiouse!"
-					jq -r '.[] | .name ' <<<$res
-					return
-				  else
-				  	group_id=`jq '.[] | .id' <<< $res`
-				  	set -x
-					curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$remote_name" "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects"
-					set +x
-				  fi
+				#log_print "GITLABUSER: $GITLABUSER"
+				#log_print "PASSWORD:   $PASSWORD"
+
+				#set -x
+				curl -X POST -s -H "Content-Type:application/json" --data "NAME=$remote_name" --data "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects&private_token=$TOKEN"
 				#set +x
 				#curl "PRIVATE-TOKEN:$TOKEN"  $remote_url/api/v3/projects -d "{ \"name\": \"bar\" }" # -H "Content-Type:application/json" 
 
 				#curl -s -H "Content-Type:application/json" http://gitlab.mivar.ru/api/v3/projects?private_token=.. | jq -r '.[] | .name' # project list
-				#	GET /projects/owned
-				#	GET /projects/starred
-				#	GET /projects/all
-				#	GET /projects/:id
 				#	POST /projects # owned by the authenticated user.
 				#	POST /projects/user/:user_id # owned by the specified user
 				#	PUT /projects/:id # Updates an existing project
 				#	POST /projects/fork/:id
 				#	POST /projects/:id/star
+
+				#	GET /projects/owned
+				#	GET /projects/starred
+				#	GET /projects/all
+				#	GET /projects/:id
 
 				# curl -s -H "Content-Type:application/json" http://gitlab.mivar.ru/api/v3/projects?private_token=$TOKEN | jq -r '.[] | (.id|tostring) + ": " + .name'
 
@@ -1059,22 +1072,37 @@ cmd_git_remote_add(){					# gira
 		  esac
 		notice "set rebase to false"
 		gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
-	  else
-	  	echo "res_code: $res_code"
-	  	error "$res"
+	  #else
+	  #	echo "res_code: $res_code"
+	  #	error "$res"
 	  fi
+	notice "git remote add $remote_alias $REPO_URL"
+	git remote add $remote_alias "$REPO_URL"
+
+	#case "$remote_url" in
+	#	*bitbucket*|*github*)
+			git fetch $remote_alias $curr_branch
+			git branch --set-upstream-to $remote_alias/$curr_branch 
+	#		;;
+	#	*gitlab*)
+	#		;;
+	#	*)
+	#		error "method for remote repo create not found !"
+	#  esac
 	}
 cmd_git_remote_list(){					# girl
 	local remote_alias=$1
+	local prj_group=$2
 	[ "$remote_alias" == "" ] && error "Remote alias is missed (1st param) !" && return
 	#log_print "remote_alias: $remote_alias"
 	
-	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
+	local remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
 	[ "$remote_url" == "" ] && error "remote alias is not found ($HOME/.utils-git/remotes/$remote_alias)" && return
 	remote_url=`eval echo "$remote_url"`
 	log_print "remote_url: $remote_url"
 	
-	echo reading repo list ...
+	notice "repo list"
+	local res
 	case "$remote_url" in
 		*bitbucket*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
@@ -1091,7 +1119,102 @@ cmd_git_remote_list(){					# girl
 			#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 			;;
 		*gitlab*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			
+			if [ "$TOKEN" == "" ]; then
+				res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
+				log_print "res:        $res"
+				
+				TOKEN=`jq -r '.private_token' <<< $res`
+			  fi
+			log_print "TOKEN: $TOKEN"
+
+			local projects
+			local repo_groups
+			if [ "$prj_group" != "" ]; then
+				repo_groups=`curl -s -X GET "$remote_url/api/v3/namespaces?search=$prj_group&private_token=$TOKEN"`
+				log_print "repo_groups: $repo_groups"
+				found=`jq 'length' <<< $repo_groups`
+				log_print "found: $found"
+				if [ "$found" != "1" ]; then
+					error "Group not found or ambigiouse!"
+					jq -r '.[] | .name ' <<<$repo_groups
+					return
+				  else
+					group_id=`jq '.[] | .id' <<< $repo_groups`
+					log_print "group_id: $group_id"
+					projects=`curl -s --header "PRIVATE-TOKEN:$TOKEN" -X GET "$remote_url/api/v3/groups/$group_id/projects"`
+					res_code=$?
+				  fi
+			  else
+				#set -x
+				projects=`curl -s -X GET $remote_url/api/v3/projects/owned?private_token=$TOKEN`
+				#set +x
+				res_code=$?
+			  fi
+			log_print "projects:        -$projects-"
+			if [ "$projects" != '{"message":"401 Unauthorized"}' ]; then
+			  	if [ "$res" == '""' ]; then
+			  		error "no repo found"
+			  	  else
+					jq -r '.[] | .name' <<<$projects | sort
+			  	  fi
+			  else
+			  	error "$projects"
+			  fi
+	  esac
+	}
+cmd_git_remote_list_groups(){					# girlg
+	local remote_alias=$1
+	local prj_group=$2
+	[ "$remote_alias" == "" ] && error "Remote alias is missed (1st param) !" && return
+	#log_print "remote_alias: $remote_alias"
+	
+	local remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
+	[ "$remote_url" == "" ] && error "remote alias is not found ($HOME/.utils-git/remotes/$remote_alias)" && return
+	remote_url=`eval echo "$remote_url"`
+	log_print "remote_url: $remote_url"
+	
+	notice "groups list"
+	case "$remote_url" in
+		*bitbucket*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			#res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
+			#jq -r '.[] | .name + if .is_private then "\tPRIVATE" else "" end' <<< $res
+			#jq '' <<< "$res"
+			#echo "\$?: $?"
 			;;
+		*github*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			#res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
+			#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
+			;;
+		*gitlab*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+
+			
+			if [ "$TOKEN" == "" ]; then
+				res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
+				log_print "res:        $res"
+				
+				TOKEN=`jq -r '.private_token' <<< $res`
+			  fi
+			log_print "TOKEN: $TOKEN"
+
+			local repo_groups
+			repo_groups=`curl -s -X GET "$remote_url/api/v3/namespaces?search=$prj_group&private_token=$TOKEN"`
+			log_print "repo_groups: $repo_groups"
+			found=`jq 'length' <<< $repo_groups`
+			log_print "found: $found"
+			if [ "$found" != "0" ]; then
+				jq -r '.[] | .path ' <<<$repo_groups | sort 
+			  else
+				error "groups not found"
+			  fi
 	  esac
 	}
 

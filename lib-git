@@ -24,6 +24,7 @@ case "$UTILS_GIT_THE_OS" in
 
 alias log_print='[ "$UTILS_GIT_TRACE" == "1" ] && echo -e 1>&2 '
 alias error='cmd_utils_git_error'
+alias notice='cmd_utils_git_notice'
 
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
@@ -96,8 +97,13 @@ cmd_utils_git_wrapper(){
 
 cmd_utils_git_error(){
 	msg="$*"
-	log_print "msg: $msg"
+	#log_print "msg: $msg"
 	echo -e "${red}$msg ${norm}"
+	}
+cmd_utils_git_notice(){
+	msg="$*"
+	#log_print "msg: $msg"
+	echo -e "${cyan}$msg ${norm}"
 	}
 
 find_branch() {
@@ -916,23 +922,15 @@ cmd_git_remote_rename(){				# girn
 	  fi
 	}
 cmd_git_remote_set_default(){ 				# giru
-	[ "$1" == "" ] && error "remote alias is missed (1st param)" && return
-	git branch --set-upstream-to $1/$(current_branch)
-	return
-
 	remote_alias=$1
-	log_print "remote_alias: $remote_alias"
-	if [ "$remote_alias" == "" ]; then
-		echo -e "${red}remote alias is missing${norm}"
-		return
+	[ "$remote_alias" == "" ] && error "$remote_alias is missed (1st param)" && return
+	curr_branch=`current_branch`
+	git branch --set-upstream-to $remote_alias/$curr_branch 2> /dev/null
+	if [ "$?" != "0" ]; then
+		git fetch $remote_alias $curr_branch
+		git branch --set-upstream-to $remote_alias/$curr_branch 
+		echo "\$?: $?"
 	  fi
-	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
-	if [ "$remote_url" == "" ]; then
-		echo -e "${red}remote alias '$HOME/.utils-git/remotes/$remote_alias' not found${norm}"
-		return
-	  fi
-	git remote remove $remote_alias
-
 	}
 cmd_git_remote_delete(){				# gird
 	# delete remote
@@ -956,7 +954,9 @@ cmd_git_remote_delete(){				# gird
 	}
 cmd_git_remote_add(){					# gira
 	remote_alias=$1
-	prj_group=$2
+	remote_name=$2
+	prj_group=$3
+	# todo: remote repo - alternative name
 	#remote_url=$2
 	[ "$remote_alias" == "" ] && error "remote alias is missed (1st param)" && return
 	#[ "$remote_url" == "" ] && error "remote url is missed (2nd param)" && return
@@ -964,7 +964,7 @@ cmd_git_remote_add(){					# gira
 	#return
 	log_print "remote_alias: $remote_alias"
 	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
-	[ "$remote_url" == "" ] && error "remote alias is missed (1st param)" && return
+	[ "$remote_url" == "" ] && error "remote alias is not found ($HOME/.utils-git/remotes/$remote_alias)" && return
 
 	remote_url=`eval echo "$remote_url"`
 	log_print "remote_url: $remote_url"
@@ -976,25 +976,38 @@ cmd_git_remote_add(){					# gira
 		#  print $2;
 		#}
 	prj_name=$(basename `git rev-parse --show-toplevel`)
-	log_print "git remote add $remote_alias $remote_url/$prj_name.git"
-	git remote add $remote_alias "$remote_url/$prj_name.git"
-	git ls-remote "$remote_url/$prj_name.git" 2> /dev/null
-	if [ $? != 0 ]; then
+	log_print "prj_name: $prj_name"
+	[[ "$remote_name" == "." || "$remote_name" == "" ]] && remote_name=$prj_name
+	log_print "remote_name: $remote_name"
+	[ "$remote_name" == "" ] && error "remote name is not found" && return
+
+
+	notice "git remote add $remote_alias $remote_url/$remote_name.git"
+	git remote add $remote_alias "$remote_url/$remote_name.git"
+
+	res=`git ls-remote "$remote_url/$prj_name.git" 2>&1` # test remote exists  2> /dev/null
+	res_code=$?
+	if [ "$res_code" == "0" ]; then
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
-		echo -e "${cyan}Create remote repo${norm}"
+		notice "Create remote repo"
+		curr_branch=`current_branch`
 		case "$remote_url" in
 			*bitbucket*)
 				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
-				echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
-				res=`curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=$prj_name --data is_private='true' -k -s`
+				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+				res=`curl -k -s --user $GITUSER:$PASSWORD --data name=$remote_name --data is_private='true' https://api.bitbucket.org/1.0/repositories/`
+				#echo "$?: $?"
+				git fetch $remote_alias $curr_branch
+				#echo "$?: $?"
+				git branch --set-upstream-to $remote_alias/$curr_branch 
 				#jq '' <<< "$res"
-				echo "$?: $?"
+				#echo "$?: $?"
 				;;
 			*github*)
 				[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
-				echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
-				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
+				[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$remote_name'"}' -k -s`
 				#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 				;;
 			*gitlab*)
@@ -1017,7 +1030,7 @@ cmd_git_remote_add(){					# gira
 				  else
 				  	group_id=`jq '.[] | .id' <<< $res`
 				  	set -x
-					curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$prj_name" "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects"
+					curl --header "PRIVATE-TOKEN:$TOKEN" "NAME=$remote_name" "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects"
 					set +x
 				  fi
 				#set +x
@@ -1044,9 +1057,42 @@ cmd_git_remote_add(){					# gira
 			*)
 				error "method for remote repo create not found !"
 		  esac
+		notice "set rebase to false"
+		gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
 	  else
-		git ls-remote "$remote_url/$prj_name.git"
+	  	echo "res_code: $res_code"
+	  	error "$res"
 	  fi
+	}
+cmd_git_remote_list(){					# girl
+	local remote_alias=$1
+	[ "$remote_alias" == "" ] && error "Remote alias is missed (1st param) !" && return
+	#log_print "remote_alias: $remote_alias"
+	
+	remote_url=`cat $HOME/.utils-git/remotes/$remote_alias` 2> /dev/null
+	[ "$remote_url" == "" ] && error "remote alias is not found ($HOME/.utils-git/remotes/$remote_alias)" && return
+	remote_url=`eval echo "$remote_url"`
+	log_print "remote_url: $remote_url"
+	
+	echo reading repo list ...
+	case "$remote_url" in
+		*bitbucket*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
+			jq -r '.[] | .name + if .is_private then "\tPRIVATE" else "" end' <<< $res
+			#jq '' <<< "$res"
+			echo "\$?: $?"
+			;;
+		*github*)
+			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
+			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			#res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
+			#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
+			;;
+		*gitlab*)
+			;;
+	  esac
 	}
 
 cmd_git_status_with_untracked(){ 			# gis

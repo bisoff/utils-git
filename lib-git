@@ -925,12 +925,31 @@ cmd_git_remote_set_default(){ 				# giru
 	remote_alias=$1
 	[ "$remote_alias" == "" ] && error "$remote_alias is missed (1st param)" && return
 	curr_branch=`current_branch`
-	git branch --set-upstream-to $remote_alias/$curr_branch 2> /dev/null
-	if [ "$?" != "0" ]; then
-		git fetch $remote_alias $curr_branch
-		git branch --set-upstream-to $remote_alias/$curr_branch 
-		echo "\$?: $?"
+
+	notice "fetch"
+	res=`git fetch $remote_alias $curr_branch 2>&1`
+	log_print "res: $res"
+	if [[ "$res" =~ "fatal: Couldn't find remote ref" ]]; then
+		echo -e "${yellow}remote is empty${norm}"
+		notice "push"
+		res=`git push $remote_alias $curr_branch 2>&1`
+		if [[ "$res" =~ "error: failed to push some refs" ]]; then
+			echo -e "${yellow}nothing to track${norm}"
+			return
+		  fi
 	  fi
+	notice "set upstream"
+	git branch --set-upstream-to $remote_alias/$curr_branch 
+
+	notice "set rebase to false"
+	gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
+
+	#res=`git branch --set-upstream-to $remote_alias/$curr_branch 2>&1`
+	#if [ "$?" != "0" ]; then
+	#	git fetch $remote_alias $curr_branch
+	#	git branch --set-upstream-to $remote_alias/$curr_branch 
+	#	echo "\$?: $?"
+	#  fi
 	}
 cmd_git_remote_delete(){				# gird
 	# delete remote
@@ -988,9 +1007,7 @@ cmd_git_remote_add(){					# gira
 		[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
 		[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 		if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]; then
-			set -x
 			res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
-			set +x
 			log_print "res:        $res"
 			
 			TOKEN=`jq -r '.private_token' <<< $res`
@@ -1127,8 +1144,6 @@ cmd_git_remote_add(){					# gira
 			*)
 				error "method for remote repo create not found !"
 		  esac
-		notice "set rebase to false"
-		gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
 	  #else
 	  #	echo "res_code: $res_code"
 	  #	error "$res"
@@ -1136,23 +1151,7 @@ cmd_git_remote_add(){					# gira
 	notice "git remote add $remote_alias $REPO_URL"
 	git remote add $remote_alias "$REPO_URL"
 
-	#case "$remote_url" in
-	#	*bitbucket*|*github*)
-	notice "fetch"
-	res=`git fetch $remote_alias $curr_branch 2> /dev/null`
-	if [[ "$res" =~ "fatal: Couldn't find remote ref" ]]; then
-		echo "${yellow}remote is empty${norm}"
-		notice "push"
-		git push $remote_alias $curr_branch
-	  fi
-	notice "set upstream"
-	git branch --set-upstream-to $remote_alias/$curr_branch 
-	#		;;
-	#	*gitlab*)
-	#		;;
-	#	*)
-	#		error "method for remote repo create not found !"
-	#  esac
+	cmd_git_remote_set_default $remote_alias
 	}
 cmd_git_remote_list(){					# girl
 	local remote_alias=$1

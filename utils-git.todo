@@ -1,11 +1,65 @@
+	☐	1:00 	utils-git: gl !&other @critical
+	☐	0:15	utils-git: gimprep <branch> - git merge --no-commit --no-ff main
+	☐		как удалить коммит без следов 		- git reset --hard HEAD^
+	☐		как отменить незакоммиченый merge 	- git merge --abort
+	☐		как переменовать branch
+	☐		git diff HEAD
+			git diff --cached
+			git diff --staged
+			visual tool
+			diffuse -m
+			git diff -- myfile.txt
+			git difftool myfile.txt
+			git difftool -d - This opens your diff tool in directory comparison mode, comparing HEAD with current dirty folder   --dir-diff
+			    git diff : terminal diff of each modified files
+			    git diff <myfile> : terminal diff of <myfile>
+			    git difftool <myfile> : meld diff of <myfile>
+			    git difftool : meld diff of each modified files, one bye one
+			    git difftool -d : meld diff of each file, into a single window
+	☐		gis
+				UU try - unstaged after merge conflict resolve
+	картинки с иллюстрацией setup / readme / cfg / ...
+	gok - выводить лог только если что то прокоммитилось
+	git diff | git show - diff??
+	git show HEAD --stat | grep . # HEAD~2 HEAD^^^ d921970^2 master@{yesterday} master@{now}
+	git commit --amend
+	☐	git stash list ; git stash apply stash@{2}; git stash branch testchanges
+	☐	gok - push a) один или все branch b) один (upstream) или все remotes
+	☐	gok - push/pull всех веток в текущий remote
+	☐	файлы след/пред коммита
+	☐	все диффы коммита (external tool)
+	☐	??дифф след/пред файла коммита
+	☐	gic # compare: diff from_branch to_branch
+	☐	gib+
+	☐	gib - понять behind & ahead (по отношению к локальной или remote)
+	☐	guk - push по началу выбрать бранч
+	☐	gimto - enforce merge curr branch to entered (instead another to current)
+	☐	goc - как узнать upstream-овый origin (branch?)
+	☐	gilf - add branches  files & quant + and 
+	☐	gilf - colorize ops?
+	☐	gils/gils+ - colorize rows by awk?
+
+	☐	gil - align date/autor and more light
+	☐	gil - show week day
+	☐	gil переделать текущий branch
+
+	☐	gef - fetch
+	☐	gef = gfe
+	☐	gad - git add -A .
+	☐	create merge request from CLI
+	☐	gid: файлы работы + обзор диффа
+			loop
+				clear screen & show list of files (stat:++ --) & menu(N(ext file) (P)rev file  (L)ist of files (Q)uit)
+				Show file name ()
+	☐	gilb - log по текущему бранчу
+	☐	gca - gco + amend + msg from last commit
+
 
 	☐	перенести get_sync_status элементы в библиотеку lib-git
 	☐	cmd_git rename to cmd_utils_git
 	☐	checkout hash
 	☐	gisx - show NEED PUSH/PULL
-	☐	gok - push/pull всех веток в текущий remote
 	☐	gdifs if no changes then for last commit
-	☐	gef = gfe
 	☐	gefa - fetch all branches
 	☐	gula - fetch and merge all branches
 	☐	gusa - push all branches
@@ -14,7 +68,7 @@
 	☐	to PS1 try \[ \]
 	☐	yellow for cmd params in help.clr
 	☐	grev - revert all files
-	☐	gme - merge после gul(FETCH) gac 
+	☐	gme - merge пsосле gul(FETCH) gac 
 	
 	gis unmerged!! rebase in progress!! 
 	git rebase --continue
@@ -23,3 +77,4 @@
 	giv - git --version
 	git config --global git-up.rebase.auto false  # To turn off the automatic rebasing behavior of git-up (gem install git-up)
 	git pull -r # git sync
+

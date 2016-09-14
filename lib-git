@@ -985,13 +985,18 @@ cmd_git_remote_add(){					# gira
 	local GROUP_NAME
 	local REPO_URL
 	if [[ "$remote_url" =~ "gitlab" ]]; then
-		if [ "$TOKEN" == "" ]; then
+		[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
+		[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+		if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]; then
+			set -x
 			res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
+			set +x
 			log_print "res:        $res"
 			
 			TOKEN=`jq -r '.private_token' <<< $res`
 		  fi
 		log_print "TOKEN: $TOKEN"
+		[[ "$TOKEN" == "" || "$TOKEN" == "null" ]] && error "Get token failed" && return
 
 		# find group
 		[ "$prj_group" == "" ] && prj_group=$GITUSER # $GITLABUSER
@@ -1019,33 +1024,85 @@ cmd_git_remote_add(){					# gira
 	if [ "$res_code" != "0" ]; then # repo absent
 		#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 		#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
-		notice "Create remote repo"
 		curr_branch=`current_branch`
-		if [[ "$remote_url" =~ "gitlab" ]]; then
-			[ "$GITLABUSER" == "" ] && error "\$GITLABUSER not defined!" && return
-			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
-		  else
+		if [[ ! "$remote_url" =~ "gitlab" ]]; then
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
 		  fi
 		case "$remote_url" in
 			*bitbucket*)
+				notice "Create remote repo in BITBUCKET.ORG"
 				res=`curl -k -s --user $GITUSER:$PASSWORD --data name=$remote_name --data is_private='true' https://api.bitbucket.org/1.0/repositories/`
 				#echo "$?: $?"
 				#jq '' <<< "$res"
 				;;
 			*github*)
+				notice "Create remote repo in GITHUB.COM"
 				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$remote_name'"}' -k -s`
+				#curl -u 'USER' https://api.github.com/user/repos -d '{"name":"REPO", "private":"true"}'
 				#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 				;;
 			*gitlab*)
-				#export PASSWORD
+				notice "Create remote repo - $REPO_URL"
 				#log_print "GITLABUSER: $GITLABUSER"
 				#log_print "PASSWORD:   $PASSWORD"
 
 				#set -x
-				curl -X POST -s -H "Content-Type:application/json" --data "NAME=$remote_name" --data "namespace_id=$group_id" -X POST "$remote_url/api/v3/projects&private_token=$TOKEN"
+				res=`curl -s -X POST --header "PRIVATE-TOKEN:$TOKEN" "$remote_url/api/v3/projects?name=$remote_name&namespace_id=$GROUP_ID"`
+				#	"id":256,
+				#	"description":null,
+				#	"default_branch":null,
+				#	"tag_list":[],
+				#	"public":false,
+				#	"archived":false,
+				#	"visibility_level":0,
+				#	"ssh_url_to_repo":"git@gitlab.mivar.ru:bisoff/utils-dt.git",
+				#	"http_url_to_repo":"http://gitlab.mivar.ru/bisoff/utils-dt.git",
+				#	"web_url":"http://gitlab.mivar.ru/bisoff/utils-dt",
+				#	"owner":{
+				#		"name":"Бысов Роман",
+				#		"username":"bisoff",
+				#		"id":38,
+				#		"state":"active",
+				#		"avatar_url":"http://gitlab.mivar.ru/uploads/user/avatar/38/avatar2b.jpg",
+				#		"web_url":"http://gitlab.mivar.ru/u/bisoff"},
+				#	"name":"utils-dt",
+				#	"name_with_namespace":"Бысов Роман / utils-dt",
+				#	"path":"utils-dt",
+				#	"path_with_namespace":"bisoff/utils-dt",
+				#	"issues_enabled":true,
+				#	"merge_requests_enabled":true,
+				#	"wiki_enabled":true,
+				#	"builds_enabled":true,
+				#	"snippets_enabled":false,
+				#	"container_registry_enabled":true,
+				#	"created_at":"2016-09-14T12:13:23.595Z",
+				#	"last_activity_at":"2016-09-14T12:13:25.902Z",
+				#	"shared_runners_enabled":true,
+				#	"creator_id":38,
+				#	"namespace":{
+				#		"id":50,
+				#		"name":"bisoff",
+				#		"path":"bisoff",
+				#		"owner_id":38,
+				#		"created_at":"2015-12-01T10:53:05.232Z",
+				#		"updated_at":"2016-09-13T10:59:56.640Z",
+				#		"description":"",
+				#		"avatar":null,
+				#		"share_with_group_lock":false,
+				#		"visibility_level":20,
+				#		"request_access_enabled":true},
+				#		"avatar_url":null,
+				#		"star_count":0,
+				#		"forks_count":0,
+				#		"runners_token":"..",
+				#		"public_builds":true,
+				#		"shared_with_groups"
+				# -H "Content-Type:application/json" -d "{\"name\":\"$remote_name\", \"namespace_id\":\"$GROUP_ID\"}"
+				# --data "NAME=$remote_name" --data "namespace_id=$group_id"
+				#-d '{"name":"REPO", "private":"true"}'
 				#set +x
+
 				#curl "PRIVATE-TOKEN:$TOKEN"  $remote_url/api/v3/projects -d "{ \"name\": \"bar\" }" # -H "Content-Type:application/json" 
 
 				#curl -s -H "Content-Type:application/json" http://gitlab.mivar.ru/api/v3/projects?private_token=.. | jq -r '.[] | .name' # project list
@@ -1081,8 +1138,15 @@ cmd_git_remote_add(){					# gira
 
 	#case "$remote_url" in
 	#	*bitbucket*|*github*)
-			git fetch $remote_alias $curr_branch
-			git branch --set-upstream-to $remote_alias/$curr_branch 
+	notice "fetch"
+	res=`git fetch $remote_alias $curr_branch 2> /dev/null`
+	if [[ "$res" =~ "fatal: Couldn't find remote ref" ]]; then
+		echo "${yellow}remote is empty${norm}"
+		notice "push"
+		git push $remote_alias $curr_branch
+	  fi
+	notice "set upstream"
+	git branch --set-upstream-to $remote_alias/$curr_branch 
 	#		;;
 	#	*gitlab*)
 	#		;;

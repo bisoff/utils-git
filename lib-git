@@ -134,6 +134,32 @@ find_branch() {
   	#echo myresult: $myresult
   	#eval $__result="'$myresult'"
 	}
+find_remote() {
+	local mask=$1
+	local find_res=$(git remote show 2> /dev/null | grep "^$mask")
+	log_print "find_res: $find_res"
+	return
+	local cn=$[$(echo "$find_res" | wc -l)] # found count
+	#echo cn: $cn 1>&2
+	[[ $cn -gt 1 ]] && echo "Branch containing $mask\* - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && return 1 #echo "$find_res" 1>&2 && 
+	
+	if [[ "$find_res" != "" ]]; then 
+		__result=$find_res
+	  else # if not found at all
+		# find all by *<mask>*
+		local find_res=$(git branch 2> /dev/null | sed -e 's/^* \(.*\)/\1/' -e 's/  \(.*\)/\1/' | grep "$mask") 
+		#echo find_res2: $find_res 1>&2
+		[[ "$find_res" == "" ]] && echo "Branch containing $mask - NOT FOUND " 1>&2 && return 2 
+		#echo find_res:"$find_res"
+		cn=$[$(echo "$find_res" | wc -l)] # found count
+		[[ $cn > 1 ]] && echo "Branch containing $mask - IS AMBIGUOUS. Found $cn:" $find_res 1>&2 && return 3 #echo "$find_res" 1>&2 && 
+		__result=$find_res
+  	  fi
+  	echo $__result
+  	#local myresult="$__result"
+  	#echo myresult: $myresult
+  	#eval $__result="'$myresult'"
+	}
 current_branch() {
 	#echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 	curr_branch=`echo $(git rev-parse --abbrev-ref HEAD 2> /dev/null)`
@@ -712,6 +738,81 @@ cmd_git_branch_delete_if_merged(){ 			# gibd
 	  fi
 	}
 
+cmd_git_branch_merge_after_pull(){ 			# gim
+	source_branch=$(find_branch "$1") #; echo branch: $branch
+	exitcode=$?
+	[ $exitcode -ne 0 ] && echo not found && return
+
+	currbranch=$(current_branch)
+	echo "from '$source_branch' to '$currbranch'"
+
+	echo "Pull '$source_branch'"
+	#git checkout $branch
+	cmd_git_branch_show_local_or_switch $source_branch || return
+	cmd_git_pull || cmd_git_branch_show_local_or_switch $source_branch # || return
+
+	#git checkout $source_branch
+	cmd_git_branch_show_local_or_switch $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
+
+	#echo returncode: $returncode
+	#echo current_branch: $(current_branch)
+	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
+	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
+	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
+
+	git merge $source_branch
+	#echo done
+	}
+cmd_git_branch_merge_with_local(){ 			# giml
+	branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
+	returncode=$?
+	#echo returncode: $returncode
+	#echo current_branch: $(current_branch)
+	[ $returncode -ne 0 ] && echo not found && return
+	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
+	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
+	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
+
+	git merge $branch
+	#echo done
+	}
+cmd_git_branch_target_branch_with_this_after_pull(){ 	# gimto
+	currbranch=$(current_branch)
+	echo currbranch: $currbranch
+
+	tobranch=$(find_branch "$1")
+	echo tobranch: $tobranch
+
+	  # [ $? -eq 0 ] 
+	if [[ "$tobranch" != "" ]]; then
+		git checkout $tobranch
+		  [ $? -ne 0 ] && return
+		cmd_git_pull # fetch and merge
+		  [ $? -ne 0 ] && return
+		git merge $currbranch
+		  [ $? -ne 0 ] && return
+		git checkout $currbranch
+		#gil 7
+	  fi
+	}
+cmd_git_branch_target_local_branch_with_this(){ 	# gimtol
+	currbranch=$(current_branch)
+	echo currbranch: $currbranch
+
+	tobranch=$(find_branch "$1")
+	echo tobranch: $tobranch
+
+	  # [ $? -eq 0 ] 
+	if [[ "$tobranch" != "" ]]; then
+		git checkout $branch
+		  [ $? -ne 0 ] && return
+		git merge $currbranch
+		  [ $? -ne 0 ] && return
+		git checkout $currbranch
+		gil 7
+	  fi
+	}
+
 cmd_git_log_host_first(){ 				# gil
 	# 	[[ $curr_branch == "$branch" ]] && echo -e "${red}can't delete itself $norm" 1>&2 && exit
 	# 	git branch -d $branch # если ветка была смержена
@@ -797,81 +898,6 @@ cmd_git_last_n_commits_stat_with_hash(){ 		# gilsh
 	#git log --numstat --pretty --oneline 0f5d22e..HEAD -- <filename>
 	}
 
-cmd_git_branch_merge_after_pull(){ 			# gim
-	source_branch=$(find_branch "$1") #; echo branch: $branch
-	exitcode=$?
-	[ $exitcode -ne 0 ] && echo not found && return
-
-	currbranch=$(current_branch)
-	echo "from '$source_branch' to '$currbranch'"
-
-	echo "Pull '$source_branch'"
-	#git checkout $branch
-	cmd_git_branch_show_local_or_switch $source_branch || return
-	cmd_git_pull || cmd_git_branch_show_local_or_switch $source_branch # || return
-
-	#git checkout $source_branch
-	cmd_git_branch_show_local_or_switch $currbranch || (echo "FAIL! ANOTHER BRANCH !!" && return)
-
-	#echo returncode: $returncode
-	#echo current_branch: $(current_branch)
-	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
-	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
-	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
-
-	git merge $source_branch
-	#echo done
-	}
-cmd_git_branch_merge_with_local(){ 			# giml
-	branch=$(find_branch "$1") # result; echo result:$result; branch=${result}
-	returncode=$?
-	#echo returncode: $returncode
-	#echo current_branch: $(current_branch)
-	[ $returncode -ne 0 ] && echo not found && return
-	#[ $returncode -eq 1 ] && echo "Find branch by $1*: AMBIGUOUS" && return
-	#[ $returncode -eq 2 ] && echo "Find branch by *$1*: NOT FOUND" && return
-	#[ $returncode -eq 3 ] && echo "Find branch by *$1*: AMBIGUOUS" && return
-
-	git merge $branch
-	#echo done
-	}
-cmd_git_branch_target_branch_with_this_after_pull(){ 	# gimto
-	currbranch=$(current_branch)
-	echo currbranch: $currbranch
-
-	tobranch=$(find_branch "$1")
-	echo tobranch: $tobranch
-
-	  # [ $? -eq 0 ] 
-	if [[ "$tobranch" != "" ]]; then
-		git checkout $tobranch
-		  [ $? -ne 0 ] && return
-		cmd_git_pull # fetch and merge
-		  [ $? -ne 0 ] && return
-		git merge $currbranch
-		  [ $? -ne 0 ] && return
-		git checkout $currbranch
-		#gil 7
-	  fi
-	}
-cmd_git_branch_target_local_branch_with_this(){ 	# gimtol
-	currbranch=$(current_branch)
-	echo currbranch: $currbranch
-
-	tobranch=$(find_branch "$1")
-	echo tobranch: $tobranch
-
-	  # [ $? -eq 0 ] 
-	if [[ "$tobranch" != "" ]]; then
-		git checkout $branch
-		  [ $? -ne 0 ] && return
-		git merge $currbranch
-		  [ $? -ne 0 ] && return
-		git checkout $currbranch
-		gil 7
-	  fi
-	}
-
 cmd_git_remotes_show(){ 				# girs
 	#git remote -v
 	curr_remote=$(current_remote)
@@ -922,8 +948,13 @@ cmd_git_remote_rename(){				# girn
 	  fi
 	}
 cmd_git_remote_set_default(){ 				# giru
-	remote_alias=$1
-	[ "$remote_alias" == "" ] && error "$remote_alias is missed (1st param)" && return
+	remote_mask=$1
+	[ "$remote_mask" == "" ] && error "$remote_mask is missed (1st param)" && return
+	log_print "remote_mask: $remote_mask"
+	remote_alias=`git remote show | grep -E "^$remote_mask"` #`find_remote $remote_mask`
+	
+	#2> /dev/null
+	return 
 	curr_branch=`current_branch`
 
 	notice "fetch"

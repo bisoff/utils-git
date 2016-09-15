@@ -255,7 +255,6 @@ files_status () {
 	  fi
 	}
 
-
 compare_with_remote(){
 	#curr_remote=$(current_remote)
 	LOCAL=$(git rev-parse @)
@@ -1178,8 +1177,9 @@ cmd_git_remote_list(){					# girl
 		*github*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			res=`curl -u $GITUSER:$PASSWORD -s -X GET "https://api.github.com/users/$GITUSER/repos"`
 			#res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
-			#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
+			jq -r '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 			;;
 		*gitlab*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return

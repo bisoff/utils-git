@@ -1333,6 +1333,7 @@ cmd_git_pull(){ 					# gul
 		if [[ "$curr_remote" == "" ]]; then 
 			#curr_remote=$(cmd_git_remotes_show)
 			curr_remote=`git remote show` # если один то сделать его default (upstream)
+			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 			cnt=$[$(echo "$curr_remote" | wc -l)]
 			[[ $cnt -ne 1 ]] && curr_remote=""
 		  fi
@@ -1343,10 +1344,11 @@ cmd_git_pull(){ 					# gul
 			echo -e "[utils-git] ${red}FETCH${norm} $green$curr_remote/$curr_branch$norm"
 			# git pull --stat --no-rebase #--all --quiet
 			git fetch -vv --quiet "$curr_remote" "$curr_branch" # vv -  отслеживаемые ветки
-			echo "result (\$?): $?"
+			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+			
 			echo -e "[utils-git] ${red}MERGE${norm} with $green$curr_remote/$curr_branch$norm"  #-u
 			git merge "$curr_remote"/"$curr_branch"
-			echo "result (\$?): $?"
+			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 			#git branch --set-upstream-to "$curr_remote"/"$curr_branch"
 			#git push "$curr_remote" "$curr_branch" -u #all --all
 		  fi
@@ -1359,11 +1361,12 @@ cmd_git_pull(){ 					# gul
 				#git pull "$next_remote" "$curr_branch"  #all --all
 				#echo "fetch"
 				git fetch -vv "$next_remote" "$curr_branch"
-				echo "result (\$?): $?"
+				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 				#echo "merge"
+				
 				echo -e "[utils-git] ${red}MERGE${norm} with $green$next_remote/$curr_branch$norm"  #-u
 				git merge "$next_remote"/"$curr_branch"
-				echo "result (\$?): $?"
+				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 				#echo "upstream"
 				#git branch --set-upstream-to "$next_remote"/"$curr_branch"
 			  #else

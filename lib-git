@@ -1203,10 +1203,28 @@ cmd_git_remote_list(){					# girl
 		*bitbucket*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
-			res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
-			jq -r '.[] | .name + if .is_private then "\tPRIVATE" else "" end' <<< $res
+			if [ "$prj_group" == "" ]; then
+				res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
+				jq -r '.[] | .name + "\t" + .owner + "\t" + if .is_private then "PRIVATE" else ".public." end' <<< "$res" | column -t | sort -f
+			  else
+				#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/groups/$GITUSER/
+				#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/repositories/$team1 | jq -r '.values | .[] | .name' | sort -f
+				team=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams?role=admin | jq -r ".values | .[] | select(.username | contains(\"$prj_group\")) | .username"`
+				if [ "$team" == "" ]; then
+					error "Team not found"
+					return
+				  else
+				  	#echo team1: $team1
+					#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams/$team/repositories #| jq -r '.values | .[] | .name' | sort -f
+					res=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/users/$team`
+					jq -r '.repositories | .[] | .name + "\t" + if .is_private then "PRIVATE" else ".public." end' <<< "$res" | column -t | sort -f
+				  fi
+				#team1=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams?role=admin | jq -r '.values| .[0] | .username'`
+				#echo team1: $team1
+				#curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/
+			  fi
 			#jq '' <<< "$res"
-			echo "\$?: $?"
+			#echo "\$?: $?"
 			;;
 		*github*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
@@ -1278,7 +1296,8 @@ cmd_git_remote_list_groups(){					# girlg
 		*bitbucket*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
-			#res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
+			team1=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/privileges | jq -r '.teams | keys[0]'`
+			
 			#jq -r '.[] | .name + if .is_private then "\tPRIVATE" else "" end' <<< $res
 			#jq '' <<< "$res"
 			#echo "\$?: $?"
@@ -1286,6 +1305,7 @@ cmd_git_remote_list_groups(){					# girlg
 		*github*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			curl -s -X GET --user $GITUSER:$PASSWORD "$remote_url/api/v3/users/$GITUSER/repos"
 			#res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$prj_name'"}' -k -s`
 			#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 			;;

@@ -78,3 +78,17 @@
 	git config --global git-up.rebase.auto false  # To turn off the automatic rebasing behavior of git-up (gem install git-up)
 	git pull -r # git sync
 
+
+https://confluence.atlassian.com/bitbucket/privileges-endpoint-296093145.html
+http://stackoverflow.com/questions/38347458/bitbucket-api-2-create-repository-in-a-team-project
+http://stackoverflow.com/questions/23490763/how-to-get-full-list-of-repositories-that-allowed-for-user
+https://confluence.atlassian.com/bitbucket/use-the-bitbucket-cloud-rest-apis-222724129.html
+https://confluence.atlassian.com/bitbucket/groups-endpoint-296093143.html
+https://confluence.atlassian.com/bitbucket/manage-groups-236585997.html
+https://confluence.atlassian.com/bitbucket/repositories-endpoint-1-0-296092719.html
+https://confluence.atlassian.com/bitbucket/groups-endpoint-296093143.html#groupsEndpoint-POSTanewgroup
+	/1.0/projects/$PROJECT/repos?limit=999
+	/2.0/repositories/bitbucket?q=project.key%3D%22PROJ%22
+
+https://developer.github.com/v3/orgs/teams/#list-teams
+https://developer.github.com/v3/

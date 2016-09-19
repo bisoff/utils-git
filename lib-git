@@ -1467,7 +1467,7 @@ cmd_git_push(){ 					# gus
 
 				err_code=$?
 				if [ "$err_code" != "0" ]; then 
-					error `grep '^To' <<< "$res"`
+					error `echo "$res" grep '^To'`
 				  else
 					echo -e "${green}$res${norm}"
 				  fi

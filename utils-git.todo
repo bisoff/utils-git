@@ -1,3 +1,4 @@
+	☐	перейти на токены $GITHUB_TOKEN / ..
 	☐	1:00 	utils-git: gl !&other @critical
 	☐	0:15	utils-git: gimprep <branch> - git merge --no-commit --no-ff main
 	☐		как удалить коммит без следов 		- git reset --hard HEAD^
@@ -78,3 +79,11 @@
 	git config --global git-up.rebase.auto false  # To turn off the automatic rebasing behavior of git-up (gem install git-up)
 	git pull -r # git sync
 
+
+rest api
+	bb
+		https://developer.atlassian.com/static/rest/bitbucket-server/latest/bitbucket-rest.html
+		https://developer.atlassian.com/bitbucket/server/docs/latest/how-tos/command-line-rest.html
+		https://developer.atlassian.com/bitbucket/api/2/reference/
+		https://bitbucket-api.readthedocs.io/en/latest/index.html - Python
+		https://answers.atlassian.com/questions/39565125/how-can-i-query-the-bitbucket-rest-api-for-all-repositories-within-a-project

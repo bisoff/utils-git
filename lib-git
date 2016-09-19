@@ -1262,7 +1262,7 @@ cmd_git_remote_list(){					# girl
 			  fi
 	  esac
 	}
-cmd_git_remote_list_groups(){					# girlg
+cmd_git_remote_list_groups(){				# girlg
 	local remote_alias=$1
 	local prj_group=$2
 	[ "$remote_alias" == "" ] && error "Remote alias is missed (1st param) !" && return
@@ -1278,6 +1278,11 @@ cmd_git_remote_list_groups(){					# girlg
 		*bitbucket*)
 			[ "$GITUSER" == "" ] && error "\$GITUSER not defined!" && return
 			[ "$PASSWORD" == "" ] && echo -n Enter password for $GITUSER: && read -s PASSWORD && echo
+			team1=`curl -k -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/privileges | jq -r '.teams | keys[0]'`
+			curl -k -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/privileges{$team1}
+			#projects #
+			#https://api.bitbucket.org/1.0/user/repositories/`
+			#/REST/API/1.0/ADMIN/privileges
 			#res=`curl -s --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/user/repositories/`
 			#jq -r '.[] | .name + if .is_private then "\tPRIVATE" else "" end' <<< $res
 			#jq '' <<< "$res"

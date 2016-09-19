@@ -51,7 +51,7 @@ TIME2="(%ar)"
 AUTHOR="%an"
 REFNAME="%d"
 
-cmd_utils_git_wrapper(){
+function cmd_utils_git_wrapper(){
 	local cmd_one="$1"
 	local utils_git_timestamp_current
 	UTILS_GIT_TRACE=0
@@ -95,18 +95,18 @@ cmd_utils_git_wrapper(){
 	eval $cmd_one "$params" #"$@*"
 	}
 
-cmd_utils_git_error(){
+function cmd_utils_git_error(){
 	msg="$*"
 	#log_print "msg: $msg"
-	echo -e "${red}$msg ${norm}"
+	echo -e "${red_back}$msg${norm}"
 	}
-cmd_utils_git_notice(){
+function cmd_utils_git_notice(){
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${cyan}$msg ${norm}"
 	}
 
-find_branch() {
+function find_branch() {
 	local mask=$1
 	#local __result_varname=$2
 	
@@ -134,7 +134,7 @@ find_branch() {
   	#echo myresult: $myresult
   	#eval $__result="'$myresult'"
 	}
-find_remote() {
+function find_remote() {
 	local mask=$1
 	local find_res=$(git remote show 2> /dev/null | grep "^$mask")
 	log_print "find_res: $find_res"
@@ -160,7 +160,7 @@ find_remote() {
   	#echo myresult: $myresult
   	#eval $__result="'$myresult'"
 	}
-current_branch() {
+function current_branch() {
 	#echo $(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
 	curr_branch=`echo $(git rev-parse --abbrev-ref HEAD 2> /dev/null)`
 	#[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
@@ -168,7 +168,7 @@ current_branch() {
 	}
 # last tag - git describe --always --tag
 	# full - git log -1 --format="%H%n%aD"
-current_remote() {
+function current_remote() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null) #имя ветки, в которую был внесен последний коммит
 	#git rev-parse <revision> - возвращает хеш коммита для указанной ревизии. Например, git rev-parse HEAD вернет хеш коммита, на который указывает HEAD.
 	#echo curr_branch: $curr_branch 1>&2
@@ -186,13 +186,13 @@ current_remote() {
 		  fi
 	  fi	
 	}
-curr_merge_branch() {
+function curr_merge_branch() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	[[ "$curr_branch" == "" ]] && echo curr_branch NOT FOUND 1>&2 && return
 	echo $(git config branch.$curr_branch.merge 2> /dev/null | cut -d / -f 3)
 	}
 
-ahead_behind() {
+function ahead_behind() {
 	curr_branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 	[[ "$curr_branch" == "" ]] && return #&& echo "[ahead_behind] curr_branch NOT FOUND" 1>&2 
 	curr_remote=$(current_remote)
@@ -218,7 +218,7 @@ ahead_behind() {
 	#↓n: behind remote by n commits
 	#L local branch, not remotely tracked
 	}
-files_status () {
+function files_status () {
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	#local total=$(echo "$all"| wc -l)
 	#echo total: $total 1>&2
@@ -281,8 +281,7 @@ files_status () {
 		echo "$res"
 	  fi
 	}
-
-compare_with_remote(){
+function compare_with_remote(){
 	#curr_remote=$(current_remote)
 	LOCAL=$(git rev-parse @)
 	#REMOTE=$(git rev-parse @{u}) # from local
@@ -300,18 +299,18 @@ compare_with_remote(){
 	  fi
 		}
 
-get_remote_repo_name(){
+function get_remote_repo_name(){
 	git config --get remote.$(current_remote).url | sed -E 's|.*/(.*).git/?$|\1|'	
 	}
-get_all_remotes(){
+function get_all_remotes(){
 	remotes=$(git remote show)
 	echo $remotes
 	}
-git_rebase_status(){
+function git_rebase_status(){
 	git status | head -n 1 # rebase in progress; onto 0103a6e
 	}
 
-git_staged(){
+function git_staged(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local staged=$(echo "$all" | grep "^[ADM]" | wc -l) # git status -s --untracked-files --porcelain | grep "^(A|D|M)"
 	staged=`echo $staged`
@@ -319,21 +318,21 @@ git_staged(){
 	[[ "$staged" == "0" ]] && staged=""
 	echo "$staged"
 	}
-git_changed(){
+function git_changed(){
 	local changed=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E "^.{0,1}M" | wc -l) # but unstaged \?\?|
 	changed=`echo $changed`
 	[[ "$changed" != "0" ]] && changed=" ~$changed"
 	[[ "$changed" == "0" ]] && changed=""
 	echo "$changed"
 	}
-git_untracked(){
+function git_untracked(){
 	local untracked=$(git status -s --untracked-files --porcelain 2> /dev/null | grep -E '^\?\?' | wc -l)
 	untracked=`echo $untracked`
 	[[ "$untracked" != "0" ]] && untracked=" +$untracked"
 	[[ "$untracked" == "0" ]] && untracked=""
 	echo "$untracked"
 	}
-git_deleted(){
+function git_deleted(){
 	local all=$(git status -s --untracked-files --porcelain 2> /dev/null) 
 	local deleted=$(echo "$all"| grep -E "^.{0,1}D" | wc -l)
 	deleted=`echo $deleted`
@@ -341,24 +340,24 @@ git_deleted(){
 	[[ $deleted -eq 0 ]] && deleted=""
 	echo "$deleted"
 	}
-git_prompt(){
+function git_prompt(){
 	#[[ "$curr_branch" != "" ]] && echo -e " $green[$green $curr_branch$magenta->$(current_remote)$cyan_bold$(files_status)$green ]$norm " #$green_dim$
 	[[ "$curr_branch" != "" ]] && echo "$cyan_back \w $norm $green$curr_branch$magenta->$(current_remote) $cyan_bold$green+$staged$red-$deleted$norm$cyan_back > $norm " #$green
 
 	#[[ "$curr_branch" != "" ]] && echo "$green $curr_branch$magenta-> $cyan_bold$(files_status)$norm" 
 	}
 
-remote_for_ps1(){
+function remote_for_ps1(){
 	curr_remote=$(current_remote)
 	[[ "$curr_remote" != "" ]] && curr_remote="->$curr_remote [$(get_remote_repo_name)]"
 	echo "$curr_remote"
 	}
-branch_for_ps1(){
+function branch_for_ps1(){
 	curr_branch=$(current_branch)
 	[[ "$curr_branch" != "" ]] && curr_branch=" $curr_branch"
 	echo "$curr_branch"
 	}
-renametab() {
+function renametab() {
 	# todo: oldpwd for *nix (~/.oldpwd for msys only)
 	[[ "$(cat ~/.oldpwd)" == "$(pwd)" ]] && return
 	#echo "-$(pwd)-" 1>&2
@@ -369,6 +368,7 @@ renametab() {
 	pwd > ~/.oldpwd
 	#PREV_TAB="${PWD##*/}"
 	}
+
 GIT_PROMPT="\[$cyan_back\] \w \[$norm\]\[$green\]\$(branch_for_ps1)\[$magenta\]\$(remote_for_ps1)\[$green\]\$(git_staged)\[$yellow\]\$(git_changed)\[$red\]\$(git_untracked)\[$blue_dim\]\$(git_deleted)\[$norm\] \[$cyan_back\] \t > \[$norm\] \$(renametab)"
 	#\[$cyan_bold\]
 	#http://mediadoneright.com/content/ultimate-git-ps1-bash-prompt
@@ -429,7 +429,7 @@ cmd_git_append(){ 					# ga
 cmd_git_append_and_commit(){ 				# gac
 	local msg=$1
 
-	echo -e "BRANCH: $green$(current_branch)$norm"
+	#echo -e "BRANCH: $green$(current_branch)$norm"
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel`
 	cd "$rootpath"
@@ -1448,18 +1448,28 @@ cmd_git_push(){ 					# gus
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "[utils-git] ${red}PUSH${norm} to ${green}$curr_remote/$green$curr_branch$norm"  #-u
-			git push "$curr_remote" "$curr_branch" #all --all
-			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+			echo -e "\n[utils-git] ${red}PUSH${norm}"  #-u   to ${green}$curr_remote/$green$curr_branch$norm
+			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
+			err_code=$? 
+			if [ "$err_code" != "0" ]; then 
+				error "$res"
+			  else
+				echo "$res"
+			  fi
 		  fi
 	  else
 	  	remotes=$(git remote show)
 		for name in $remotes; do 
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "[utils-git] ${red}PUSH${norm} to ${green}$name/$green$curr_branch$norm"  #-u
-				git push "$name" "$curr_branch" #all --all
-				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+				echo -e "[utils-git] ${red}PUSH${norm}"  #-u  to ${green}$name/$green$curr_branch$norm
+				res=`git push "$name" "$curr_branch" 2>&1` #all --all
+				err_code=$?
+				if [ "$err_code" != "0" ]; then 
+					error "$res"
+				  else
+					echo -e "${green}$res${norm}"
+				  fi
 				#git branch --set-upstream-to <remote-name>
 			  #else
 			  	#echo $name
@@ -1479,7 +1489,7 @@ cmd_git_commit_and_push(){ 				# gok
 	local REMOTE
 	local curr_remote
 
-	echo -e "BRANCH: $green$(current_branch)$norm"
+	# echo -e "BRANCH: $green$(current_branch)$norm"
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel`
 	cd "$rootpath"

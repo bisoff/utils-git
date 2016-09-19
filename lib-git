@@ -1448,7 +1448,7 @@ cmd_git_push(){ 					# gus
 			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
 			# return
 		  else
-			echo -e "\n[utils-git] ${red}PUSH${norm}"  #-u   to ${green}$curr_remote/$green$curr_branch$norm
+			echo -e "\n[utils-git] ${yellow}PUSH to $curr_remote${norm}"  #-u   to ${green}$curr_remote/$green$curr_branch$norm
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
@@ -1463,7 +1463,7 @@ cmd_git_push(){ 					# gus
 		for name in $remotes; do 
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "[utils-git] ${red}PUSH${norm}"  #-u  to ${green}$name/$green$curr_branch$norm
+				echo -e "[utils-git] ${yellow}PUSH$ to $name{norm} "  #-u  to ${green}$name/$green$curr_branch$norm
 				res=`git push "$name" "$curr_branch" 2>&1` #all --all
 
 				err_code=$?

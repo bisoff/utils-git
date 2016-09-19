@@ -1452,7 +1452,7 @@ cmd_git_push(){ 					# gus
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
-				error `grep '^To' <<< "$res"`
+				error `echo "$res" grep '^To'`
 			  else
 				echo "$res"
 			  fi

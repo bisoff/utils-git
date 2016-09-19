@@ -1452,7 +1452,7 @@ cmd_git_push(){ 					# gus
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
-				error "$res"
+				error `grep -E 's/^To/g'<<< $res`
 			  else
 				echo "$res"
 			  fi
@@ -1463,10 +1463,11 @@ cmd_git_push(){ 					# gus
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "[utils-git] ${red}PUSH${norm}"  #-u  to ${green}$name/$green$curr_branch$norm
-				res=`git push "$name" "$curr_branch" -q 2>&1` #all --all
+				res=`git push "$name" "$curr_branch" 2>&1` #all --all
+				
 				err_code=$?
 				if [ "$err_code" != "0" ]; then 
-					error "$res"
+					error `grep -E 's/^To/g'<<< $res`
 				  else
 					echo -e "${green}$res${norm}"
 				  fi

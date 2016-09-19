@@ -427,24 +427,23 @@ cmd_git_append(){ 					# ga
 	  fi
 	}
 cmd_git_append_and_commit(){ 				# gac
-	msg=$1
-	#pwd | tr 'a-z' 'A-Z'
-	#echo -e "\033[0;34;48m sss \033[m"
-	echo -e "BRANCH: $green$(current_branch)$norm"
+	local msg=$1
 
+	echo -e "BRANCH: $green$(current_branch)$norm"
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel`
 	cd "$rootpath"
-	git add -A .
-	if [[ "$msg" == "" ]]; then
-		[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
-		msg="$(echo $GITHOST)-up"
+	local changes
+	changes=`git status -s --untracked-files | wc -l`
+	if [[ "$changes" != "0" ]]; then # append_and_commit
+		git add -A .
+		if [[ "$msg" == "" ]]; then
+			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
+			msg="$(echo $GITHOST)-up"
+		  fi
+		git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
 	  fi
-	git commit -m "$msg" # $(date +'%d.%m.%y_%k:%M')
 	cd "$savepath"
-
-	#cmd_git_log_with_files 1
-	# exit
 	}
 cmd_git_append_and_commit_amend(){ 			# gacm
 	echo -e "BRANCH: $green$(current_branch)$norm"
@@ -1474,9 +1473,37 @@ cmd_git_push(){ 					# gus
 	#echo curr_branch: $curr_branch
 	}
 cmd_git_commit_and_push(){ 				# gok 
-	cmd_git_append_and_commit "$1"
-	#git push #all --all
-	cmd_git_push all
+	local msg=$1
+	local LOCAL
+	local BASE
+	local REMOTE
+	local curr_remote
+
+	echo -e "BRANCH: $green$(current_branch)$norm"
+	savepath=`pwd`
+	rootpath=`git rev-parse --show-toplevel`
+	cd "$rootpath"
+	LOCAL=$(git rev-parse HEAD)
+	BASE=`git merge-base @ @{u} 2> /dev/null` 
+	curr_remote=`current_remote`
+
+	echo -e -n "\n  Ask ${green}$curr_remote${norm} for last commit .. " 1>&2
+	REMOTE=`git ls-remote 2> /dev/null | awk '/HEAD/ {print $1}'` # from remote host
+
+	if [[ "$changes" != "0" ]]; then # append_and_commit
+		echo 
+		cmd_utils_git_wrapper cmd_git_status_with_untracked
+		echo 
+		cmd_git_append_and_commit "$msg" 
+	  fi
+	#git remote | xargs -L1 git push --all --quiet -u
+	if [[ "$BASE" != "$REMOTE" || "$BASE" != "$LOCAL" || "$changes" != "0" ]]; then
+	  	cmd_utils_git_wrapper cmd_git_push all
+	  else
+		echo -e -n "\n  ${yellow}Changes not found ${norm}" 
+	  fi
+
+	cd "$savepath"
 	}
 
 cmd_git_show_file_diff(){ 				# gos

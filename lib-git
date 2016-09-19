@@ -1452,9 +1452,10 @@ cmd_git_push(){ 					# gus
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
-				error `echo "$res" grep '^To'`
+				error "$res"
 			  else
-				echo "$res"
+				repo=`grep '^To' <<< "$res"`
+				echo -e "${green}$repo${norm}"
 			  fi
 		  fi
 	  else
@@ -1467,9 +1468,10 @@ cmd_git_push(){ 					# gus
 
 				err_code=$?
 				if [ "$err_code" != "0" ]; then 
-					error `echo "$res" grep '^To'`
+					error `$res`
 				  else
-					echo -e "${green}$res${norm}"
+					repo=`grep '^To' <<< "$res"`
+					echo -e "${green}$repo${norm}"
 				  fi
 				#git branch --set-upstream-to <remote-name>
 			  #else

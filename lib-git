@@ -1080,7 +1080,7 @@ cmd_git_remote_add(){					# gira
 		  fi
 		case "$remote_url" in
 			*bitbucket*)
-				notice "Create remote repo in BITBUCKET.ORG"
+				notice "Create $REPO_URL"
 				res=`curl -k -s --user $GITUSER:$PASSWORD --data name=$remote_name --data is_private='true' https://api.bitbucket.org/1.0/repositories/`
 				#echo "$?: $?"
 				#jq '' <<< "$res"
@@ -1419,14 +1419,14 @@ cmd_git_pull(){ 					# gul
 		for next_remote in $remotes; do 
 			if [[ "$next_remote" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$next_remote$norm"
-				echo -e "[utils-git] ${red}FETCH${norm} from ${green}$next_remote/$green$curr_branch$norm"  #-u
+				echo -e "${yellow}FETCH $next_remote/$curr_branch$norm"  #-u
 				#git pull "$next_remote" "$curr_branch"  #all --all
 				#echo "fetch"
 				git fetch -vv "$next_remote" "$curr_branch"
 				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 				#echo "merge"
 				
-				echo -e "[utils-git] ${red}MERGE${norm} with $green$next_remote/$curr_branch$norm"  #-u
+				echo -e "${yellow}MERGE${norm} $curr_branch with $next_remote/$curr_branch$norm"  #-u
 				git merge "$next_remote"/"$curr_branch"
 				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 				#echo "upstream"

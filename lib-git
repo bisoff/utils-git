@@ -1469,7 +1469,8 @@ cmd_git_push(){ 					# gus
 				# echo -e "${red}$name$norm"
 				echo -e "${yellow}PUSH to $name${norm} "  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
 				res=`git push "$name" "$curr_branch" 2>&1` #all --all
-
+				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
+				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.
 				err_code=$?
 				if [ "$err_code" != "0" ]; then 
 					error `$res`

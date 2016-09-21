@@ -1208,15 +1208,17 @@ cmd_git_remote_list(){					# girl
 			  else
 				#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/groups/$GITUSER/
 				#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/repositories/$team1 | jq -r '.values | .[] | .name' | sort -f
-				team=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams?role=admin | jq -r ".values | .[] | select(.username | contains(\"$prj_group\")) | .username"`
-				if [ "$team" == "" ]; then
-					error "Team not found"
+				#team=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams?role=admin | jq -r ".values | .[] | select(.username | contains(\"$prj_group\")) | .username"`
+				group=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/groups/$GITUSER/ | jq -r ".[] | select(.name | contains(\"$prj_group\")) | .name"`
+				if [ "$group" == "" ]; then
+					error "Group not found"
 					return
 				  else
 				  	#echo team1: $team1
 					#curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams/$team/repositories #| jq -r '.values | .[] | .name' | sort -f
-					res=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/users/$team`
-					jq -r '.repositories | .[] | .name + "\t" + if .is_private then "PRIVATE" else ".public." end' <<< "$res" | column -t | sort -f
+					#res=`
+					curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/groups/$group
+					#`					jq -r '.repositories | .[] | .name + "\t" + if .is_private then "PRIVATE" else ".public." end' <<< "$res" | column -t | sort -f
 				  fi
 				#team1=`curl -s -X GET --user $GITUSER:$PASSWORD https://api.bitbucket.org/2.0/teams?role=admin | jq -r '.values| .[0] | .username'`
 				#echo team1: $team1

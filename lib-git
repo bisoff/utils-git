@@ -54,7 +54,7 @@ REFNAME="%d"
 function cmd_utils_git_wrapper(){
 	local cmd_one="$1"
 	local utils_git_timestamp_current
-	UTILS_GIT_TRACE=0
+	#echo "UTILS_GIT_TRACE: $UTILS_GIT_TRACE"
 	case "$UTILS_GIT_THE_OS" in
 		MINGW*)
 			utils_git_timestamp_current=`stat -c %y $HOME_UTILS_GIT/lib-git`
@@ -93,6 +93,7 @@ function cmd_utils_git_wrapper(){
 	log_print "cmd:     $cmd_one"
 	log_print "params: $params"
 	eval $cmd_one "$params" #"$@*"
+	UTILS_GIT_TRACE=0
 	}
 
 function cmd_utils_git_error(){
@@ -1442,8 +1443,10 @@ cmd_git_pull(){ 					# gul
 cmd_git_push(){ 					# gus
 	one_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
+	log_print "one_remote: $one_remote"
 	if [[ "$one_remote" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
+	  	log_print "push $curr_remote"
 		# echo -e "{}PUSH to $curr_remote"
 		if [[ "$curr_remote" == "" ]]; then 
 			curr_remote=`git remote show` # если один то сделать его default (upstream)
@@ -1465,6 +1468,7 @@ cmd_git_push(){ 					# gus
 			  fi
 		  fi
 	  else
+	  	log_print "push all"
 	  	remotes=$(git remote show)
 		for name in $remotes; do 
 			if [[ "$name" == "$one_remote" || "$one_remote" = "all" ]]; then
@@ -1475,7 +1479,7 @@ cmd_git_push(){ 					# gus
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.
 				err_code=$?
 				if [ "$err_code" != "0" ]; then 
-					error `$res`
+					error "$res"
 				  else
 					repo=`grep '^To' <<< "$res"`
 					echo -e "${green}$repo${norm}"

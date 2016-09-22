@@ -1,3 +1,4 @@
+	http://stackoverflow.com/questions/10312521/how-to-fetch-all-git-branches
 	☐	перейти на токены $GITHUB_TOKEN / ..
 	☐	1:00 	utils-git: gl !&other @critical
 	☐	0:15	utils-git: gimprep <branch> - git merge --no-commit --no-ff main

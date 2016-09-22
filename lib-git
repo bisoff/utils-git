@@ -955,22 +955,8 @@ cmd_git_remote_set_default(){ 				# giru
 	log_print "remote_mask: $remote_mask"
 	remote_alias=`git remote show | grep -E "^$remote_mask"` #`find_remote $remote_mask`
 	
-	#2> /dev/null
-	return 
 	curr_branch=`current_branch`
 
-	notice "fetch"
-	res=`git fetch $remote_alias $curr_branch 2>&1`
-	log_print "res: $res"
-	if [[ "$res" =~ "fatal: Couldn't find remote ref" ]]; then
-		echo -e "${yellow}remote is empty${norm}"
-		notice "push"
-		res=`git push $remote_alias $curr_branch 2>&1`
-		if [[ "$res" =~ "error: failed to push some refs" ]]; then
-			echo -e "${yellow}nothing to track${norm}"
-			return
-		  fi
-	  fi
 	notice "set upstream"
 	git branch --set-upstream-to $remote_alias/$curr_branch 
 

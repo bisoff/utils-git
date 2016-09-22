@@ -1373,7 +1373,8 @@ cmd_git_show_file_diff(){
 cmd_git_fetch(){ 					# gfe
 	echo -e "${red}git fetch$norm"
 	git fetch -vv --all 2>&1 | grep "\-> " 
-	# This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
+		# This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
+		# -all - fetch one branch from all remotes
 	}
 cmd_git_pull(){ 					# gul
 	one_remote="$1"

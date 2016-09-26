@@ -515,10 +515,9 @@ cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 	if [[ "$fname" == "" ]]; then
 		{
 			git diff --stat=200 --color | sed -n '$! p'
-			array=($(git ls-files --others --exclude-standard)) # untracked
-			for i in "${array[@]}"; do 
-				echo -e " ${yellow}UNTRACKED: $i${norm}"
-			  done
+			while IFS= read -r line; do
+				echo -e " ${yellow}UNTRACKED: $line${norm}"
+			done < <(git ls-files --others --exclude-standard)
 		} | awk '{print NR "\t" $0}' #'NR!=FNR {FNR==1?c=NR:1} FNR<c-1'   awk 'NR>n{print A[NR%n]} {A[NR%n]=$0}' n=1
 		#array=($(git ls-files --others --exclude-standard)) 
 		#if [ "${#array[@]}" -ne 0 ]; then

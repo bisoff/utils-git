@@ -957,9 +957,10 @@ cmd_git_remote_set_default(){ 				# giru
 	curr_branch=`current_branch`
 
 	notice "set upstream"
-	git branch --set-upstream-to $remote_alias/$curr_branch 
+	res=`git branch --set-upstream-to $remote_alias/$curr_branch`
+	err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 
-	notice "set rebase to false"
+	notice "set rebase to false.."
 	gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
 
 	#res=`git branch --set-upstream-to $remote_alias/$curr_branch 2>&1`
@@ -1157,7 +1158,6 @@ cmd_git_remote_add(){					# gira
 				# curl -s $remote_url/api/v3/groups?private_token=$TOKEN | jq -r '.[] | .name' # groups / namespaces list
 				# curl -s --header "PRIVATE-TOKEN:$TOKEN" "http://gitlab.mivar.ru/api/v3/namespaces" | jq -r '.[] | .path' # same
 				# curl -s --header "PRIVATE-TOKEN:$TOKEN" "http://gitlab.mivar.ru/api/v3//groups" | jq -r '.[] | (.id|tostring) + "\t" + .name '
-
 				;;
 			*)
 				error "method for remote repo create not found !"
@@ -1168,6 +1168,10 @@ cmd_git_remote_add(){					# gira
 	  fi
 	notice "git remote add $remote_alias $REPO_URL"
 	git remote add $remote_alias "$REPO_URL"
+
+	notice "git fetch --quiet $remote_alias $curr_branch" 
+	git fetch --quiet "$remote_alias" "$curr_branch" # vv -  отслеживаемые ветки
+	err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 
 	cmd_git_remote_set_default $remote_alias
 	}

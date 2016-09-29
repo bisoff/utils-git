@@ -509,8 +509,8 @@ cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 	#[[ "$1" == "" ]] 		&& git diff --word-diff --color	| less -R				&& return 
 	fname="$1"
 	mode="$2"
-	#echo "fname: $fname"
-	#echo "mode:  $mode"
+	log_print "fname: $fname"
+	log_print "mode:  $mode"
 
 	if [[ "$fname" == "" ]]; then
 		{
@@ -533,9 +533,8 @@ cmd_git_diff_file_list_this_and_prior_commits(){ 	# gdi gdi1
 
 	# one file
 	#echo git diff HEAD --word-diff --color -U99999 "./$1"
-	if [[ "$1" != "" ]]; then
+	if [[ "$fname" != "" ]]; then
 		if [ "$mode" == "" ]; then
-			return
 			[[ "$status" == "??" ]] && cat "$1" | pygmentize -g | less -MNR && return # untracked
 			[[ "$status" == "D" ]]	&& git show HEAD:"fname" | less -MNR && return #git show $(git rev-list --max-count=1 --all -- "$1"):"$1" #deleted
 			git diff HEAD --color -U99999 "$1" | tail -n +6 | less -MNR 
@@ -957,11 +956,16 @@ cmd_git_remote_set_default(){ 				# giru
 	curr_branch=`current_branch`
 
 	notice "set upstream"
-	res=`git branch --set-upstream-to $remote_alias/$curr_branch`
-	err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
-
-	notice "set rebase to false.."
-	gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
+	res=`git branch --set-upstream-to $remote_alias/$curr_branch 2>&1`
+	err_code=$? 
+	if [ "$err_code" != "0" ]; then
+		error "$res"
+		return $err_code
+	  else
+		echo -e "$res"
+		notice "set rebase to false.."
+		gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
+	  fi
 
 	#res=`git branch --set-upstream-to $remote_alias/$curr_branch 2>&1`
 	#if [ "$?" != "0" ]; then
@@ -1170,10 +1174,22 @@ cmd_git_remote_add(){					# gira
 	git remote add $remote_alias "$REPO_URL"
 
 	notice "git fetch --quiet $remote_alias $curr_branch" 
-	git fetch --quiet "$remote_alias" "$curr_branch" # vv -  отслеживаемые ветки
-	err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+	res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
+	err_fetch=$? #&& [ "$err_code" != "0" ] && echo "err_code: $err_code"
+	if [ "$err_fetch" != "0" ]; then
+		null
+		# remote branch не существует (или репо пуст)
+	  fi
 
-	cmd_git_remote_set_default $remote_alias
+	res=`cmd_git_remote_set_default $remote_alias`
+	err_set_default=$? 
+	if [ "$err_set_default" != "0" ]; then
+		error "$res"
+		# local branch не существует (или репо пуст)
+	  else
+		echo -e "$res"
+		#return $err_set_default
+	  fi
 	}
 cmd_git_remote_list(){					# girl
 	local remote_alias=$1

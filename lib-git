@@ -10,10 +10,14 @@ case "$UTILS_GIT_THE_OS" in
 	MINGW*)
 		UTILS_GIT_TIMESTAMP=`stat -c %y $HOME_UTILS_GIT/lib-git`
 		UTILS_GIT_ALIAS_TIMESTAMP=`stat -c %y $HOME/.utils-git/$UTILS_GIT_ALIASES`
+		alias sed='sed'
+		# UTILS_GIT_SED="sed"
 		;;
 	Darwin)
 		UTILS_GIT_TIMESTAMP=`stat -f "%Sm" -t "%F %T" $HOME_UTILS_GIT/lib-git`
 		UTILS_GIT_ALIAS_TIMESTAMP=`stat -f "%Sm" -t "%F %T" "$HOME/.utils-git/$UTILS_GIT_ALIASES"`
+		# UTILS_GIT_SED="gsed"
+		alias sed='gsed'
 		;;
 	# linux??)
 		# UTILS_PRJ_SED_BACKUP=??
@@ -982,7 +986,7 @@ cmd_git_remote_set_default(){ 				# giru
 	  else
 		echo -e "$res"
 		notice "set rebase to false.."
-		gsed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
+		sed -i -E 's/(\s)+rebase = true/\1rebase = false/g' .git/config
 	  fi
 
 	#res=`git branch --set-upstream-to $remote_alias/$curr_branch 2>&1`
@@ -1051,7 +1055,6 @@ cmd_git_remote_add(){					# gira
 		if [[ "$TOKEN" == "" || "$TOKEN" == "null" ]]; then
 			res=`curl -s --request POST "$remote_url/api/v3/session?login=$GITLABUSER&password=$PASSWORD"`
 			log_print "res:        $res"
-			
 			TOKEN=`jq -r '.private_token' <<< $res`
 		  fi
 		log_print "TOKEN: $TOKEN"
@@ -1118,23 +1121,32 @@ cmd_git_remote_add(){					# gira
 	notice "git remote add $remote_alias $REPO_URL"
 	git remote add $remote_alias "$REPO_URL"
 
-	notice "git fetch --quiet $remote_alias $curr_branch" 
-	res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
-	err_fetch=$? #&& [ "$err_code" != "0" ] && echo "err_code: $err_code"
-	if [ "$err_fetch" != "0" ]; then
-		#error "$res"
-		res=`git push "$remote_alias" "$curr_branch" 2>&1` 
-		# remote branch не существует (или репо пуст)
+	if [ "$curr_branch" == "HEAD" ]; then # new empty repo?
+		notice "git remote update $remote_alias"
+		git remote update $remote_alias
+		notice "git branch -r"
+		res=`git branch -r`
+		err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+		notice "git checkout -t $res"
+		res=`git checkout -t $res`
+		err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+	  else
+		notice "git fetch --quiet $remote_alias $curr_branch" 
+		res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
+		err_fetch=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+		if [ "$err_fetch" != "0" ]; then
+			#error "$res"
+			res=`git push "$remote_alias" "$curr_branch" 2>&1` 
+			# remote branch не существует (или репо пуст)
+		  fi
 	  fi
 
 	res=`cmd_git_remote_set_default $remote_alias`
 	err_set_default=$? 
 	if [ "$err_set_default" != "0" ]; then
-		error "$res"
-		# local branch не существует (или репо пуст)
+		error "$res" # local branch не существует (или репо пуст)
 	  else
-		echo -e "$res"
-		#return $err_set_default
+		echo -e "$res" # return $err_set_default
 	  fi
 	}
 cmd_git_remote_list(){					# girl

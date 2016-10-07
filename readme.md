@@ -1,5 +1,9 @@
 ## GIT TOOLS (SCRIPTS)
 
+### requirements
+
+jq - https://stedolan.github.io/jq/
+
 ### Commit / Fetch / Push / Pull -----------------
 - gfe			# fetch all remote branches		git fetch -vv		
 - gull			# pull (fetch and merge)		git pull

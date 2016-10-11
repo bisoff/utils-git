@@ -417,10 +417,10 @@ cmd_git_switch_version(){ 				# gitsw
 		  fi
 	  fi
 	}
-cmd_utils_git_edit_gitignore(){				# gei
-	rootpath=`git rev-parse --show-toplevel`
-	ed $rootpath/.gitignore
-	}
+#cmd_utils_git_edit_gitignore(){				# gei
+#	rootpath=`git rev-parse --show-toplevel`
+#	ed `git rev-parse --show-toplevel`/.gitignore
+#	}
 
 cmd_git_append(){ 					# ga
 	echo -e "BRANCH: $green$(current_branch)$norm"

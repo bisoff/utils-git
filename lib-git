@@ -29,6 +29,7 @@ case "$UTILS_GIT_THE_OS" in
 alias log_print='[ "$UTILS_GIT_TRACE" == "1" ] && echo -e 1>&2 '
 alias error='cmd_utils_git_error'
 alias notice='cmd_utils_git_notice'
+alias result='cmd_utils_git_result'
 
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
@@ -109,6 +110,11 @@ function cmd_utils_git_notice(){
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${cyan}$msg ${norm}"
+	}
+function cmd_utils_git_result(){
+	msg="$*"
+	#log_print "msg: $msg"
+	echo -e "${green}$msg${norm}"
 	}
 
 function find_branch() {
@@ -1096,21 +1102,21 @@ cmd_git_remote_add(){					# gira
 		  fi
 		case "$remote_url" in
 			*bitbucket*)
-				notice "Create $REPO_URL"
+				notice "CREATE remote - $REPO_URL"
 				#curl --user $GITUSER:$PASSWORD https://api.bitbucket.org/1.0/repositories/ --data name=${PWD##*/} --data is_private='true' -k -s | jq ''
 				res=`curl -k -s --user $GITUSER:$PASSWORD --data name=$remote_name --data is_private='true' https://api.bitbucket.org/1.0/repositories/`
 				#echo "$?: $?"
 				#jq '' <<< "$res"
 				;;
 			*github*)
-				notice "Create remote repo in GITHUB.COM"
+				notice "CREATE remote - $REPO_URL  GITHUB.COM"
 				#curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'${PWD##*/}'"}' -k -s | jq '.[] | .name + if .private then " - private" else "" end'
 				res=`curl -u $GITUSER:$PASSWORD https://api.github.com/user/repos -k -d '{"name":"'$remote_name'"}' -k -s`
 				#curl -u 'USER' https://api.github.com/user/repos -d '{"name":"REPO", "private":"true"}'
 				#jq '.[] | .name + if .private then " - private" else "" end' <<< "$res"
 				;;
 			*gitlab*)
-				notice "Create remote repo - $REPO_URL"
+				notice "CREATE remote - $REPO_URL"
 				#log_print "GITLABUSER: $GITLABUSER"
 				#log_print "PASSWORD:   $PASSWORD"
 				;;
@@ -1121,15 +1127,24 @@ cmd_git_remote_add(){					# gira
 	notice "git remote add $remote_alias $REPO_URL"
 	git remote add $remote_alias "$REPO_URL"
 
-	if [ "$curr_branch" == "HEAD" ]; then # new empty repo?
+	if [ "$curr_branch" == "HEAD" ]; then 
+		# new repo is empty
 		notice "git remote update $remote_alias"
 		git remote update $remote_alias
 		notice "git branch -r"
-		res=`git branch -r`
+		res=$(echo `git branch -r`) # get remote branch name
 		err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
-		notice "git checkout -t $res"
-		res=`git checkout -t $res`
-		err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+		if [ "$res" != "" ]; then
+			notice "git checkout -t $res"
+			res=`git checkout -t $res 2>&1`
+			#err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+			err_code=$?
+		  else
+			# remote branch is absent
+			# TODO if no files -> add some
+			cmd_git_append_and_commit
+			cmd_git_push
+		  fi
 	  else
 		notice "git fetch --quiet $remote_alias $curr_branch" 
 		res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
@@ -1140,7 +1155,6 @@ cmd_git_remote_add(){					# gira
 			# remote branch не существует (или репо пуст)
 		  fi
 	  fi
-
 	res=`cmd_git_remote_set_default $remote_alias`
 	err_set_default=$? 
 	if [ "$err_set_default" != "0" ]; then
@@ -1408,6 +1422,7 @@ cmd_git_push(){ 					# gus
 	one_remote="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
 	log_print "one_remote: $one_remote"
+	local repo_url
 	if [[ "$one_remote" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
 	  	log_print "push $curr_remote"
@@ -1418,17 +1433,21 @@ cmd_git_push(){ 					# gus
 			[[ $cnt -ne 1 ]] && curr_remote=""
 		  fi
 		if [[ "$curr_remote" == "" ]]; then
-			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
+			error "Remote is absent or ambigiouse" 1>&2 
 			# return
 		  else
-			echo -e "\n${yellow}PUSH to $curr_remote${norm}"  #-u   to ${green}$curr_remote/$green$curr_branch$norm [utils-git] 
+			notice "PUSH to $curr_remote"  #-u   to ${green}$curr_remote/$green$curr_branch$norm [utils-git] 
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
 				error "$res"
 			  else
-				repo=`grep '^To' <<< "$res"`
-				echo -e "${green}$repo${norm}"
+				repo_url=`grep '^To' <<< "$res"`
+				if [ "$repo_url" == "" ];then
+					result $res
+				  else
+					result "$repo_url - UPDATED"
+				  fi
 			  fi
 		  fi
 	  else
@@ -1437,7 +1456,7 @@ cmd_git_push(){ 					# gus
 		for remote_curr in $remotes; do 
 			if [[ "$remote_curr" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "${yellow}PUSH to $remote_curr ${norm} "  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
+				notice "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
 				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.
@@ -1445,8 +1464,12 @@ cmd_git_push(){ 					# gus
 				if [ "$err_code" != "0" ]; then 
 					error "$res"
 				  else
-					repo=`grep '^To' <<< "$res"`
-					echo -e "${green}$repo${norm}"
+					repo_url=`grep '^To' <<< "$res"`
+					if [ "$repo_url" == "" ];then
+						result $res
+					  else
+						result "$repo_url - UPDATED"
+					  fi
 				  fi
 				#git branch --set-upstream-to <remote-name>
 			  #else

@@ -447,6 +447,7 @@ cmd_git_append_and_commit(){ 				# gac
 	local changes
 	changes=`git status -s --untracked-files | wc -l`
 	if [[ "$changes" != "0" ]]; then # append_and_commit
+		notice 'Add ALL and Commit'
 		git add -A .
 		if [[ "$msg" == "" ]]; then
 			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return

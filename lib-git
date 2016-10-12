@@ -428,10 +428,6 @@ cmd_git_switch_version(){ 				# gitsw
 		  fi
 	  fi
 	}
-#cmd_utils_git_edit_gitignore(){				# gei
-#	rootpath=`git rev-parse --show-toplevel`
-#	ed `git rev-parse --show-toplevel`/.gitignore
-#	}
 
 cmd_git_append(){ 					# ga
 	echo -e "BRANCH: $green$(current_branch)$norm"
@@ -1450,9 +1446,9 @@ cmd_git_push(){ 					# gus
 			  else
 				repo_url=`grep '^To' <<< "$res"`
 				if [ "$repo_url" == "" ];then
-					result $res
+					notice $res
 				  else
-					result "$repo_url - UPDATED"
+					notice "$repo_url - UPDATED"
 				  fi
 			  fi
 		  fi
@@ -1472,10 +1468,10 @@ cmd_git_push(){ 					# gus
 				  else
 				  	repo_url=`grep '^To' <<< "$res"`
 					if [ "$repo_url" == "" ];then
-						result $res
+						notice $res
 					  else
 						# TODO cut 'To ' from grep result
-						result "$repo_url - UPDATED"
+						notice "$repo_url - UPDATED"
 					  fi
 				  fi
 				#git branch --set-upstream-to <remote-name>

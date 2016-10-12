@@ -1047,7 +1047,12 @@ cmd_git_remote_add(){					# gira
 		#if($url =~ /([^:]*:\/\/)?([^\/]+\.[^\/]+)/g) {
 		#  print $2;
 		#}
-	prj_name=$(basename `git rev-parse --show-toplevel`)
+	#prj_name=$(basename `git rev-parse --show-toplevel`)
+	prj_name=$(basename `pwd`)
+	if [ "$(basename `git rev-parse --show-toplevel`)" != "$prj_name" ]; then
+		error "project not initialized (use 'git init')"
+		return
+	  fi
 	log_print "prj_name: $prj_name"
 
 	[[ "$remote_name" == "." || "$remote_name" == "" ]] && remote_name=$prj_name
@@ -1150,11 +1155,13 @@ cmd_git_remote_add(){					# gira
 	  else
 		notice "git fetch --quiet $remote_alias $curr_branch" 
 		res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
-		err_fetch=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+		err_fetch=$? && [ "$err_fetch" != "0" ] && echo "err_fetch: $err_fetch" && return
 		if [ "$err_fetch" != "0" ]; then
 			#error "$res"
 			res=`git push "$remote_alias" "$curr_branch" 2>&1` 
 			# remote branch не существует (или репо пуст)
+		  else
+		  	cmd_git_pull
 		  fi
 	  fi
 	res=`cmd_git_remote_set_default $remote_alias`

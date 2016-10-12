@@ -29,6 +29,7 @@ case "$UTILS_GIT_THE_OS" in
 alias log_print='[ "$UTILS_GIT_TRACE" == "1" ] && echo -e 1>&2 '
 alias error='cmd_utils_git_error'
 alias notice='cmd_utils_git_notice'
+alias warning='cmd_utils_git_warning'
 alias result='cmd_utils_git_result'
 
 tab="%x09"
@@ -105,6 +106,10 @@ function cmd_utils_git_error(){
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${red_back}$msg${norm}"
+	}
+function cmd_utils_git_warning(){
+	msg="$*"
+	echo -e "${yellow}$msg${norm}"
 	}
 function cmd_utils_git_notice(){
 	msg="$*"
@@ -447,7 +452,7 @@ cmd_git_append_and_commit(){ 				# gac
 	local changes
 	changes=`git status -s --untracked-files | wc -l`
 	if [[ "$changes" != "0" ]]; then # append_and_commit
-		notice 'Add ALL and Commit'
+		cmd_utils_git_warning 'Add and Commit (unsaved at whole)'
 		git add -A .
 		if [[ "$msg" == "" ]]; then
 			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
@@ -1437,7 +1442,7 @@ cmd_git_push(){ 					# gus
 			error "Remote is absent or ambigiouse" 1>&2 
 			# return
 		  else
-			notice "PUSH to $curr_remote"  #-u   to ${green}$curr_remote/$green$curr_branch$norm [utils-git] 
+			warning "PUSH to $curr_remote"  #-u   to ${green}$curr_remote/$green$curr_branch$norm [utils-git] 
 			res=`git push "$curr_remote" "$curr_branch" 2>&1` #all --all
 			err_code=$? 
 			if [ "$err_code" != "0" ]; then 
@@ -1457,7 +1462,7 @@ cmd_git_push(){ 					# gus
 		for remote_curr in $remotes; do 
 			if [[ "$remote_curr" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				notice "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
+				warning "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
 				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.
@@ -1465,7 +1470,7 @@ cmd_git_push(){ 					# gus
 				if [ "$err_code" != "0" ]; then 
 					error "$res"
 				  else
-					repo_url=`grep '^To' <<< "$res"`
+					repo_url=`grep '^To(.*)' <<< "$res"`
 					if [ "$repo_url" == "" ];then
 						result $res
 					  else

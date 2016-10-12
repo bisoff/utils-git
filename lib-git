@@ -1458,7 +1458,7 @@ cmd_git_push(){ 					# gus
 		for remote_curr in $remotes; do 
 			if [[ "$remote_curr" == "$one_remote" || "$one_remote" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				warning "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
+				echo -e "PUSH to $green$remote_curr$norm"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
 				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.

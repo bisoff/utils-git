@@ -1470,10 +1470,11 @@ cmd_git_push(){ 					# gus
 				if [ "$err_code" != "0" ]; then 
 					error "$res"
 				  else
-					repo_url=`grep '^To(.*)' <<< "$res"`
+				  	repo_url=`grep '^To' <<< "$res"`
 					if [ "$repo_url" == "" ];then
 						result $res
 					  else
+						# TODO cut 'To ' from grep result
 						result "$repo_url - UPDATED"
 					  fi
 				  fi

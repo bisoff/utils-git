@@ -103,20 +103,24 @@ function cmd_utils_git_wrapper(){
 	}
 
 function cmd_utils_git_error(){
+	local msg
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${red_back}$msg${norm}"
 	}
 function cmd_utils_git_warning(){
+	local msg
 	msg="$*"
 	echo -e "${yellow}$msg${norm}"
 	}
 function cmd_utils_git_notice(){
+	local msg
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${cyan}$msg ${norm}"
 	}
 function cmd_utils_git_result(){
+	local msg
 	msg="$*"
 	#log_print "msg: $msg"
 	echo -e "${green}$msg${norm}"
@@ -1126,6 +1130,9 @@ cmd_git_remote_add(){					# gira
 				notice "CREATE remote - $REPO_URL"
 				#log_print "GITLABUSER: $GITLABUSER"
 				#log_print "PASSWORD:   $PASSWORD"
+				res=`curl -s -X POST --header "PRIVATE-TOKEN:$TOKEN" "$remote_url/api/v3/projects?name=$remote_name&namespace_id=$GROUP_ID"`
+				res_code=$? && [ "$res_code" != "0" ] && echo "res_code: $res_code"
+				#echo $res
 				;;
 			*)
 				error "method for remote repo create not found !"
@@ -1155,10 +1162,12 @@ cmd_git_remote_add(){					# gira
 	  else
 		notice "git fetch --quiet $remote_alias $curr_branch" 
 		res=`git fetch --quiet "$remote_alias" "$curr_branch" 2>&1` # vv -  отслеживаемые ветки
-		err_fetch=$? && [ "$err_fetch" != "0" ] && echo "err_fetch: $err_fetch" && return
+		err_fetch=$? # && [ "$err_fetch" != "0" ] && echo "err_fetch: $err_fetch" && return
 		if [ "$err_fetch" != "0" ]; then
 			#error "$res"
-			res=`git push "$remote_alias" "$curr_branch" 2>&1` 
+			res=`git push "$remote_alias" "$curr_branch" 2>&1`
+			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code" && return
+			echo $res
 			# remote branch не существует (или репо пуст)
 		  else
 		  	cmd_git_pull
@@ -1507,8 +1516,9 @@ cmd_git_commit_and_push(){ 				# gok
 	LOCAL=$(git rev-parse HEAD)
 	BASE=`git merge-base @ @{u} 2> /dev/null` 
 	curr_remote=`current_remote`
-
-	echo -e -n "\n  Ask ${green}$curr_remote${norm} for last commit .. " 1>&2
+	# gok
+	#  Ask bb for last commit .. 
+	echo -e -n " Ask ${green}$curr_remote${norm} for last commit .. " 1>&2
 	REMOTE=`git ls-remote 2> /dev/null | awk '/HEAD/ {print $1}'` # from remote host
 
 	if [[ "$changes" != "0" ]]; then # append_and_commit

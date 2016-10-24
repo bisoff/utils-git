@@ -1380,15 +1380,40 @@ cmd_git_show_file_diff(){
 	}
 
 cmd_git_fetch(){ 					# gfe
-	echo -e "${red}git fetch$norm"
-	git fetch -vv --all 2>&1 | grep "\-> " 
-		# This will list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
-		# -all - fetch one branch from all remotes
+	remote_alias="$1"
+	#echo -e "${red}git fetch$norm"
+	if [[ "$remote_alias" == "" ]]; then
+		curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
+		curr_remote=$(current_remote)
+		if [[ "$curr_remote" == "" ]]; then 
+			curr_remote=`git remote show` # если один то сделать его default (upstream)
+			err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+			cnt=$[$(echo "$curr_remote" | wc -l)]
+			[[ $cnt -ne 1 ]] && curr_remote=""
+		  fi
+		if [[ "$curr_remote" == "" ]]; then
+			echo -e "${red}Remote is absent or ambigiouse$norm" 1>&2 
+			# return
+		  else
+			git fetch -vv --quiet "$curr_remote" "$curr_branch" 2>&1 | grep "\-> "
+		  fi
+	  else
+	  	remotes=$(git remote show)
+		for next_remote in $remotes; do 
+			if [[ "$next_remote" == "$remote_alias" || "$remote_alias" = "all" ]]; then
+				echo -e "${yellow}FETCH $next_remote/$curr_branch$norm"  #-u
+				git fetch -vv --quiet "$next_remote" "$curr_branch"
+				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
+			  fi
+		  done
+	  fi
+		# -vv	list out your local branches with more information including what each branch is tracking and if your local branch is ahead, behind or both.
+		# -all	fetch one branch from all remotes
 	}
 cmd_git_pull(){ 					# gul
-	one_remote="$1"
+	remote_alias="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	if [[ "$one_remote" == "" ]]; then # параметр не указан
+	if [[ "$remote_alias" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
 		# echo -e "{}PUSH to $curr_remote"
 		if [[ "$curr_remote" == "" ]]; then 
@@ -1416,12 +1441,12 @@ cmd_git_pull(){ 					# gul
 	  else
 	  	remotes=$(git remote show)
 		for next_remote in $remotes; do 
-			if [[ "$next_remote" == "$one_remote" || "$one_remote" = "all" ]]; then
+			if [[ "$next_remote" == "$remote_alias" || "$remote_alias" = "all" ]]; then
 				# echo -e "${red}$next_remote$norm"
 				echo -e "${yellow}FETCH $next_remote/$curr_branch$norm"  #-u
 				#git pull "$next_remote" "$curr_branch"  #all --all
 				#echo "fetch"
-				git fetch -vv "$next_remote" "$curr_branch"
+				git fetch -vv --quiet "$next_remote" "$curr_branch"
 				err_code=$? && [ "$err_code" != "0" ] && echo "err_code: $err_code"
 				#echo "merge"
 				
@@ -1437,11 +1462,11 @@ cmd_git_pull(){ 					# gul
 	  fi
 	}
 cmd_git_push(){ 					# gus
-	one_remote="$1"
+	remote_alias="$1"
 	curr_branch=$(current_branch) #; echo curr_branch: -$curr_branch-
-	log_print "one_remote: $one_remote"
+	log_print "remote_alias: $remote_alias"
 	local repo_url
-	if [[ "$one_remote" == "" ]]; then # параметр не указан
+	if [[ "$remote_alias" == "" ]]; then # параметр не указан
 		curr_remote=$(current_remote)
 	  	log_print "push $curr_remote"
 		# echo -e "{}PUSH to $curr_remote"
@@ -1472,7 +1497,7 @@ cmd_git_push(){ 					# gus
 	  	log_print "push all"
 	  	remotes=$(git remote show)
 		for remote_curr in $remotes; do 
-			if [[ "$remote_curr" == "$one_remote" || "$one_remote" = "all" ]]; then
+			if [[ "$remote_curr" == "$remote_alias" || "$remote_alias" = "all" ]]; then
 				# echo -e "${red}$name$norm"
 				echo -e "PUSH to $green$remote_curr$norm"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git] 
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
@@ -1496,7 +1521,7 @@ cmd_git_push(){ 					# gus
 			  fi
 		  done
 
-		# curr_remote=`git remote show | grep $one_remote`
+		# curr_remote=`git remote show | grep $remote_alias`
 	  fi
 	#curr_remote=$(echo "$curr_remote"| perl -pe 's/\\033\[\d*(;\d*)*m//g')
 	#echo curr_remote: $curr_remote

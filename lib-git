@@ -86,12 +86,17 @@ function cmd_utils_git_wrapper(){
 	local params
 	while :
 	do
-		#log_print "arg: $1"
 		case "$1" in
 			#-h|--help) ;;
 			-v) UTILS_GIT_TRACE=1 ;;
 			#-*) echo "invalid argument $1";;
-			?*) params="$params $1" ;;
+			?*) 
+				if [[ $1 =~ [[:space:]] ]]; then 
+					params="$params '$1'"
+				  else
+					params="$params $1"
+				  fi 
+				;;
 			"") break ;;
 		  esac
 		shift
@@ -443,8 +448,7 @@ cmd_git_append(){ 					# ga
 	  fi
 	}
 cmd_git_append_and_commit(){ 				# gac
-	local msg=$1
-
+	local msg="$1"
 	#echo -e "BRANCH: $green$(current_branch)$norm"
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel`

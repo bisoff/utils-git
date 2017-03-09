@@ -1,44 +1,63 @@
-${cyan}Sync${norm}
-  ${yellow}gfe${norm}			- fetch all remote branches		git fetch -vv		
-  ${yellow}gull${norm}			- pull (fetch and merge)		git pull
-  ${yellow}gus${norm}			- push 					git push $curr_remote(only remote) $curr_branch -u
-  ${yellow}gok${norm}	<msg>		- commit staged & push			git add -A . ; git commit -m "\$msg"; git push 
+${cyan}Status${norm}
+  ${yellow}gis${norm}			- files including untracked		git status --ignored
+  ${yellow}gisc${norm}			- colored
+  ${yellow}gisi${norm}			- ignored
+  ${yellow}gisu${norm}			- untracked
 ${cyan}Add (stage) / Commit${norm}
   ${yellow}ga${norm}	<mask>		- stage all or by mask			git add -A .  OR  git add <mask>
-  ${yellow}gas${norm}   <mask> <msg>	- stage by mask, commit & push		git add "\$files"; git commit -m "\$msg"; git push "\$next_remote" "\$curr_branch"
+  ${yellow}gas${norm}	<mask> <msg>	- stage by mask, commit & push		git add "\$files"; git commit -m "\$msg"; git push "\$next_remote" "\$curr_branch"
   ${yellow}gac${norm}	<msg> 		- stage all and commit 			git add -A .; git commit -m "\$msg"
-  ${yellow}gacm${norm}  <msg>		- stage all & commit ammend		git add -A .; git commit --amend -m "\$msg"
-  ${yellow}gcm${norm}   <msg>		- commit ammend				git commit --amend -m "\$msg"
-  ${yellow}gc${norm}    <msg>		- commit staged				git commit -m "\$msg"
+  ${yellow}gacm${norm}	<msg>		- stage all & commit ammend		git add -A .; git commit --amend -m "\$msg"
+  ${yellow}gcm${norm}	<msg>		- commit ammend				git commit --amend -m "\$msg"
+  ${yellow}gc${norm}	<msg>		- commit staged				git commit -m "\$msg"
+  ${yellow}gad${norm}			- append_by_names
+${cyan}Merge${norm}
+  ${yellow}gim${norm}	<branch>	- merge from branch (with pull before)	git merge <branch>
+  ${yellow}giml${norm}	<branch>   	- merge from branch (with local branch)	git merge <branch>
+  ${yellow}gimto${norm}	<branch>	- merge current branch to another	git checkout <branch>; git merge \$currbranch; git checkout \$currbranch
+  ${yellow}gimtl${norm}			- branch_target_local_branch_with_this
 ${cyan}Branches${norm}
   ${yellow}gib${norm}			- show local branches or switch		git branch -l -vv | git checkout \$branch
   ${yellow}gibs${norm}			- same gib
-  ${yellow}gibr${norm}			- only remote branches			git branch -r -vv	
+  ${yellow}gibr${norm}			- only remote branches			git branch -r -vv
   ${yellow}giba${norm}			- show local and remote branches  	git branch -a -vv
   ${yellow}gibnm${norm}			- show not-merged branches (new)	git branch --no-merged
 ${cyan}Remotes${norm}
-  ${yellow}girs${norm}			- show remotes				git remote -v   
+  ${yellow}girs${norm}			- show remotes				git remote -v
   ${yellow}gird${norm}			- show remotes in detail		git remote show <name>
-  ${yellow}girn${norm}			- rename remote				git remote rename  .. 
-    ${yellow}giru${norm}		- set branch as upstream (default)	git remote rename  .. 
+  ${yellow}girn${norm}			- rename remote				git remote rename  ..
+  ${yellow}giru${norm}			- set branch as upstream (default)	git remote rename  ..
+  ${yellow}girx${norm}			- remotes_show_detail
+  ${yellow}gira${norm}			- remote_add
+  ${yellow}girl${norm}			- remote_list
+  ${yellow}girlg${norm}			- remote_list_groups
 ${cyan}Diff${norm}
-  ${yellow}gis${norm}			- files including untracked		git status --ignored	
-  ${yellow}gid${norm}			- gis show??				git diff
-  ${yellow}gid${norm}	<hash>		- diffs in commit			git diff "$1" "$1~1"	
-  ${yellow}gos${norm}	<hash>		- work <-> HEAD | <hash>		git show $1		
+  ${yellow}gos${norm}	<hash>		- work <-> HEAD | <hash>		git show $1
+  ${yellow}gdi${norm}			- diff_file_list_this_and_prior_commits
+  ${yellow}gdifs${norm}			- diff_file_list_menu
+  ${yellow}gdif${norm}			- diff_file_list_menu
+  ${yellow}gids${norm}			- diff_file_list_menu
+  ${yellow}gdis${norm}			- diff_file_list_menu
+  ${yellow}dclear${norm}		- diff_clear_all
 ${cyan}Branch (substring valid too)${norm}
-  ${yellow}gib${norm}	<branch>	- switch to by branch			git checkout <branch> 	
+  ${yellow}gib${norm}	<branch>	- switch to by branch			git checkout <branch>
   ${yellow}giba${norm}	<branch>	- same gib
-  ${yellow}gibn${norm}	<branch>	- create new branch			git checkout -b <branch> 
-  ${yellow}gibd${norm}  <branch>	- delete branch	if merged		git branch -d <branch>  
-  ${yellow}gibdd${norm} <branch>	- delete branch				git branch -D <branch>  # удалить в любом случае 
-  ${yellow}gim${norm}	<branch>	- merge from branch (with pull before)	git merge <branch>
-  ${yellow}giml${norm}  <branch>   	- merge from branch (with local branch)	git merge <branch>  
-  ${yellow}gimto${norm}	<branch>	- merge current branch to another	git checkout <branch>; git merge \$currbranch; git checkout \$currbranch
+  ${yellow}gibn${norm}	<branch>	- create new branch			git checkout -b <branch>
+  ${yellow}gibd${norm}	<branch>	- delete branch	if merged		git branch -d <branch>
+  ${yellow}gibdd${norm}	<branch>	- delete branch				git branch -D <branch>  # удалить в любом случае
+  ${yellow}gibdf${norm}			- branch_delete_any_way
+${cyan}Sync${norm}
+  ${yellow}gfe${norm}			- fetch all remote branches		git fetch -vv
+  ${yellow}gull${norm}			- pull (fetch and merge)		git pull
+  ${yellow}gus${norm}			- push 					git push $curr_remote(only remote) $curr_branch -u
+  ${yellow}gok${norm}	<msg>		- commit staged & push			git add -A . ; git commit -m "\$msg"; git push
+  ${yellow}gul${norm}			- pull
+  ${yellow}gula${norm}			- pull all
+  ${yellow}gusa${norm}			- push all
 ${cyan}Stash${norm}
   ${yellow}gst${norm}			- 					git stash
   ${yellow}gsp${norm}			- 					git pop
-  ${yellow}gsl${norm}			- 					git stash list
+  ${yellow}gstl{norm}			- 					git stash list
 ${cyan}Log${norm}
   ${yellow}gilh${norm}			- 					git log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   ${yellow}gil${norm}	<commits_num>	- 					git log --graph -n $commits_num --full-history --all --date=iso --color --pretty=format:\".......
@@ -46,12 +65,23 @@ ${cyan}Log${norm}
   ${yellow}gilm${norm}			-					git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d.....
   ${yellow}gilg+${norm}			- 					git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative -p
   ${yellow}gils${norm}	<commits_num>	- 					git log -n $commits_num -last --pretty=format:"%h%x09%Creset%an%x09%x09%s" --decorate --numstat | grep -v "^$"  | grep -vE "^[0-9a-f]{7}" | grep -vE "^-"
-  ${yellow}gils+${norm}	<commits_num>	- 					git log -n $commits_num --pretty=format:\"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]\" --decorate --numstat
-${cyan}Service${norm}
-  ${yellow}gec${norm}			- edit global git config		ed ~/.gitconfig
-  ${yellow}gect${norm}			- edit the repo git config 		ed ./.git/config
+  ${yellow}gilb${norm}			- log_hash_first
+  ${yellow}gild${norm}			- log_with_file_diff
+  ${yellow}gilsh${norm}			- last_n_commits_stat_with_hash
+${cyan}Config / Service${norm}
+  ${yellow}gec${norm}			- env_ed ~/.gitconfig
+  ${yellow}gect${norm}			- env_ed ./.git/config
+  ${yellow}gecu${norm}			- env_ed ~/.utils-git/default
+  ${yellow}gegi${norm}			- .gitignore
+  ${yellow}gea${norm}			- $HOME/.utils-git/utils-git-aliases
+  ${yellow}gei${norm}			- HOME/.utils-git/utils-git-include
+  ${yellow}get${norm}			- $HOME_UTILS_GIT/utils-git.todo
   ${yellow}geh${norm}			- edit help.clr				ed $HOME_UTILS_GIT/help.clr
   ${yellow}ger${norm}			- edit readme.md			ed $HOME_UTILS_GIT/readme.md
   ${yellow}gel${norm}			- edit lib-git functions for aliases
+  ${yellow}gect${norm}			- edit the repo git config 		ed ./.git/config
+  ${yellow}gec${norm}			- edit global git config		ed ~/.gitconfig
   ${yellow}gitsw${norm}			- switch git version by renaming folder if you install a few versions of git (for windows users)
-  ${yellow}g-help${norm}		- the help
+  ${yellow}ghelp${norm}			- the help (this)
+  ${yellow}g-uninstall${norm}		- remove
+  ${yellow}gupd${norm}			- gupd

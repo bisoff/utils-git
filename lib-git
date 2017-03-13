@@ -1539,6 +1539,7 @@ cmd_git_push(){ 					# gus
 					error "$res"
 				  else
 					#repo_url=`grep '^To' <<< "$res"`
+					echo "$res"
 					repo_url=`echo "$res" | sed -E 's/^To (https:.*git)/\1/'`
 					if [ "$repo_url" == "" ];then
 						notice $res

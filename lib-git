@@ -1516,7 +1516,7 @@ cmd_git_push(){ 					# gus
 				error "$res"
 			  else
 				#repo_url=`grep '^To' <<< "$res"`
-				repo_url=`echo "$res" | sed -E 's/^To (.*)$/\1/g'`
+				repo_url=`echo "$res" | sed -E -n 's/^To (.*)/\1/p'`
 				if [ "$repo_url" == "" ];then
 					notice $res
 				  else
@@ -1540,7 +1540,7 @@ cmd_git_push(){ 					# gus
 				  else
 					#repo_url=`grep '^To' <<< "$res"`
 					echo "$res"
-					repo_url=`echo "$res" | sed -E 's/^To (https:.*git)/\1/'`
+					repo_url=`echo "$res" | sed -E -n 's/^To (.*)/\1/p'`
 					if [ "$repo_url" == "" ];then
 						notice $res
 					  else

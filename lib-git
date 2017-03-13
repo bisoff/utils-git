@@ -479,7 +479,7 @@ cmd_git_append_and_commit(){ 				# gac
 	cd "$rootpath"
 	changes=`git status -s --untracked-files | wc -l`
 	if [[ "$changes" != "0" ]]; then # append_and_commit
-		notice "Add and Commit all to $curr_branch with utracked:"
+		notice "Add and Commit all to '$curr_branch' with utracked:"
 		git add -A .
 		if [[ "$msg" == "" ]]; then
 			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return

@@ -1537,7 +1537,8 @@ cmd_git_push(){ 					# gus
 				if [ "$err_code" != "0" ]; then
 					error "$res"
 				  else
-				  	repo_url=`grep '^To' <<< "$res"`
+					#repo_url=`grep '^To' <<< "$res"`
+					repo_url=`echo "$res" | sed -E 's/^To (.*)$/\1/g'`
 					if [ "$repo_url" == "" ];then
 						notice $res
 					  else

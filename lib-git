@@ -27,10 +27,6 @@ case "$UTILS_GIT_THE_OS" in
   esac
 
 alias log_print='[ "$UTILS_GIT_TRACE" == "1" ] && echo -e 1>&2 '
-alias error='cmd_utils_git_error'
-alias notice='cmd_utils_git_notice'
-alias warning='cmd_utils_git_warning'
-alias result='cmd_utils_git_result'
 
 tab="%x09"
 git_red="%C(red)" # "%x1b[31m"
@@ -107,6 +103,10 @@ function cmd_utils_git_wrapper(){
 	UTILS_GIT_TRACE=0
 	}
 
+alias error='cmd_utils_git_error'
+alias warning='cmd_utils_git_warning'
+alias notice='cmd_utils_git_notice'
+alias result='cmd_utils_git_result'
 function cmd_utils_git_error(){
 	local msg
 	msg="$*"
@@ -1515,7 +1515,8 @@ cmd_git_push(){ 					# gus
 			if [ "$err_code" != "0" ]; then
 				error "$res"
 			  else
-				repo_url=`grep '^To' <<< "$res"`
+				#repo_url=`grep '^To' <<< "$res"`
+				repo_url=`echo "$res" | sed -E 's/^To (.*)$/\1/g'`
 				if [ "$repo_url" == "" ];then
 					notice $res
 				  else
@@ -1538,7 +1539,7 @@ cmd_git_push(){ 					# gus
 					error "$res"
 				  else
 					#repo_url=`grep '^To' <<< "$res"`
-					repo_url=`echo "$res" | sed -E 's/^To (.*)$/\1/g'`
+					repo_url=`echo "$res" | sed -E 's/^To (https:.*git)/\1/g'`
 					if [ "$repo_url" == "" ];then
 						notice $res
 					  else

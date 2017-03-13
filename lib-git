@@ -478,7 +478,7 @@ cmd_git_append_and_commit(){ 				# gac
 	cd "$rootpath"
 	changes=`git status -s --untracked-files | wc -l`
 	if [[ "$changes" != "0" ]]; then # append_and_commit
-		notice 'Add and Commit all with utracked'
+		notice 'Add and Commit all with utracked:'
 		git add -A .
 		if [[ "$msg" == "" ]]; then
 			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
@@ -1530,7 +1530,7 @@ cmd_git_push(){ 					# gus
 		for remote_curr in $remotes; do
 			if [[ "$remote_curr" == "$remote_alias" || "$remote_alias" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				echo -e "PUSH to $green$remote_curr$norm"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git]
+				notice "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git]
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
 				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.
@@ -1541,10 +1541,10 @@ cmd_git_push(){ 					# gus
 					#repo_url=`grep '^To' <<< "$res"`
 					repo_url=`echo "$res" | sed -E -n 's/^To (.*)/\1/p'`
 					if [ "$repo_url" == "" ];then
-						notice $res
+						result $res
 					  else
 						# TODO cut 'To ' from grep result
-						notice "$repo_url - UPDATED"
+						result "$repo_url - UPDATED"
 					  fi
 				  fi
 				#git branch --set-upstream-to <remote-name>

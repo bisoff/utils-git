@@ -473,12 +473,13 @@ cmd_git_append_and_commit(){ 				# gac
 	local changes
 	msg="$1"
 	#echo -e "BRANCH: $green$(current_branch)$norm"
+	curr_branch=$(current_branch)
 	savepath=`pwd`
 	rootpath=`git rev-parse --show-toplevel`
 	cd "$rootpath"
 	changes=`git status -s --untracked-files | wc -l`
 	if [[ "$changes" != "0" ]]; then # append_and_commit
-		notice 'Add and Commit all with utracked:'
+		notice 'Add and Commit all to $curr_branch with utracked:'
 		git add -A .
 		if [[ "$msg" == "" ]]; then
 			[[ "$GITHOST" == "" ]] && echo "\$GITHOST not defined!" && cd "$savepath" && return
@@ -1530,7 +1531,7 @@ cmd_git_push(){ 					# gus
 		for remote_curr in $remotes; do
 			if [[ "$remote_curr" == "$remote_alias" || "$remote_alias" = "all" ]]; then
 				# echo -e "${red}$name$norm"
-				notice "PUSH to $remote_curr"  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git]
+				notice "PUSH to $remote_curr ..."  #-u  to ${green}$name/$green$curr_branch$norm  [utils-git]
 				res=`git push "$remote_curr" "$curr_branch" 2>&1` #all --all
 				#if [ $res =~ fatal: http://gitlab.mivar.ru/utils-dt.git/info/refs not valid: is this a git repository?" ]
 				# =~ GitLab: The project you were looking for could not be found.\n	fatal: Could not read from remote repository.

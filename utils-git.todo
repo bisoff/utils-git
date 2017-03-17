@@ -1,4 +1,5 @@
 	http://stackoverflow.com/questions/10312521/how-to-fetch-all-git-branches
+	☐	giru bb - должно работать и не из рута репозитория
 	☐	repo list for gitlab is wrong (add option to filter private groups)
 	☐	repo list for gitlab for group is wrong
 	☐	перейти на токены $GITHUB_TOKEN / ..
